@@ -1,5 +1,6 @@
 package com.yachaerang.backend.global.test;
 
+import com.yachaerang.backend.global.exception.CustomException;
 import com.yachaerang.backend.global.exception.GeneralException;
 import com.yachaerang.backend.global.response.ErrorCode;
 import org.springframework.stereotype.Service;
@@ -22,5 +23,10 @@ public class TestService {
     // 실패 응답
     public void failure() {
         throw GeneralException.of(ErrorCode.TEST_ERROR);
+    }
+
+    // 비즈니스 로직 상 실패
+    public void failureWithMessage() {
+        throw CustomException.of(ErrorCode.TEST_ERROR);
     }
 }

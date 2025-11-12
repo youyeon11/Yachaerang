@@ -27,4 +27,9 @@ public class TestController {
     public void failure() {
         testService.failure();
     }
+
+    @GetMapping("/failure/custom")
+    public void failureCustom() {
+        testService.failureWithMessage();
+    }
 }
