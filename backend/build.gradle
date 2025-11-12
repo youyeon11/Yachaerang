@@ -2,6 +2,8 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
+    id 'jacoco'
 }
 
 group = 'com.yachaerang'
@@ -15,9 +17,14 @@ java {
 }
 
 configurations {
+    asciidoctorExt
     compileOnly {
         extendsFrom annotationProcessor
     }
+}
+
+jacoco {
+    toolVersion = '0.8.12'
 }
 
 repositories {
@@ -36,8 +43,81 @@ dependencies {
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // REST Docs
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc:3.0.1'
+
+    // Asciidoctor
+    implementation 'org.springframework.restdocs:spring-restdocs-asciidoctor:3.0.1'
+}
+
+def snippetsDir = layout.buildDirectory.dir("generated-snippets")
+def jacocoReportDir = layout.buildDirectory.dir("reports/jacoco/html")
+
+ext.jacocoExclusions = [
+        '**/*Application*',
+        '**/config/**',
+        '**/dto/**',
+        '**/entity/**',
+        '**/common/**',
+        '**/test/**',
+        '**/*Test*'
+]
+
+tasks.named('asciidoctor').configure {
+    configurations 'asciidoctorExt'
+    inputs.dir(snippetsDir)
+    dependsOn test
+}
+
+tasks.named('jacocoTestReport') {
+    classDirectories.setFrom(
+            files(classDirectories.files.collect { dir ->
+                fileTree(dir: dir, exclude: jacocoExclusions)
+            })
+    )
+    dependsOn test
+    reports {
+        html.required = true
+        html.outputLocation.set(jacocoReportDir)
+        xml.required = false
+        csv.required = false
+    }
+}
+
+tasks.named('jacocoTestCoverageVerification') {
+    dependsOn(tasks.named('jacocoTestReport'))
+
+    classDirectories.setFrom(
+            files(tasks.named('jacocoTestReport').get().classDirectories.files.collect {dir ->
+                fileTree(dir: dir, exclude: jacocoExclusions)
+            })
+    )
+
+    violationRules {
+        rule {
+            element = 'CLASS'
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.70
+            }
+        }
+    }
+}
+
+tasks.named('bootJar') {
+    dependsOn tasks.named('asciidoctor')
+    from("${tasks.named('asciidoctor').get().outputDir}") {
+        into 'static/docs'
+    }
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    outputs.dir snippetsDir
+    finalizedBy jacocoTestReport
+    jacoco {
+        destinationFile = file("${buildDir}/jacoco/test.exec")
+    }
 }
