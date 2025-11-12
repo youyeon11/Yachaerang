@@ -1,7 +1,9 @@
 package com.yachaerang.backend.global.exception;
 
+import com.yachaerang.backend.global.response.ApiResponse;
 import com.yachaerang.backend.global.response.ErrorCode;
 import com.yachaerang.backend.global.response.ErrorResponse;
+import com.yachaerang.backend.global.util.LogUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +17,20 @@ import java.nio.file.AccessDeniedException;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    // 일반적인 예외 사항
     @ExceptionHandler(GeneralException.class)
-    protected ResponseEntity<ErrorResponse> handlerGeneralException(GeneralException ex) {
+    protected ResponseEntity<ErrorResponse> generalException(GeneralException e, HttpServletRequest request) {
+        LogUtil.error(e, request);
+        return ErrorResponse.of(e.getErrorCode());
+    }
+
+    // 성공 응답(200)이되, 에러 메세지를 담아서 반환
+    @ExceptionHandler(CustomException.class)
+    protected ResponseEntity<ApiResponse<?>> handlerCustomException(CustomException ex) {
         ErrorCode errorCode = ex.getErrorCode();
-        return ErrorResponse.of(errorCode);
+        return ResponseEntity.ok(
+                ApiResponse.failure(errorCode)
+        );
     }
 
     @ExceptionHandler(AccessDeniedException.class)
