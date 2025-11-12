@@ -24,12 +24,4 @@ public class ApiResponse<T> {
     public static ApiResponse<Void> success(SuccessCode code) {
         return new ApiResponse<>(code.getHttpStatus(), true, code.getCode(), code.getMessage(), null);
     }
-
-    public static ApiResponse<Void> fail(ErrorCode errorCode) {
-        return new ApiResponse<>(errorCode.getHttpStatus(), false, errorCode.getCode(), errorCode.getMessage(), null);
-    }
-
-    public static <T> ApiResponse<T> fail(ErrorCode errorCode, T data) {
-        return new ApiResponse<>(errorCode.getHttpStatus(), false, errorCode.getCode(), errorCode.getMessage(), data);
-    }
 }
