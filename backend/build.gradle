@@ -53,6 +53,7 @@ dependencies {
 
 def snippetsDir = layout.buildDirectory.dir("generated-snippets")
 def jacocoReportDir = layout.buildDirectory.dir("reports/jacoco/html")
+def copyDir = layout.buildDirectory.dir('docs')
 
 ext.jacocoExclusions = [
         '**/*Application*',
@@ -64,10 +65,15 @@ ext.jacocoExclusions = [
         '**/*Test*'
 ]
 
-tasks.named('asciidoctor').configure {
-    configurations 'asciidoctorExt'
-    inputs.dir(snippetsDir)
+tasks.register('copySnippets', Copy) {
     dependsOn test
+
+    from(snippetsDir)
+    into(copyDir)
+
+    doFirst {
+        println ">>> Copying from ${snippetsDir.get().asFile} to ${htmlDir.get().asFile}"
+    }
 }
 
 tasks.named('jacocoTestReport') {
