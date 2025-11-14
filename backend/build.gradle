@@ -72,7 +72,7 @@ tasks.register('copySnippets', Copy) {
     into(copyDir)
 
     doFirst {
-        println ">>> Copying from ${snippetsDir.get().asFile} to ${htmlDir.get().asFile}"
+        println ">>> Copying from ${snippetsDir.get().asFile} to ${copyDir.get().asFile}"
     }
 }
 
@@ -113,9 +113,14 @@ tasks.named('jacocoTestCoverageVerification') {
 }
 
 tasks.named('bootJar') {
-    dependsOn tasks.named('asciidoctor')
-    from("${tasks.named('asciidoctor').get().outputDir}") {
-        into 'static/docs'
+    dependsOn tasks.named('copySnippets')
+
+    // JAR
+    archiveBaseName = 'backend'
+    archiveVersion = '0.0.1'
+
+    from(copyDir) {
+        into 'BOOT-INF/classes/static/docs'
     }
 }
 
