@@ -27,5 +27,5 @@ public class Product extends BaseEntity {
     private String origin;
     private String imageUrl;
 
-    private List<Category> categoryList;
+    private List<ProductCategory> ProductCategoryList;
 }
