@@ -20,12 +20,13 @@ spring:
     username: ${LOCAL_DB_USER}
     password: ${LOCAL_DB_PASSWORD}
 
+  data:
+    redis:
+      host: ${LOCAL_REDIS_HOST}
+      port: 6379
+      password: ${LOCAL_REDIS_PASSWORD}
+
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
   mapper-locations: classpath:/mappers/*.xml
-
-
-logging:
-  level:
-    org.flywaydb: DEBUG
