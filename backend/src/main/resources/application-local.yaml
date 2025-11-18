@@ -1,14 +1,18 @@
+server:
+  port: 8080
+
 spring:
   application:
-    name: backend
+    name: "backend"
+  config:
+    activate:
+      on-profile: "local"
 
   flyway:
     baseline-on-migrate: true
-    locations: classpath:db/migration/local
-    url: ${LOCAL_DB_URL}
-    username: ${LOCAL_DB_USER}
-    password: ${LOCAL_DB_PASSWORD}
+    locations: classpath:db/migration
     baseline-version: 1
+    enabled: true
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -19,4 +23,9 @@ spring:
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
-  mapper-locations: mappers/*Mapper.xml
+  mapper-locations: classpath:/mappers/*.xml
+
+
+logging:
+  level:
+    org.flywaydb: DEBUG
