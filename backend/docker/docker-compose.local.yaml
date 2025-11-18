@@ -1,0 +1,60 @@
+services:
+  spring-app:
+    image: spring-app:latest
+    ports:
+      - "8080:8080"
+    env_file:
+      - ${PJT_ROOT}/.env
+    volumes:
+      - ${PJT_ROOT}/logs:/app/logs
+    networks:
+      - mynetwork
+    depends_on:
+      - redis
+    container_name: spring-app
+
+  mysql:
+    container_name: mysql
+    image: mysql:8.0.33
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE: yachaerang
+      TZ: Asia/Seoul
+      LANG: C.UTF-8
+      MYSQL_INIT_CONNECT: "SET NAMES utf8mb4"
+    command:
+      [
+        "mysqld",
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_general_ci"
+      ]
+    ports:
+      - 3306:3306
+    volumes:
+      - ${PJT_LOCAL_VOLUME}/mysql-data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysql", "-u", "root", "-proot", "-e", "SELECT 1" ]
+      interval: 5s
+      retries: 10
+    networks:
+      - mynetwork
+
+  redis:
+    image: redis:7.4.1
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ${PJT_LOCAL_VOLUME}/redis-data:/data
+      - ${PJT_LOCAL_VOLUME}/redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - ${PJT_LOCAL_VOLUME}/redis:/var/log/redis:ro
+    networks:
+      - mynetwork
+    restart: always
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  redis_data:
