@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yachaerang.backend.api.member.repository.MemberMapper">
+
+    <!-- Find By Member Code -->
+    <select id="findByMemberCode" parameterType="String"
+            resultType="com.yachaerang.backend.api.member.entity.Member">
+        SELECT
+            member_id,
+            name,
+            nickname,
+            email,
+            member_code,
+            password,
+            member_status,
+            role,
+            incativated_at
+        FROM member
+        WHERE member_code = #{memberCode}
+    </select>
+</mapper>

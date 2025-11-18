@@ -5,15 +5,18 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 public interface MemberMapper {
 
-    Member findById(@Param("id") Long id);
+    Optional<Member> findById(@Param("id") Long id);
 
-    Member findByEmail(@Param("email") String email);
+    Optional<Member> findByEmail(@Param("email") String email);
 
     List<Member> findAll();
+
+    Member findByMemberCode(@Param("memberCode") String memberCode);
 
     int insert(Member member);
 
