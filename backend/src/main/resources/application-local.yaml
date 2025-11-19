@@ -26,7 +26,15 @@ spring:
       port: 6379
       password: ${LOCAL_REDIS_PASSWORD}
 
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+    access:
+      expiration: 1800
+    refresh:
+      expiration: 604800
+
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
   mapper-locations: classpath:/mappers/*.xml
+  type-handlers-package: com.yachaerang.backend.global.handler
