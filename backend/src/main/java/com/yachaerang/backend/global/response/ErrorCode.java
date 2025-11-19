@@ -9,7 +9,11 @@ public enum ErrorCode implements BaseCode{
     TEST_ERROR(HttpStatus.BAD_REQUEST, "TESTERROR", "테스트 에러입니다."),
 
     // Member
-    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4041", "회원을 찾을 수 없습니다."),
+    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "회원을 찾을 수 없습니다."),
+    MEMBER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "MEMBER40002", "이미 존재하는 회원입니다."),
+
+    // login
+    UNMATCHED_PASSWORD(HttpStatus.BAD_REQUEST, "LOGIN4001", "잘못된 비밀번호입니다."),
 
     // Cookie
     COOKIE_NOT_FOUND(HttpStatus.NOT_FOUND, "COOKIE4041", "쿠키를 찾을 수 없습니다."),
@@ -28,7 +32,12 @@ public enum ErrorCode implements BaseCode{
     UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "인증된 사용자가 아닙니다."),
 
     TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "TOKEN_009", "토큰이 존재하지 않습니다"),
-    TOKEN_HEADER_INVALID(HttpStatus.BAD_REQUEST, "TOKEN_010", "토큰 헤더 형식이 올바르지 않습니다")
+    TOKEN_HEADER_INVALID(HttpStatus.BAD_REQUEST, "TOKEN_010", "토큰 헤더 형식이 올바르지 않습니다"),
+
+    UUID_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "UUID_001", "UUID 생성에 실패했습니다."),
+
+    // 500
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500ERROR", "서버에서 장애가 일어났습니다."),
     ;
 
     private final HttpStatus httpStatus;

@@ -3,13 +3,13 @@ package com.yachaerang.backend.api.member.entity;
 import com.yachaerang.backend.api.common.BaseEntity;
 import com.yachaerang.backend.api.common.MemberStatus;
 import com.yachaerang.backend.api.common.Role;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
+@Builder
 public class Member extends BaseEntity {
 
     private Long id;
@@ -24,7 +24,7 @@ public class Member extends BaseEntity {
 
     private String password;
 
-    private MemberStatus memberStatus;
+    private MemberStatus  memberStatus;
 
     private Role role;
 
