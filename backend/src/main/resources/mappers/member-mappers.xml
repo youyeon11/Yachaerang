@@ -3,20 +3,46 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yachaerang.backend.api.member.repository.MemberMapper">
 
+    <resultMap id="memberResultMap"
+               type="com.yachaerang.backend.api.member.entity.Member">
+        <id property="id" column="member_id"/>
+        <result property="name" column="name" javaType="String"/>
+        <result property="nickname" column="nickname" javaType="String"/>
+        <result property="email" column="email" javaType="String"/>
+        <result property="memberCode" column="member_code" javaType="String"/>
+        <result property="password" column="password" javaType="String"/>
+
+        <result property="memberStatus" column="member_status"
+                javaType="com.yachaerang.backend.api.common.MemberStatus"
+                typeHandler="com.yachaerang.backend.global.handler.MemberStatusTypeHandler"/>
+
+        <result property="role" column="role"
+                javaType="com.yachaerang.backend.api.common.Role"
+                typeHandler="com.yachaerang.backend.global.handler.RoleTypeHandler"/>
+
+        <result property="inactivatedAt" column="inactivated_at"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- save -->
+    <insert id="save"
+            parameterType="com.yachaerang.backend.api.member.entity.Member"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO member
+            (name, email, member_code, password, nickname, member_status, role)
+        VALUES
+            (#{name}, #{email}, #{memberCode}, #{password}, #{nickname}, #{memberStatus}, #{role})
+    </insert>
+
     <!-- Find By Member Code -->
-    <select id="findByMemberCode" parameterType="String"
-            resultType="com.yachaerang.backend.api.member.entity.Member">
-        SELECT
-            member_id,
-            name,
-            nickname,
-            email,
-            member_code,
-            password,
-            member_status,
-            role,
-            incativated_at
-        FROM member
-        WHERE member_code = #{memberCode}
+    <select id="findByMemberCode" resultMap="memberResultMap">
+        SELECT * FROM member WHERE member_code = #{memberCode}
+    </select>
+
+    <!-- find by member email -->
+    <select id="findByEmail" resultMap="memberResultMap">
+        SELECT * FROM member WHERE email = #{email}
     </select>
 </mapper>
