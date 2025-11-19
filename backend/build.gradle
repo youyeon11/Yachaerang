@@ -60,6 +60,7 @@ dependencies {
 
     // MyBatis
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+    testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
 
     // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -69,6 +70,9 @@ dependencies {
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // H2
+    testImplementation 'com.h2database:h2'
 }
 
 def snippetsDir = layout.buildDirectory.dir("generated-snippets")
