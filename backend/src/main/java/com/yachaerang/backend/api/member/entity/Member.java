@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Member extends BaseEntity {
 
     private Long id;

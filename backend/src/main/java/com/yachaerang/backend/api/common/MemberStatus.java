@@ -2,26 +2,36 @@ package com.yachaerang.backend.api.common;
 
 import com.yachaerang.backend.global.exception.GeneralException;
 import com.yachaerang.backend.global.response.ErrorCode;
+import lombok.extern.slf4j.Slf4j;
 
-public enum MemberStatus {
-    ACTIVE("active"),
-    INACTIVE("inactive")
+import java.util.Arrays;
+
+@Slf4j
+public enum MemberStatus implements CodeEnum {
+    ACTIVE("ACTIVE"),
+    INACTIVE("INACTIVE")
     ;
 
-    private String description;
-    MemberStatus(String description) {
-        this.description = description;
-    }
-    public String getDescription() {
-        return description;
+    private final String code;
+    MemberStatus(String code) {
+        this.code = code;
     }
 
-    public MemberStatus findMemberStatusByDescription(String description) {
+    @Override
+    public String getCode() {
+        return code;
+    }
+    /*
+    DB의 VARCHAR -> Enum 클래스로 변환
+     */
+    public static MemberStatus fromCode(String code) {
+
         for (MemberStatus memberStatus : MemberStatus.values()) {
-            if (memberStatus.getDescription().equals(description)) {
+            if (memberStatus.getCode().equals(code)) {
                 return memberStatus;
             }
         }
-        throw GeneralException.of(ErrorCode.INTERNAL_SERVER_ERROR);
+        log.warn("Invalid member status code: {}", code);
+        throw GeneralException.of(ErrorCode.ENUM_MAPPED_FAILED);
     }
 }

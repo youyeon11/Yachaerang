@@ -2,29 +2,35 @@ package com.yachaerang.backend.api.common;
 
 import com.yachaerang.backend.global.exception.GeneralException;
 import com.yachaerang.backend.global.response.ErrorCode;
+import lombok.extern.slf4j.Slf4j;
 
-public enum Role {
-    ROLE_ANONYMOUS("anonymous"),
-    ROLE_USER("user"),
-    ROLE_ADMIN("admin"),
+import java.util.Arrays;
+
+@Slf4j
+public enum Role implements CodeEnum {
+    ROLE_ANONYMOUS("ROLE_ANONYMOUS"),
+    ROLE_USER("ROLE_USER"),
+    ROLE_ADMIN("ROLE_ADMIN"),
     ;
 
-    private String description;
+    private String code;
 
-    Role(String description) {
-        this.description = description;
+    Role(String code) {
+        this.code = code;
     }
 
-    public String getDescription() {
-        return description;
+    @Override
+    public String getCode() {
+        return code;
     }
 
-    public Role findRoleByDescription(String description) {
-        for (Role role : Role.values()) {
-            if (role.getDescription().equals(description)) {
+    public static Role fromCode(String code) {
+        for (Role role: Role.values()) {
+            if (role.getCode().equals(code)) {
                 return role;
             }
         }
-        throw GeneralException.of(ErrorCode.INTERNAL_SERVER_ERROR);
+        log.warn("Invalid member status code: {}", code);
+        throw GeneralException.of(ErrorCode.ENUM_MAPPED_FAILED);
     }
 }
