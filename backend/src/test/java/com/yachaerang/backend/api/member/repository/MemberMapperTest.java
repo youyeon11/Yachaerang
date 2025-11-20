@@ -3,11 +3,13 @@ package com.yachaerang.backend.api.member.repository;
 import com.yachaerang.backend.api.common.MemberStatus;
 import com.yachaerang.backend.api.common.Role;
 import com.yachaerang.backend.api.member.entity.Member;
+import com.yachaerang.backend.global.config.MyBatisConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -17,6 +19,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @ActiveProfiles("test")
 @Sql("classpath:H2_schema.sql")
+@Import(MyBatisConfig.class)
 class MemberMapperTest {
 
     @Autowired
@@ -28,10 +31,10 @@ class MemberMapperTest {
         // given
         Member member = Member.builder()
                 .name("test")
+                .nickname("test")
                 .email("test@test.com")
                 .memberCode("test")
                 .password("test")
-                .nickname("test")
                 .memberStatus(MemberStatus.ACTIVE)
                 .role(Role.ROLE_USER)
                 .build();
@@ -54,7 +57,7 @@ class MemberMapperTest {
         Member foundMember = memberMapper.findByEmail("test11@test.com");
 
         // then
-        assertThat(foundMember).isNotNull();
+        assertThat(foundMember).isNull();
     }
 
     @Test
