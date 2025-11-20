@@ -8,6 +8,13 @@ public enum ErrorCode implements BaseCode{
 
     TEST_ERROR(HttpStatus.BAD_REQUEST, "TESTERROR", "테스트 에러입니다."),
 
+    // request
+    UNMATCHED_REQUEST(HttpStatus.BAD_REQUEST, "METHODERROR", "요청 방식이 잘못됐습니다."),
+
+    // MyBatis
+    ENUM_MAPPED_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "MYBATIS_001", "DB로부터 Java의 Eum을 매핑하는데에 실패했습니다."),
+    MYBATIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "MYBATIS_002", "DB로부터 오류 발생하였습니다."),
+
     // Member
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "회원을 찾을 수 없습니다."),
     MEMBER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "MEMBER40002", "이미 존재하는 회원입니다."),
