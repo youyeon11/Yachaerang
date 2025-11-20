@@ -68,7 +68,7 @@ public class AuthService {
         }
         // 비밀번호 검증
         log.info("비밀번호 검증 시작...");
-        if (!bCryptPasswordEncoder.encode(loginDto.getPassword()).matches(loginDto.getPassword())) {
+        if (!bCryptPasswordEncoder.matches(loginDto.getPassword(), member.getPassword())) {
             throw GeneralException.of(ErrorCode.UNMATCHED_PASSWORD);
         };
 
