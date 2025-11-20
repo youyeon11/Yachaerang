@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS member (
                         email VARCHAR(100) NOT NULL UNIQUE,
                         member_code VARCHAR(200) NOT NULL UNIQUE,
                         member_status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-                        role VARCHAR(20) NOT NULL DEFAULT 'ROLE_USER',
+                        member_role VARCHAR(20) NOT NULL DEFAULT 'ROLE_USER',
                         password VARCHAR(500),
 
                         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS member (
                         inactivated_at TIMESTAMP,
 
                         CONSTRAINT chk_member_status CHECK (member_status IN ('ACTIVE', 'INACTIVE')),
-                        CONSTRAINT chk_member_role CHECK (role IN ('ROLE_USER', 'ROLE_ADMIN'))
+                        CONSTRAINT chk_member_role CHECK (member_role IN ('ROLE_ANONYMOUS', 'ROLE_USER', 'ROLE_ADMIN'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_member_email ON member(email);

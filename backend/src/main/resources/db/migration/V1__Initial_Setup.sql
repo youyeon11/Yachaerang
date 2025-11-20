@@ -8,7 +8,7 @@ CREATE TABLE member (
     email VARCHAR(100) NOT NULL UNIQUE,
     member_code VARCHAR(200) NOT NULL UNIQUE,
     member_status VARCHAR(10) NOT NULL DEFAULT 'ACTIVE',
-    role VARCHAR(15) NOT NULL DEFAULT 'ROLE_USER',
+    member_role VARCHAR(15) NOT NULL DEFAULT 'ROLE_USER',
     password VARCHAR(500),
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -21,7 +21,7 @@ CREATE TABLE member (
     CONSTRAINT chk_member_status_type
         CHECK (member_status IN ('ACTIVE', 'INACTIVE')),
     CONSTRAINT chk_role_type
-        CHECK (role IN ('ROLE_ANONYMOUS', 'ROLE_USER', 'ROLE_ADMIN'))
+        CHECK (member_role IN ('ROLE_ANONYMOUS', 'ROLE_USER', 'ROLE_ADMIN'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 2. farm table
