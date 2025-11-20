@@ -14,11 +14,11 @@
 
         <result property="memberStatus" column="member_status"
                 javaType="com.yachaerang.backend.api.common.MemberStatus"
-                typeHandler="com.yachaerang.backend.global.handler.MemberStatusTypeHandler"/>
+                typeHandler="com.yachaerang.backend.global.util.MemberStatusTypeHandler"/>
 
-        <result property="role" column="role"
+        <result property="role" column="member_role"
                 javaType="com.yachaerang.backend.api.common.Role"
-                typeHandler="com.yachaerang.backend.global.handler.RoleTypeHandler"/>
+                typeHandler="com.yachaerang.backend.global.util.RoleTypeHandler"/>
 
         <result property="inactivatedAt" column="inactivated_at"/>
         <result property="createdAt" column="created_at"/>
@@ -31,18 +31,22 @@
             useGeneratedKeys="true"
             keyProperty="id">
         INSERT INTO member
-            (name, email, member_code, password, nickname, member_status, role)
+            (name, email, member_code, password, nickname, member_status)
         VALUES
-            (#{name}, #{email}, #{memberCode}, #{password}, #{nickname}, #{memberStatus}, #{role})
+            (#{name}, #{email}, #{memberCode}, #{password}, #{nickname}, #{memberStatus})
     </insert>
 
     <!-- Find By Member Code -->
     <select id="findByMemberCode" resultMap="memberResultMap">
-        SELECT * FROM member WHERE member_code = #{memberCode}
+        SELECT
+            *
+        FROM member WHERE member_code = #{memberCode}
     </select>
 
     <!-- find by member email -->
     <select id="findByEmail" resultMap="memberResultMap">
-        SELECT * FROM member WHERE email = #{email}
+        SELECT
+            *
+        FROM member WHERE email = #{email}
     </select>
 </mapper>
