@@ -50,7 +50,7 @@ public class JwtTokenProvider {
                     .setHeaderParam("type", isRefreshToken ? "refresh" : "access")
                     .setHeaderParam("algorithm", "HS256")
                     .setSubject(member.getMemberCode())
-                    .claim("roles", member.getRole())
+                    .claim("roles", member.getRole().name())
                     .setIssuedAt(now)
                     .setExpiration(expiryDate)
                     .signWith(SignatureAlgorithm.HS256, secretKey)
@@ -85,8 +85,8 @@ public class JwtTokenProvider {
 
         String memberCode = claims.getSubject(); // Subject로 등록한 memberCode
 
-        if (!StringUtils.isEmpty(memberCode)) {
-            throw GeneralException.of(ErrorCode.TOKEN_GENERATION_FAILED);
+        if (StringUtils.isEmpty(memberCode)) {
+            throw GeneralException.of(ErrorCode.TOKEN_INVALID);
         }
         return memberCode;
     }
@@ -123,7 +123,7 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) throws Exception {
         try {
             final Claims claims = getClaimsFromToken(token);
-            throw GeneralException.of(ErrorCode.CLAIM_EXTRACTION_FAILED);
+            return true;
         } catch (MalformedJwtException e) {
             LogUtil.warn("유효하지 않은 JWT token : {}", e.getMessage());
             throw GeneralException.of(ErrorCode.TOKEN_INVALID);

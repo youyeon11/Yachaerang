@@ -25,10 +25,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final MemberMapper memberMapper;
     private final JwtTokenProvider jwtTokenProvider;
 
-    private static final List<AntPathMatcher> NON_FILTER_PATH = List.of(
-            new AntPathMatcher("/test/**"),
-            new AntPathMatcher("/api/v1/auth/**")
+    private static final List<String> NON_FILTER_PATTERNS = List.of(
+            "/test/**",
+            "/api/v1/auth/**"
     );
+
+    private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
     /*
     필터에서 제외할 PATH 정의
@@ -36,9 +38,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        for (AntPathMatcher matcher : NON_FILTER_PATH) {
-            if (matcher.match(request.getServletPath(), request.getPathInfo())) {
-                return false;
+        String requestUrl = request.getRequestURI();
+        String contextPath = request.getContextPath();
+        if (contextPath != null && !contextPath.isEmpty() && requestUrl.startsWith(contextPath)) {
+            requestUrl = requestUrl.substring(contextPath.length());
+        }
+        for (String pattern: NON_FILTER_PATTERNS) {
+            if (PATH_MATCHER.match(pattern, requestUrl)) {
+                return true;
             }
         }
         return false;
