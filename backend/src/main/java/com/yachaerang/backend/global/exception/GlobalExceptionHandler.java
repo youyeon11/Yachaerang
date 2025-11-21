@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
             AccessDeniedException ex, HttpServletRequest request
     ) {
         logError(ex, request);
-        return ErrorResponse.of(ErrorCode.TEST_ERROR);
+        return ErrorResponse.of(ErrorCode.UNAUTHORIZED_ACCESS);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -46,13 +46,13 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException ex, HttpServletRequest request
     ) {
         logError(ex, request);
-        return ErrorResponse.of(ErrorCode.TEST_ERROR);
+        return ErrorResponse.of(ErrorCode.UNMATCHED_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
         logError(ex, request);
-        return ErrorResponse.of(ErrorCode.TEST_ERROR);
+        return ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 
     /*
