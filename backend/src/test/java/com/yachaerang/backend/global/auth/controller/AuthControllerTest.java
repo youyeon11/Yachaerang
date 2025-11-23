@@ -14,11 +14,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.FieldDescriptor;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.mock;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.JsonFieldType.NULL;
@@ -118,5 +119,60 @@ class AuthControllerTest extends RestDocsSupport {
                                         fieldWithPath("accessToken").type(STRING).description("accessToken"),
                                         fieldWithPath("refreshToken").type(STRING).description("refreshToken")
                                 )));
+    }
+
+    @Test
+    @DisplayName("[POST] /api/v1/auth/logout - 로그아웃 요청 API")
+    void 로그아웃_요청() throws Exception {
+        // given
+        String token = "access-token";
+
+        // when & then
+        mockMvc.perform(post("/api/v1/auth/logout")
+                        .header("accessToken", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(doc(
+                        "logout",
+                        requestHeaders(
+                                headerWithName("accessToken").description("Access Token")
+                        ),
+                        responseFields(ENVELOPE_COMMON).and(DATA_NULL_DESCRIPTOR)
+                ));
+    }
+
+
+    @Test
+    @DisplayName("[POST] /api/v1/auth/reissue - 토큰 재발급 API")
+    void 토큰재발급_요청() throws Exception {
+        // given
+        String token = "refresh-token";
+
+        TokenResponseDto.ResultDto expectedDto = TokenResponseDto.ResultDto.builder()
+                .accessToken("new-access-token")
+                .refreshToken("refresh-token")
+                .build();
+        given(authService.reissue(token)).willReturn(expectedDto);
+
+        // when & then
+        mockMvc.perform(post("/api/v1/auth/reissue")
+                        .header("refreshToken", token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(doc(
+                        "reissue",
+                        requestHeaders(
+                                headerWithName("refreshToken").description("Refresh Token")
+                        ),
+                        responseFields(ENVELOPE_COMMON)
+                                .and(DATA_OBJECT_DESCRIPTOR)
+                                .andWithPrefix("data.",
+                                        fieldWithPath("accessToken").type(STRING).description("accessToken"),
+                                        fieldWithPath("refreshToken").type(STRING).description("refreshToken")
+                                )
+                ));
     }
 }

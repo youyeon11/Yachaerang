@@ -8,6 +8,7 @@ import com.yachaerang.backend.global.auth.dto.request.TokenRequestDto;
 import com.yachaerang.backend.global.auth.dto.response.TokenResponseDto;
 import com.yachaerang.backend.global.auth.jwt.JwtTokenProvider;
 import com.yachaerang.backend.global.auth.util.RefreshTokenUtil;
+import com.yachaerang.backend.global.auth.util.UuidGenerator;
 import com.yachaerang.backend.global.exception.GeneralException;
 import com.yachaerang.backend.global.response.ErrorCode;
 import jakarta.servlet.http.HttpServletResponse;
@@ -58,6 +59,7 @@ class AuthServiceTest {
     private TokenRequestDto.SignupDto signupDto;
     private TokenRequestDto.LoginDto loginDto;
     private Member member;
+    private String memberCode;
 
     @BeforeEach
     void setUp() {
@@ -80,6 +82,7 @@ class AuthServiceTest {
                 .memberStatus(MemberStatus.ACTIVE)
                 .role(Role.ROLE_USER)
                 .build();
+        memberCode = UuidGenerator.generateUuid("test1@test.com");
     }
 
     @Test
@@ -155,7 +158,6 @@ class AuthServiceTest {
         verify(jwtTokenProvider, times(1)).generateAccessToken(member);
         verify(jwtTokenProvider, times(1)).generateRefreshToken(member);
         verify(refreshTokenUtil, times(1)).saveRefreshToken(member.getMemberCode(), refreshToken);
-        verify(refreshTokenUtil, times(1)).addRefreshTokenCookie(response, member.getMemberCode(), refreshToken);
     }
 
     @Test
@@ -178,5 +180,123 @@ class AuthServiceTest {
         verify(bCryptPasswordEncoder, times(1)).matches(loginDto.getPassword(), member.getPassword());
         verify(jwtTokenProvider, never()).generateAccessToken(any());
         verify(jwtTokenProvider, never()).generateRefreshToken(any());
+    }
+
+    @Test
+    @DisplayName("로그아웃 성공")
+    void 로그아웃_성공() throws Exception {
+        //given
+        String accessToken = "access-token";
+        given(jwtTokenProvider.getMemberCodeFromToken(accessToken)).willReturn(memberCode);
+
+        // when
+        authService.logout(accessToken);
+
+        // then
+        verify(jwtTokenProvider, times(1)).getMemberCodeFromToken(accessToken);
+        verify(refreshTokenUtil, times(1)).deleteRefreshToken(memberCode);
+    }
+
+    @Test
+    @DisplayName("로그아웃 실패 - 유효하지 않은 토큰")
+    void 로그아웃실패_유효하지않은_토큰() throws Exception {
+        // given
+        String invalidToken = "invalid-token";
+        given(jwtTokenProvider.getMemberCodeFromToken(invalidToken))
+                .willThrow(GeneralException.of(ErrorCode.TOKEN_INVALID));
+
+        // when & then
+        assertThatThrownBy(() -> authService.logout(invalidToken))
+                .isInstanceOf(GeneralException.class)
+                .satisfies(e -> {
+                    GeneralException exception = (GeneralException) e;
+                    assertThat(exception.getErrorCode())
+                            .isEqualTo(ErrorCode.TOKEN_INVALID);
+                });
+    }
+
+    @Test
+    @DisplayName("로그아웃 - Refresh Token 삭제 확인")
+    void 로그아웃_RefreshToken삭제확인() throws Exception {
+        // given
+        String accessToken = "access-token";
+        given(jwtTokenProvider.getMemberCodeFromToken(accessToken)).willReturn(memberCode);
+        doNothing().when(refreshTokenUtil).deleteRefreshToken(memberCode);
+
+        // when
+        authService.logout(accessToken);
+
+        // then
+        verify(refreshTokenUtil, times(1)).deleteRefreshToken(eq(memberCode));
+        assertThat(refreshTokenUtil.getRefreshToken(memberCode)).isNull();
+    }
+
+    @Test
+    @DisplayName("토큰 재발급 성공")
+    void 토큰재발급_성공() throws Exception {
+        // given
+        String newAccessToken = "new-access-token";
+        String refreshToken = "refresh-token";
+
+        given(jwtTokenProvider.getMemberCodeFromToken(refreshToken)).willReturn(memberCode);
+        given(memberMapper.findByMemberCode(memberCode)).willReturn(member);
+        given(refreshTokenUtil.getRefreshToken(memberCode)).willReturn(refreshToken);
+        given(jwtTokenProvider.generateAccessToken(member)).willReturn(newAccessToken);
+
+        // when
+        TokenResponseDto.ResultDto result = authService.reissue(refreshToken);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getAccessToken()).isEqualTo(newAccessToken);
+        assertThat(result.getRefreshToken()).isEqualTo(refreshToken);
+
+        verify(jwtTokenProvider, times(1)).getMemberCodeFromToken(refreshToken);
+        verify(memberMapper, times(1)).findByMemberCode(memberCode);
+        verify(refreshTokenUtil, times(1)).getRefreshToken(memberCode);
+        verify(jwtTokenProvider, times(1)).generateAccessToken(member);
+    }
+
+    @Test
+    @DisplayName("토큰 재발급 실패 - 존재하지 않는 회원")
+    void 토큰재발급_실패_존재하지않는회원() throws Exception {
+        // given
+        String refreshToken = "refresh-token";
+        given(jwtTokenProvider.getMemberCodeFromToken(refreshToken)).willReturn(memberCode);
+        given(memberMapper.findByMemberCode(memberCode)).willReturn(null);
+
+        // when & then
+        assertThatThrownBy(() -> authService.reissue(refreshToken))
+                .isInstanceOf(GeneralException.class)
+                .satisfies(e -> {
+                    GeneralException exception = (GeneralException) e;
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.MEMBER_NOT_FOUND);
+                });
+
+        verify(jwtTokenProvider, times(1)).getMemberCodeFromToken(refreshToken);
+        verify(memberMapper, times(1)).findByMemberCode(memberCode);
+        verify(refreshTokenUtil, never()).getRefreshToken(any());
+        verify(jwtTokenProvider, never()).generateAccessToken(any());
+    }
+
+    @Test
+    @DisplayName("토큰 재발급 실패 - refresh token 불일치")
+    void 토큰재발급_실패_RefreshToken불일치() throws Exception{
+        // given
+        String storedRefreshToken = "stored-refresh-token";
+        String requestRefreshToken = "request-refresh-token";
+
+        given(jwtTokenProvider.getMemberCodeFromToken(requestRefreshToken)).willReturn(memberCode);
+        given(memberMapper.findByMemberCode(memberCode)).willReturn(member);
+        given(refreshTokenUtil.getRefreshToken(memberCode)).willReturn(storedRefreshToken);
+
+        // when & then
+        assertThatThrownBy(() -> authService.reissue(requestRefreshToken))
+                .isInstanceOf(GeneralException.class)
+                .satisfies(e -> {
+                    GeneralException exception = (GeneralException) e;
+                    assertThat(exception.getErrorCode())
+                            .isEqualTo(ErrorCode.UNMATCHED_REFRESH_TOKEN);
+                });
     }
 }
