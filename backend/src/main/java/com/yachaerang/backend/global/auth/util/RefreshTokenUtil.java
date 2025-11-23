@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.TimeUnit;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -26,6 +28,7 @@ public class RefreshTokenUtil {
     public void saveRefreshToken(String memberCode, String refreshToken) {
         String key = "refresh_token:" + memberCode;
         redisStringTemplate.opsForValue().set(key, refreshToken);
+        redisStringTemplate.expire(key, refreshTokenExpirationTime, TimeUnit.SECONDS);
     }
 
     // Redis 조회
@@ -36,59 +39,5 @@ public class RefreshTokenUtil {
     // Redis 삭제
     public void deleteRefreshToken(String memberCode) {
         redisStringTemplate.delete(memberCode);
-    }
-
-    // Cookie에 추가
-    public void addRefreshTokenCookie(HttpServletResponse response, String memberCode, String refreshToken) {
-        Cookie cookie = new Cookie("refresh_token", refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setSecure(true);
-        cookie.setMaxAge((int) refreshTokenExpirationTime);
-        response.addCookie(cookie);
-    }
-
-    // Cookie로부터 refresh token 추출
-    public String getRefreshTokenCookie(HttpServletRequest request) {
-        log.info("쿠키로부터 Refresh Token 찾기 시작...");
-        Cookie[] cookies = request.getCookies();
-
-        if (cookies == null || cookies.length == 0) {
-            log.warn("쿠키가 비어 있습니다.");
-            throw GeneralException.of(ErrorCode.COOKIE_NOT_FOUND);
-        }
-
-        for (Cookie cookie : cookies) {
-            if ("refreshToken".equals(cookie.getName())) {
-                String refreshToken = cookie.getValue();
-                log.info("Refresh Token 발견. 유효성 검사 시작...");
-                return refreshToken;
-            }
-        }
-        throw GeneralException.of(ErrorCode.TOKEN_NOT_FOUND);
-    }
-
-    // Cookie로부터 MemberCode 조회
-    public String getMemberCodeFromCookie(HttpServletRequest request) throws Exception {
-        String refreshToken = getRefreshTokenCookie(request);
-
-        if (jwtTokenProvider.validateToken(refreshToken)) {
-            String memberCode = jwtTokenProvider.getMemberCodeFromToken(refreshToken);
-            log.info("유효한 Refresh Token입니다. MemberCode: {}", memberCode);
-            return memberCode;
-        } else {
-            log.warn("유효하지 않은 Refresh Token입니다.");
-            throw GeneralException.of(ErrorCode.TOKEN_INVALID);
-        }
-    }
-
-    // Cookie 삭제
-    public void removeRefreshTokenCookie(HttpServletResponse response) {
-        Cookie cookie = new Cookie("refresh_token", null);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
     }
 }
