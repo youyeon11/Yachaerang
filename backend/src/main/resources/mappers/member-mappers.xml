@@ -49,4 +49,18 @@
             *
         FROM member WHERE email = #{email}
     </select>
+
+    <!-- update -->
+    <update id="updateProfile" parameterType="com.yachaerang.backend.api.member.dto.request.MemberRequestDto">
+        update member
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name}
+            </if>
+            <if test="nickname != nickname and nickname != ''">
+                nickname = #{nickname}
+            </if>
+        </set>
+        where member_id=#{memberId}
+    </update>
 </mapper>
