@@ -31,12 +31,14 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public void logout(HttpServletResponse response, String token) throws Exception {
-        authService.logout(response, token);
+    public void logout(
+            @RequestHeader(name ="accessToken") String token) throws Exception {
+        authService.logout(token);
     }
 
     @PostMapping("/reissue")
-    public void reissue(String refreshToken) throws Exception {
-        authService.reissue(refreshToken);
+    public TokenResponseDto.ResultDto reissue(
+            @RequestHeader(name = "refreshToken") String refreshToken) throws Exception {
+        return authService.reissue(refreshToken);
     }
 }

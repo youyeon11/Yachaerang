@@ -81,21 +81,39 @@ public class AuthService {
                 .refreshToken(refreshToken)
                 .build();
         refreshTokenUtil.saveRefreshToken(member.getMemberCode(), refreshToken);
-        refreshTokenUtil.addRefreshTokenCookie(response, member.getMemberCode(), refreshToken);
         return responseDto;
     }
 
     // 로그아웃
-    public void logout(HttpServletResponse response, String token) throws Exception {
+    public void logout(String token) throws Exception {
         String memberCode = jwtTokenProvider.getMemberCodeFromToken(token);
-        refreshTokenUtil.removeRefreshTokenCookie(response);
         refreshTokenUtil.deleteRefreshToken(memberCode);
         return;
     }
 
     // Access Token 재발급
-    public String reissue(String refreshToken) {
+    public TokenResponseDto.ResultDto reissue(String refreshToken) throws Exception {
 
-        return null;
+        // MemberCode 조회
+        log.info("회원 조회를 시작...");
+        String memberCode = jwtTokenProvider.getMemberCodeFromToken(refreshToken);
+        Member member = memberMapper.findByMemberCode(memberCode);
+        if (member == null) {
+            throw GeneralException.of(ErrorCode.MEMBER_NOT_FOUND);
+        }
+
+        // 일치하는지 검증
+        String newAccessToken;
+        if (refreshTokenUtil.getRefreshToken(memberCode).equals(refreshToken)) {
+            newAccessToken = jwtTokenProvider.generateAccessToken(member);
+        } else {
+            log.warn("저장된 Refresh Token이 아닙니다.");
+            throw GeneralException.of(ErrorCode.UNMATCHED_REFRESH_TOKEN);
+        }
+
+        return TokenResponseDto.ResultDto.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 }
