@@ -107,6 +107,21 @@ class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("프로필 조회 실패 - 인증되지 않은 사용자")
+    void 프로필조회_실패_인증되지않은사용자() {
+        // given
+        given(authenticatedMemberProvider.getMemberByContextHolder()).willThrow(GeneralException.of(ErrorCode.UNAUTHORIZED_ACCESS));
+
+        // when & then
+        assertThatThrownBy(() -> memberService.getProfile())
+                .isInstanceOf(GeneralException.class)
+                .satisfies(e -> {
+                    GeneralException exception = (GeneralException) e;
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.UNAUTHORIZED_ACCESS);
+                });
+    }
+
+    @Test
     @DisplayName("프로필 수정 성공")
     void 프로필수정_성공() {
         // given
