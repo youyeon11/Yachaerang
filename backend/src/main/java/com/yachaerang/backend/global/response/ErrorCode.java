@@ -19,6 +19,7 @@ public enum ErrorCode implements BaseCode{
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER4001", "회원을 찾을 수 없습니다."),
     MEMBER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "MEMBER40002", "이미 존재하는 회원입니다."),
 
+
     // login
     UNMATCHED_PASSWORD(HttpStatus.BAD_REQUEST, "LOGIN4001", "잘못된 비밀번호입니다."),
 

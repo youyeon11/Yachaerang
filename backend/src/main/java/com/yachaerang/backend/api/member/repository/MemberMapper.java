@@ -3,15 +3,13 @@ package com.yachaerang.backend.api.member.repository;
 import com.yachaerang.backend.api.member.entity.Member;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
-import java.util.Optional;
 
 @Mapper
 public interface MemberMapper {
 
-    Optional<Member> findById(@Param("id") Long id);
+    Member findById(@Param("id") Long id);
 
     Member findByEmail(@Param("email") String email);
 
@@ -21,7 +19,9 @@ public interface MemberMapper {
 
     int save(Member member);
 
-    int update(Member member);
+    int updateProfile(@Param("memberId") Long memberId,
+                      @Param("name") String name,
+                      @Param("nickname") String nickname);
 
     int delete(Long id);
 }
