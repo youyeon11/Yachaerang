@@ -11,6 +11,7 @@
         <result property="email" column="email" javaType="String"/>
         <result property="memberCode" column="member_code" javaType="String"/>
         <result property="password" column="password" javaType="String"/>
+        <result property="imageUrl" column="image_url" javaType="String"/>
 
         <result property="memberStatus" column="member_status"
                 javaType="com.yachaerang.backend.api.common.MemberStatus"
