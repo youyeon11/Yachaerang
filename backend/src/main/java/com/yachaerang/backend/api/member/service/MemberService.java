@@ -28,6 +28,7 @@ public class MemberService {
                 .name(member.getName())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
+                .imageUrl(member.getImageUrl())
                 .build();
         return myPageDto;
     }
@@ -53,6 +54,7 @@ public class MemberService {
                 .name(member.getName())
                 .email(member.getEmail())
                 .nickname(member.getNickname())
+                .imageUrl(member.getImageUrl())
                 .build();
     }
 }

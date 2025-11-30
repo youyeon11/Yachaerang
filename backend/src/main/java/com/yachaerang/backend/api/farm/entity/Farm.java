@@ -13,17 +13,15 @@ public class Farm extends BaseEntity {
 
     private String location;
 
-    private int totalArea;
+    private double cultivatedArea;
 
-    private int cultivatedArea;
-
-    private int flatArea;
+    private double flatArea;
 
     private String mainCrop;
 
-    private Double annualYield;
+    private String grade;
 
-    private Double annualSales;
+    private String comment;
 
     private Member member;
 }
