@@ -9,6 +9,7 @@ import com.yachaerang.backend.global.exception.GeneralException;
 import com.yachaerang.backend.global.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class MemberService {
     /*
     나의 정보 조회하기
      */
+    @Transactional(readOnly = true)
     public MemberResponseDto.MyPageDto getProfile() {
         // Member 확인
         Member member = authenticatedMemberProvider.getMemberByContextHolder();
@@ -36,16 +38,15 @@ public class MemberService {
     /*
     나의 정보 수정하기
      */
+    @Transactional
     public MemberResponseDto.MyPageDto updateProfile(MemberRequestDto.MyPageDto myPageDto) {
         // Member 확인
         Long memberId = authenticatedMemberProvider.getCurrentMemberId();
-        // DB 적용
+
         int result = memberMapper.updateProfile(memberId, myPageDto.getName(), myPageDto.getNickname());
 
         if (result == 0) {
             throw GeneralException.of(ErrorCode.INTERNAL_SERVER_ERROR);
-        } else {
-
         }
 
         // return확인
