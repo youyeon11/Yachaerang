@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
@@ -16,6 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -60,14 +62,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Verify
         try {
             String token = getJwtFromRequestHeader(request);
-            if (jwtTokenProvider.validateToken(token)) {
+            if (token != null & jwtTokenProvider.validateToken(token)) {
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                filterChain.doFilter(request, response);
             }
         } catch (Exception e) {
+            // 인증 실패 시 SecurityContext를 비움
+            SecurityContextHolder.clearContext();
+            log.warn("JWT 인증 필터 실패: {}", e.getMessage());
             throw GeneralException.of(ErrorCode.UNAUTHORIZED_ACCESS);
         }
+
+        filterChain.doFilter(request, response);
     }
 
     /*

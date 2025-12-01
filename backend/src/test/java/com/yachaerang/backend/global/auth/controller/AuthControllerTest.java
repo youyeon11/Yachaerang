@@ -129,14 +129,14 @@ class AuthControllerTest extends RestDocsSupport {
 
         // when & then
         mockMvc.perform(post("/api/v1/auth/logout")
-                        .header("accessToken", token)
+                        .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(doc(
                         "logout",
                         requestHeaders(
-                                headerWithName("accessToken").description("Access Token")
+                                headerWithName("Authorization").description("Access Token")
                         ),
                         responseFields(ENVELOPE_COMMON).and(DATA_NULL_DESCRIPTOR)
                 ));
@@ -157,7 +157,7 @@ class AuthControllerTest extends RestDocsSupport {
 
         // when & then
         mockMvc.perform(post("/api/v1/auth/reissue")
-                        .header("refreshToken", token)
+                        .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                 )
@@ -165,7 +165,7 @@ class AuthControllerTest extends RestDocsSupport {
                 .andDo(doc(
                         "reissue",
                         requestHeaders(
-                                headerWithName("refreshToken").description("Refresh Token")
+                                headerWithName("Authorization").description("Refresh Token")
                         ),
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_OBJECT_DESCRIPTOR)

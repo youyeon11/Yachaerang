@@ -26,6 +26,8 @@ public class Member extends BaseEntity {
 
     private String password;
 
+    private String imageUrl;
+
     private MemberStatus  memberStatus;
 
     private Role role;

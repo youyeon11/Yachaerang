@@ -37,6 +37,7 @@ class MemberMapperTest {
                 .password("test")
                 .memberStatus(MemberStatus.ACTIVE)
                 .role(Role.ROLE_USER)
+                .imageUrl("default.png")
                 .build();
 
         memberMapper.save(member);
@@ -72,6 +73,7 @@ class MemberMapperTest {
                 .email("test@test.com")
                 .memberStatus(MemberStatus.ACTIVE)
                 .role(Role.ROLE_USER)
+                .imageUrl("default.png")
                 .build();
 
         memberMapper.save(member);
