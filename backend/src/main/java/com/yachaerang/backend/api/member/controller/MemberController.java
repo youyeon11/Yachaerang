@@ -18,7 +18,7 @@ public class MemberController {
      */
     @GetMapping("")
     public MemberResponseDto.MyPageDto getProfile(
-            @RequestHeader("accessToken") String accessToken
+            @RequestHeader("Authorization") String accessToken
     ) {
         return memberService.getProfile();
     }
@@ -28,7 +28,7 @@ public class MemberController {
      */
     @PatchMapping("")
     public MemberResponseDto.MyPageDto patchProfile(
-            @RequestHeader("accessToken") String accessToken,
+            @RequestHeader("Authorization") String accessToken,
             @RequestBody MemberRequestDto.MyPageDto myPageDto
             ) {
         return memberService.updateProfile(myPageDto);

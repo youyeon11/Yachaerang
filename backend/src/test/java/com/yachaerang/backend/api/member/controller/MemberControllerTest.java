@@ -92,19 +92,20 @@ class MemberControllerTest extends RestDocsSupport {
         mockMvc.perform(get("/api/v1/members")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("accessToken", accessToken))
+                        .header("Authorization", accessToken))
                 .andExpect(status().isOk())
                 .andDo(doc(
                         "get-profiles",
                         requestHeaders(
-                                headerWithName("accessToken").description("Access Token")
+                                headerWithName("Authorization").description("Access Token")
                         ),
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_OBJECT_DESCRIPTOR)
                                 .andWithPrefix("data.",
                                         fieldWithPath("email").type(STRING).description("email"),
                                         fieldWithPath("name").type(STRING).description("name"),
-                                        fieldWithPath("nickname").type(STRING).description("nickname")
+                                        fieldWithPath("nickname").type(STRING).description("nickname"),
+                                        fieldWithPath("imageUrl").type(STRING).description("imageUrl")
                 )));
     }
 
@@ -122,20 +123,21 @@ class MemberControllerTest extends RestDocsSupport {
 
         // when & then
         mockMvc.perform(patch("/api/v1/members")
-                .header("accessToken", accessToken)
+                .header("Authorization", accessToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
                 .andDo(doc(
                         "update-profiles",
                         requestHeaders(
-                                headerWithName("accessToken").description("Access Token")
+                                headerWithName("Authorization").description("Access Token")
                         ),
                         responseFields(ENVELOPE_COMMON).and(DATA_OBJECT_DESCRIPTOR)
                                 .andWithPrefix("data.",
                                         fieldWithPath("email").type(STRING).description("email"),
                                         fieldWithPath("name").type(STRING).description("name"),
-                                        fieldWithPath("nickname").type(STRING).description("nickname")
+                                        fieldWithPath("nickname").type(STRING).description("nickname"),
+                                        fieldWithPath("imageUrl").type(STRING).description("imageUrl")
                 )));
     }
 }
