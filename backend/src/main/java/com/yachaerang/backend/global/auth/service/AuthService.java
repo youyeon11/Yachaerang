@@ -49,6 +49,7 @@ public class AuthService {
                 .nickname(signupDto.getNickname())
                 .memberStatus(MemberStatus.ACTIVE)
                 .role(Role.ROLE_USER)
+                .imageUrl("default.png")
                 .build();
         memberMapper.save(member);
         log.info("{} : 회원 가입 완료", signupDto.getEmail());
