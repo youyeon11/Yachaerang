@@ -53,11 +53,6 @@ public class MemberService {
 
         // return확인
         Member member = memberMapper.findById(memberId);
-        log.info("조회된 Member - name: {}, nickname: {}, imageUrl: {}",
-                member.getName(),
-                member.getNickname(),
-                member.getImageUrl());
-
         return MemberResponseDto.MyPageDto.builder()
                 .name(member.getName())
                 .email(member.getEmail())

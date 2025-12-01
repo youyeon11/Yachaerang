@@ -74,11 +74,13 @@ class MemberControllerTest extends RestDocsSupport {
                 .email("test@example.com")
                 .name("test")
                 .nickname("test")
+                .imageUrl("default.png")
                 .build();
 
         requestDto = MemberRequestDto.MyPageDto.builder()
                 .name("test")
                 .nickname("test")
+                .imageUrl("default.png")
                 .build();
     }
 
@@ -117,6 +119,7 @@ class MemberControllerTest extends RestDocsSupport {
                 .email("test@example.com")
                 .name("test2")
                 .nickname("test2")
+                .imageUrl("update.png")
                 .build();
 
         given(memberService.updateProfile(any(MemberRequestDto.MyPageDto.class))).willReturn(updateDto);
