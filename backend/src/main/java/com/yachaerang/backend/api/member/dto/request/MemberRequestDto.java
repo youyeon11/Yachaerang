@@ -12,5 +12,6 @@ public class MemberRequestDto {
     public static class MyPageDto {
         private String name;
         private String nickname;
+        private String imageUrl;
     }
 }

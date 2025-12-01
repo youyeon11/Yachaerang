@@ -8,11 +8,13 @@ import com.yachaerang.backend.global.auth.jwt.AuthenticatedMemberProvider;
 import com.yachaerang.backend.global.exception.GeneralException;
 import com.yachaerang.backend.global.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MemberService {
 
     private final MemberMapper memberMapper;
@@ -43,7 +45,7 @@ public class MemberService {
         // Member 확인
         Long memberId = authenticatedMemberProvider.getCurrentMemberId();
 
-        int result = memberMapper.updateProfile(memberId, myPageDto.getName(), myPageDto.getNickname());
+        int result = memberMapper.updateProfile(memberId, myPageDto.getName(), myPageDto.getNickname(), myPageDto.getImageUrl());
 
         if (result == 0) {
             throw GeneralException.of(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -51,6 +53,11 @@ public class MemberService {
 
         // return확인
         Member member = memberMapper.findById(memberId);
+        log.info("조회된 Member - name: {}, nickname: {}, imageUrl: {}",
+                member.getName(),
+                member.getNickname(),
+                member.getImageUrl());
+
         return MemberResponseDto.MyPageDto.builder()
                 .name(member.getName())
                 .email(member.getEmail())

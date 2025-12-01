@@ -21,7 +21,8 @@ public interface MemberMapper {
 
     int updateProfile(@Param("memberId") Long memberId,
                       @Param("name") String name,
-                      @Param("nickname") String nickname);
+                      @Param("nickname") String nickname,
+                      @Param("imageUrl") String imageUrl);
 
     int delete(Long id);
 }

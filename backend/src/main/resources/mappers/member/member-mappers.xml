@@ -32,9 +32,9 @@
             useGeneratedKeys="true"
             keyProperty="id">
         INSERT INTO member
-            (name, email, member_code, password, nickname, member_status)
+            (name, email, member_code, password, nickname, member_status, image_url)
         VALUES
-            (#{name}, #{email}, #{memberCode}, #{password}, #{nickname}, #{memberStatus})
+            (#{name}, #{email}, #{memberCode}, #{password}, #{nickname}, #{memberStatus}, #{imageUrl})
     </insert>
 
     <!-- Find By Member Code -->
@@ -51,17 +51,27 @@
         FROM member WHERE email = #{email}
     </select>
 
+    <!-- find by id -->
+    <select id="findById" resultMap="memberResultMap">
+        SELECT
+            *
+        FROM member WHERE member_id = #{id}
+    </select>
+
     <!-- update -->
-    <update id="updateProfile" parameterType="com.yachaerang.backend.api.member.dto.request.MemberRequestDto">
-        update member
+    <update id="updateProfile">
+        UPDATE member
         <set>
             <if test="name != null and name != ''">
-                name = #{name}
+                name = #{name},
             </if>
-            <if test="nickname != nickname and nickname != ''">
-                nickname = #{nickname}
+            <if test="nickname != null and nickname != ''">
+                nickname = #{nickname},
+            </if>
+            <if test="imageUrl != null and imageUrl != ''">
+                image_url = #{imageUrl},
             </if>
         </set>
-        where member_id=#{memberId}
+        WHERE member_id = #{memberId}
     </update>
 </mapper>

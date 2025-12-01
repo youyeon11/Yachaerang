@@ -80,11 +80,13 @@ class MemberServiceTest {
                 .nickname("test")
                 .role(Role.ROLE_USER)
                 .memberStatus(MemberStatus.ACTIVE)
+                .imageUrl("default.png")
                 .build();
 
         mypageRequestDto = MemberRequestDto.MyPageDto.builder()
                 .name("test2")
                 .nickname("test2")
+                .imageUrl("update.png")
                 .build();
     }
 
@@ -102,6 +104,7 @@ class MemberServiceTest {
         assertThat(result.getEmail()).isEqualTo("test@example.com");
         assertThat(result.getName()).isEqualTo("test");
         assertThat(result.getNickname()).isEqualTo("test");
+        assertThat(result.getImageUrl()).isEqualTo("default.png");
 
         verify(authenticatedMemberProvider, times(1)).getMemberByContextHolder();
     }
@@ -130,9 +133,10 @@ class MemberServiceTest {
                 .email("test@example.com")
                 .name(mypageRequestDto.getName())
                 .nickname(mypageRequestDto.getNickname())
+                .imageUrl(mypageRequestDto.getImageUrl())
                 .build();
         given(authenticatedMemberProvider.getCurrentMemberId()).willReturn(1L);
-        given(memberMapper.updateProfile(anyLong(), anyString(), anyString())).willReturn(1);
+        given(memberMapper.updateProfile(anyLong(), anyString(), anyString(), anyString())).willReturn(1);
         given(memberMapper.findById(1L)).willReturn(updateMember);
 
         // when
@@ -143,9 +147,10 @@ class MemberServiceTest {
         assertThat(result.getEmail()).isEqualTo("test@example.com");
         assertThat(result.getName()).isEqualTo("test2");
         assertThat(result.getNickname()).isEqualTo("test2");
+        assertThat(result.getImageUrl()).isEqualTo("update.png");
 
         verify(authenticatedMemberProvider, times(1)).getCurrentMemberId();
-        verify(memberMapper, times(1)).updateProfile(1L, "test2", "test2");
+        verify(memberMapper, times(1)).updateProfile(1L, "test2", "test2", "update.png");
         verify(memberMapper, times(1)).findById(1L);
     }
 }
