@@ -1,47 +1,35 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+  <div class="app-root">
+    <NavBar class="nav-bar" />
+    <div class="right-area">
+      <main class="main-area">
+        <RouterView />
+      </main>
+      <Footer />
     </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
+<script setup>
+import Footer from '@/components/layout/Footer.vue';
+import NavBar from '@/components/layout/NavBar.vue';
+</script>
+
+<style>
+.app-root {
+  min-height: 100vh;
+  display: flex;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.right-area {
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin-left: 60px;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+.main-area {
+  flex: 1;
 }
 </style>
