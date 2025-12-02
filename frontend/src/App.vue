@@ -1,47 +1,45 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+  <div class="app-root">
+    <!-- 왼쪽 세로 NavBar -->
+    <NavBar class="nav-bar" />
+    <!-- NavBar 오른쪽 전체 영역 -->
+    <div class="right-area">
+      <main class="main-area">
+        <RouterView />
+      </main>
+      <!-- 아래쪽에 전체 폭 footer -->
+      <Footer />
     </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
+<script setup>
+import Footer from '@/components/layout/Footer.vue';
+import NavBar from '@/components/layout/NavBar.vue';
+</script>
+
+<style>
+.app-root {
+  min-height: 100vh;
+  display: flex;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+/* NavBar는 position: fixed이므로 flex에서 제외됨 */
+.nav-bar {
+  /* fixed navbar는 flex에 참여하지 않음 */
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
+/* NavBar 오른쪽 전체 영역 - margin-left로 navbar 공간 확보 */
+.right-area {
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin-left: 80px; /* NavBar width (80px)와 동일하게 */
+}
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+/* 가운데 내용이 남는 높이 전부 차지 */
+.main-area {
+  flex: 1;
 }
 </style>
