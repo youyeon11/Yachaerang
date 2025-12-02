@@ -86,7 +86,7 @@ const handleLogoError = (e) => {
   letter-spacing: -0.2px;
 }
 
-/* Right */
+/* NavBar.vue와의 간격 조정 */
 .footer-right {
   display: flex;
   flex-direction: column;
@@ -121,7 +121,7 @@ const handleLogoError = (e) => {
   color: #9ca3af;
 }
 
-/* Responsive */
+/* 반응형 */
 @media (max-width: 640px) {
   .footer-inner {
     flex-direction: column;
