@@ -19,6 +19,7 @@ bin/
 
 ### IntelliJ IDEA ###
 .idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -38,3 +39,5 @@ out/
 
 # mac
 .DS_Store
+.env
+application-test.yaml
