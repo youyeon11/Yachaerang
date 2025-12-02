@@ -7,7 +7,7 @@
         </div>
         <div class="brand-info">
           <strong class="brand-name">Yachaerang</strong>
-          <p class="brand-desc">데이터 분석 · 가격 대시보드 · AI 챗봇</p>
+          <p class="brand-desc">실시간 농산품 가격 및 유용한 정보 제공 플랫폼, 야채랑</p>
         </div>
       </div>
 
@@ -86,12 +86,11 @@ const handleLogoError = (e) => {
   letter-spacing: -0.2px;
 }
 
-/* NavBar.vue와의 간격 조정 */
 .footer-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 8px;
+  gap: 5px;
 }
 
 .legal-links {
@@ -121,7 +120,6 @@ const handleLogoError = (e) => {
   color: #9ca3af;
 }
 
-/* 반응형 */
 @media (max-width: 640px) {
   .footer-inner {
     flex-direction: column;

@@ -1,7 +1,6 @@
 <template>
   <div class="app-root">
     <NavBar class="nav-bar" />
-    <!-- NavBar 오른쪽 전체 영역 -->
     <div class="right-area">
       <main class="main-area">
         <RouterView />
@@ -27,7 +26,7 @@ import NavBar from '@/components/layout/NavBar.vue';
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  margin-left: 80px;
+  margin-left: 60px;
 }
 
 .main-area {
