@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yachaerang.backend.api.product.repository.ProductMapper">
+    <resultMap id="productResultMap"
+               type="com.yachaerang.backend.api.product.entity.Product">
+        <id property="productId" column="product_id"/>
+        <result property="name" column="name" javaType="String"/>
+        <result property="productCode" column="product_code" javaType="String"/>
+        <result property="itemName" column="item_name" javaType="String"/>
+        <result property="itemCode" column="item_code" javaType="String"/>
+        <result property="kindName" column="kind_name" javaType="String"/>
+        <result property="kindCode" column="kind_code" javaType="String"/>
+        <result property="productRank" column="product_rank" javaType="String"/>
+        <result property="rankCode" column="rank_code" javaType="String"/>
+        <result property="unit" column="unit" javaType="String"/>
+        <result property="origin" column="origin" javaType="String"/>
+        <result property="imageUrl" column="image_url" javaType="String"/>
+    </resultMap>
+
+    <!-- DTO 매핑 -->
+    <!-- ItemDto ResultMap -->
+    <resultMap id="itemDtoResultMap"
+               type="com.yachaerang.backend.api.product.dto.response.ProductResponseDto$ItemDto">
+        <result property="itemName" column="item_name"/>
+        <result property="itemCode" column="item_code"/>
+    </resultMap>
+    <!-- SubItemDto ResultMap -->
+    <resultMap id="subItemDtoResultMap"
+               type="com.yachaerang.backend.api.product.dto.response.ProductResponseDto$SubItemDto">
+        <result property="name" column="name"/>
+        <result property="productCode" column="product_code"/>
+        <result property="itemName" column="item_name"/>
+        <result property="itemCode" column="item_code"/>
+        <result property="kindName" column="kind_name"/>
+        <result property="kindCode" column="kind_code"/>
+        <result property="productRank" column="product_rank"/>
+        <result property="rankCode" column="rank_code"/>
+    </resultMap>
+    <!-- ========================================================= -->
+    <!-- 전체 ItemName, ItemCode 조회 -->
+    <select id="findAllItemNameAndItemCodes"
+            resultMap="itemDtoResultMap">
+        SELECT DISTINCT
+            item_name,
+            item_code
+        FROM product
+        ORDER BY item_name ASC
+    </select>
+    <!-- ========================================================= -->
+    <!-- itemCode 기반 ProductName 반환 -->
+    <select id="findProductNameByItemCode"
+            parameterType="string"
+            resultMap="subItemDtoResultMap">
+        SELECT
+            name,
+            product_code,
+            item_name,
+            item_code,
+            kind_name,
+            kind_code,
+            product_rank,
+            rank_code
+        FROM product
+        WHERE item_code = #{itemCode}
+        ORDER BY name ASC
+    </select>
+</mapper>
