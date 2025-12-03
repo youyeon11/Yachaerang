@@ -59,7 +59,7 @@ public class SecurityConfig {
     설정한 JWT Filter를 기반으로 Security Filter에 적용
      */
     private void setJwtTokenProvider(HttpSecurity httpSecurity) throws Exception {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(memberMapper, jwtTokenProvider);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtTokenProvider);
         httpSecurity.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     }
 

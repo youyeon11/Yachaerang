@@ -1,0 +1,28 @@
+package com.yachaerang.backend.api.product.controller;
+
+import com.yachaerang.backend.api.product.dto.response.DailyPriceResponseDto;
+import com.yachaerang.backend.api.product.service.DailyPriceService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@RequestMapping("/api/v1/daily-prices")
+@RestController
+@RequiredArgsConstructor
+public class DailyPriceController {
+
+    private final DailyPriceService dailyPriceService;
+    /*
+    특정 날짜의 기한을 정하여 조회 - 일별
+     */
+    @GetMapping("/{productCode}")
+    public List<DailyPriceResponseDto.PriceRecordDto> getDailyPrice(
+            @PathVariable(name = "productCode") String productCode,
+            @RequestParam(name = "startDate") LocalDate startDate,
+            @RequestParam(name = "endDate")LocalDate endDate
+    ) {
+        return dailyPriceService.getDailyPrice(productCode, startDate, endDate);
+    }
+}
