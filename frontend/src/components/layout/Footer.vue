@@ -2,7 +2,7 @@
   <footer class="app-footer">
     <div class="footer-inner">
       <div class="footer-brand">
-        <div class="brand-logo">
+        <div class="brand-logo" @click="goToMain" style="cursor: pointer">
           <img src="@/assets/logo.png" alt="Logo" @error="handleLogoError" />
         </div>
         <div class="brand-info">
@@ -24,6 +24,14 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const goToMain = () => {
+  router.push('/');
+};
+
 const handleLogoError = (e) => {
   e.target.style.display = 'none';
 };
@@ -134,6 +142,11 @@ const handleLogoError = (e) => {
 
   .footer-right {
     align-items: center;
+  }
+
+  .legal-links,
+  .brand-logo {
+    display: none;
   }
 }
 </style>
