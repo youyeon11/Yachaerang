@@ -36,15 +36,15 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useAuth } from '@/stores/auth';
 
 const router = useRouter();
 const route = useRoute();
+const { isLoggedIn } = useAuth();
 
 const props = defineProps({
   userAvatar: { type: String, default: '' },
 });
-
-const emit = defineEmits(['user-clicked']);
 
 const tabs = [
   {
@@ -121,7 +121,11 @@ const handleTabClick = (tab) => {
 };
 
 const handleUserClick = () => {
-  emit('user-clicked');
+  if (isLoggedIn.value) {
+    router.push('/mypage');
+  } else {
+    router.push('/login');
+  }
 };
 
 const handleImageError = (e) => {

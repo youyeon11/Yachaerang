@@ -39,5 +39,6 @@ const route = useRoute();
 
 .main-area {
   flex: 1;
+  padding: 24px 32px;
 }
 </style>
