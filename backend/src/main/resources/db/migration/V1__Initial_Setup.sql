@@ -100,6 +100,7 @@ CREATE TABLE product (
     kind_name VARCHAR(50),
     kind_code VARCHAR(50),
     product_rank VARCHAR(50),
+    rank_code VARCHAR(50),
     unit VARCHAR(50),
     origin VARCHAR(100),
     image_url VARCHAR(500),
