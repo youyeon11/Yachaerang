@@ -1,6 +1,5 @@
 <template>
   <div class="article-detail-page">
-    <!-- 헤더 -->
     <div class="page-header">
       <h1 class="page-title">기사</h1>
       <div class="search-box">
@@ -12,7 +11,17 @@
           @keyup.enter="handleSearch"
         />
         <button class="search-btn" @click="handleSearch">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.3-4.3"></path>
           </svg>
@@ -62,7 +71,17 @@
     <!-- 목록으로 돌아가기 -->
     <div class="back-to-list">
       <button class="back-btn" @click="goToList">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="m15 18-6-6 6-6"></path>
         </svg>
         목록으로
@@ -287,6 +306,3 @@ const goToList = () => {
   border-color: #ccc;
 }
 </style>
-
-
-

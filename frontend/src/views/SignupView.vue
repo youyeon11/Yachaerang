@@ -8,15 +8,8 @@
         <div class="form-group">
           <label class="form-label">이메일</label>
           <div class="input-with-button">
-            <input
-              type="email"
-              v-model="email"
-              placeholder="이메일 입력"
-              class="input-field"
-            />
-            <button type="button" class="check-btn" @click="checkEmailDuplicate">
-              중복 확인
-            </button>
+            <input type="email" v-model="email" placeholder="이메일 입력" class="input-field" />
+            <button type="button" class="check-btn" @click="checkEmailDuplicate">중복 확인</button>
           </div>
           <p v-if="emailMessage" :class="['message', emailValid ? 'success' : 'error']">
             {{ emailMessage }}
@@ -46,40 +39,23 @@
             placeholder="비밀번호 입력 (문자, 숫자, 특수문자 포함 8~20자)"
             class="input-field"
           />
-          <p v-if="passwordConfirm && !isPasswordMatch" class="message error">
-            비밀번호가 일치하지 않습니다.
-          </p>
+          <p v-if="passwordConfirm && !isPasswordMatch" class="message error">비밀번호가 일치하지 않습니다.</p>
         </div>
 
         <!-- 이름 -->
         <div class="form-group">
           <label class="form-label">이름</label>
-          <input
-            type="text"
-            v-model="name"
-            placeholder="이름을 입력해주세요"
-            class="input-field"
-          />
+          <input type="text" v-model="name" placeholder="이름을 입력해주세요" class="input-field" />
         </div>
 
         <!-- 닉네임 -->
         <div class="form-group">
           <label class="form-label">닉네임</label>
-          <input
-            type="text"
-            v-model="nickname"
-            placeholder="닉네임을 입력해주세요"
-            class="input-field"
-          />
+          <input type="text" v-model="nickname" placeholder="닉네임을 입력해주세요" class="input-field" />
         </div>
 
         <!-- 회원가입 버튼 -->
-        <button
-          type="submit"
-          class="signup-btn"
-          :class="{ disabled: !isFormValid }"
-          :disabled="!isFormValid"
-        >
+        <button type="submit" class="signup-btn" :class="{ disabled: !isFormValid }" :disabled="!isFormValid">
           회원가입
         </button>
       </form>
@@ -301,6 +277,3 @@ const handleSignup = async () => {
   cursor: not-allowed;
 }
 </style>
-
-
-
