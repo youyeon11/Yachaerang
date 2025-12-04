@@ -25,11 +25,11 @@ else
 fi
 
 # 새로운 image pull 받기
-docker compose -f docker-compose.yaml pull "app-${AFTER_COMPOSE_COLOR}" \
+docker compose -f docker-compose.dev.yaml pull "app-${AFTER_COMPOSE_COLOR}" \
   || { echo "pull new image failed"; exit 1; }
 
 # 새로운 서비스만 시작
-docker compose -f docker-compose.yaml up -d --no-deps "app-${AFTER_COMPOSE_COLOR}" \
+docker compose -f docker-compose.dev.yaml up -d --no-deps "app-${AFTER_COMPOSE_COLOR}" \
   || { echo "bring up new service failed"; exit 1; }
 
 sleep 10
