@@ -21,6 +21,10 @@ import Footer from '@/components/layout/Footer.vue';
 import NavBar from '@/components/layout/NavBar.vue';
 
 const route = useRoute();
+
+const isAuthPage = computed(() => {
+  return route.name === 'login' || route.name === 'signup';
+});
 </script>
 
 <style>
