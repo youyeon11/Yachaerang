@@ -29,8 +29,8 @@ class DailyPriceMapperTest {
 
     @Test
     @DisplayName("특정 기간 동안의 가격 정보 가져오기")
-    @Sql(scripts = {"/product-test-data.sql", "/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Sql(scripts = {"/sql/product-test-data.sql", "/sql/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void 특정기간동안의_가격정보_가져오기() {
         // given
         String productCode = "KM-141-01-04";
@@ -54,8 +54,8 @@ class DailyPriceMapperTest {
 
     @Test
     @DisplayName("정확한 날짜 범위 검증")
-    @Sql(scripts = {"/product-test-data.sql", "/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Sql(scripts = {"/sql/product-test-data.sql", "/sql/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void 정확한_날짜_범위_검증 () {
         // given
         String productCode = "KM-141-01-04";
@@ -75,8 +75,8 @@ class DailyPriceMapperTest {
 
     @Test
     @DisplayName("하루 기간 조회 (startDate == endDate)")
-    @Sql(scripts = {"/product-test-data.sql", "/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Sql(scripts = {"/sql/product-test-data.sql", "/sql/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void 하루기간_조회_성공 () {
         // given
         String productCode = "KM-141-01-04";
@@ -96,8 +96,8 @@ class DailyPriceMapperTest {
 
     @Test
     @DisplayName("빈 결과 - 존재하지 않는 productCode")
-    @Sql(scripts = {"/product-test-data.sql", "/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Sql(scripts = {"/sql/product-test-data.sql", "/sql/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void 빈_결과_존재하지않는_productCode() {
         // given
         String productCode = "NON_EXISTENT";
@@ -115,8 +115,8 @@ class DailyPriceMapperTest {
 
     @Test
     @DisplayName("빈 결과 - 데이터 없는 기간 조회")
-    @Sql(scripts = {"/product-test-data.sql", "/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Sql(scripts = {"/sql/product-test-data.sql", "/sql/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void 빈_결과_데이터없는기간() {
         // given
         String productCode = "KM-141-01-04";
@@ -151,8 +151,8 @@ class DailyPriceMapperTest {
 
     @Test
     @DisplayName("결과 정렬 확인 - 날짜순 정렬")
-    @Sql(scripts = {"/product-test-data.sql", "/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Sql(scripts = {"/sql/product-test-data.sql", "/sql/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void 결과정렬_확인_날짜순정렬() {
         // given
         String productCode = "KM-141-01-04";
@@ -174,8 +174,8 @@ class DailyPriceMapperTest {
 
     @Test
     @DisplayName("가격 데이터 유효성 검증")
-    @Sql(scripts = {"/product-test-data.sql", "/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Sql(scripts = {"/sql/product-test-data.sql", "/sql/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void 가격데이터_유효성_검증() {
         // given
         String productCode = "KM-141-01-04";

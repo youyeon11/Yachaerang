@@ -19,7 +19,6 @@ import org.springframework.http.MediaType;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
