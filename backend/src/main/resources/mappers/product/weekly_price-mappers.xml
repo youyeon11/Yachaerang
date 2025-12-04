@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yachaerang.backend.api.product.repository.WeeklyPriceMapper">
+    <resultMap id="weeklyPriceResultMap"
+               type="com.yachaerang.backend.api.product.entity.WeeklyPrice">
+        <id property="weeklyPriceId" column="weekly_price_id"/>
+        <result property="productCode" column="product_code"/>
+        <result property="priceYear" column="price_year"/>
+        <result property="weekNumber" column="week_number"/>
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date"/>
+        <result property="minPrice" column="min_price"/>
+        <result property="maxPrice" column="max_price"/>
+        <result property="avgPrice" column="avg_price"/>
+        <result property="priceCount" column="price_count"/>
+    </resultMap>
+    <!-- PriceDto 매핑용 ResultMap -->
+    <resultMap id="priceDtoResultMap"
+               type="com.yachaerang.backend.api.product.dto.response.WeeklyPriceResponseDto$PriceRecordDto">
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date"/>
+        <result property="avgPrice" column="avg_price"/>
+        <result property="minPrice" column="min_price"/>
+        <result property="maxPrice" column="max_price"/>
+    </resultMap>
+    <!-- getPriceDuration -->
+    <select id="getPriceDuration"
+            resultMap="priceDtoResultMap">
+        SELECT
+            wp.start_date,
+            wp.end_date,
+            wp.avg_price,
+            wp.min_price,
+            wp.max_price
+        FROM
+            weekly_price AS wp
+        WHERE
+            wp.product_code = #{productCode}
+          AND wp.start_date <![CDATA[ >= ]]> #{startDate}
+          AND wp.end_date   <![CDATA[ <= ]]> #{endDate}
+        ORDER BY
+            wp.start_date ASC
+    </select>
+</mapper>

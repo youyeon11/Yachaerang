@@ -13,14 +13,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Import;
 import org.springframework.restdocs.payload.FieldDescriptor;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.payload.FieldDescriptor;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
@@ -47,7 +44,6 @@ class MemberControllerTest extends RestDocsSupport {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // 공통 응답 필드
     // 공통 응답 필드
     private static final FieldDescriptor[] ENVELOPE_COMMON = new FieldDescriptor[]{
             fieldWithPath("httpStatus").type(STRING).description("HTTP 상태 코드"),

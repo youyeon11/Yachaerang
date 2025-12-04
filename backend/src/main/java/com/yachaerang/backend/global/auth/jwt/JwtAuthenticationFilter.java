@@ -1,6 +1,5 @@
 package com.yachaerang.backend.global.auth.jwt;
 
-import com.yachaerang.backend.api.member.repository.MemberMapper;
 import com.yachaerang.backend.global.exception.GeneralException;
 import com.yachaerang.backend.global.response.ErrorCode;
 import jakarta.servlet.FilterChain;
@@ -24,12 +23,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String TOKEN_PREFIX = "Bearer ";
 
-    private final MemberMapper memberMapper;
     private final JwtTokenProvider jwtTokenProvider;
 
     private static final List<String> NON_FILTER_PATTERNS = List.of(
             "/test/**",
-            "/api/v1/auth/**"
+            "/api/v1/auth/**",
+            "/api/v1/products/**",
+            "/api/v1/daily-prices/**",
+            "/api/v1/weekly-prices/**"
     );
 
     private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
@@ -41,6 +42,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String requestUrl = request.getRequestURI();
+
+        log.debug("Request URL in JwtFilter: {}", requestUrl);
+
         String contextPath = request.getContextPath();
         if (contextPath != null && !contextPath.isEmpty() && requestUrl.startsWith(contextPath)) {
             requestUrl = requestUrl.substring(contextPath.length());
@@ -62,7 +66,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Verify
         try {
             String token = getJwtFromRequestHeader(request);
-            if (token != null & jwtTokenProvider.validateToken(token)) {
+            if (token != null && jwtTokenProvider.validateToken(token)) {
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }

@@ -1,6 +1,6 @@
 <template>
   <aside class="sidebar">
-    <div class="logo-section">
+    <div class="logo-section" @click="goToMain" style="cursor: pointer">
       <img src="@/assets/logo.png" alt="Logo" class="logo" @error="handleImageError" />
     </div>
 
@@ -34,15 +34,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useAuth } from '@/stores/auth';
+
+const router = useRouter();
+const route = useRoute();
+const { isLoggedIn } = useAuth();
 
 const props = defineProps({
   userAvatar: { type: String, default: '' },
 });
-
-const emit = defineEmits(['tab-clicked', 'user-clicked']);
-
-const activeTab = ref(1);
 
 const tabs = [
   {
@@ -59,7 +61,7 @@ const tabs = [
   {
     id: 2,
     label: '세부 가격 정보',
-    path: '/analytics',
+    path: '/search',
     icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <line x1="18" y1="20" x2="18" y2="10"></line>
       <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -81,7 +83,7 @@ const tabs = [
   {
     id: 4,
     label: 'AI 야치',
-    path: '/ai-chatbot',
+    path: '/ai-chat',
     icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
       <path d="M13 8H7"></path>
@@ -95,12 +97,45 @@ const userIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fi
   <circle cx="12" cy="7" r="4"></circle>
 </svg>`;
 
-const handleTabClick = (tab) => {
-  activeTab.value = tab.id;
-  emit('tab-clicked', tab);
+const getActiveTabFromRoute = (path) => {
+  const tab = tabs.find((t) => t.path === path);
+  return tab ? tab.id : null;
 };
 
-const handleUserClick = () => emit('user-clicked');
+const activeTab = ref(getActiveTabFromRoute(route.path));
+
+watch(
+  () => route.path,
+  (newPath) => {
+    activeTab.value = getActiveTabFromRoute(newPath);
+  }
+);
+
+const goToMain = () => {
+  router.push('/');
+};
+
+const handleTabClick = (tab) => {
+  activeTab.value = tab.id;
+  router.push(tab.path);
+};
+
+const handleUserClick = () => {
+  const accessToken = localStorage.getItem('accessToken');
+
+  const hasValidToken =
+    accessToken &&
+    accessToken !== null &&
+    accessToken.trim() !== '' &&
+    accessToken.trim() !== 'null' &&
+    accessToken.trim() !== 'undefined';
+
+  if (hasValidToken) {
+    router.push('/mypage');
+  } else {
+    router.push('/login');
+  }
+};
 
 const handleImageError = (e) => {
   e.target.style.display = 'none';
@@ -123,6 +158,8 @@ const handleAvatarError = (e) => {
   display: flex;
   flex-direction: column;
   padding: 16px 0;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .logo-section {

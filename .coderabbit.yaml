@@ -19,10 +19,5 @@ reviews:
     base_branches:
       - "main"
       - "develop"
-  labeling_instructions:
-    - label: "frontend"
-      instructions: "프론트엔드 관련 변경 시 적용"
-    - label: "backend"
-      instructions: "백엔드 로직 변경 시 적용"
 chat:
   auto_reply: true
