@@ -121,7 +121,16 @@ const handleTabClick = (tab) => {
 };
 
 const handleUserClick = () => {
-  if (isLoggedIn.value) {
+  const accessToken = localStorage.getItem('accessToken');
+
+  const hasValidToken =
+    accessToken &&
+    accessToken !== null &&
+    accessToken.trim() !== '' &&
+    accessToken.trim() !== 'null' &&
+    accessToken.trim() !== 'undefined';
+
+  if (hasValidToken) {
     router.push('/mypage');
   } else {
     router.push('/login');
