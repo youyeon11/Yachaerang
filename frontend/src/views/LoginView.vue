@@ -113,7 +113,7 @@ const handleLogin = async () => {
   if (!isFormValid.value) return;
 
   errorMessage.value = '';
-  console.log('로그인 시도:', { email: email.value, password: password.value });
+  console.log('로그인 시도:', { email: email.value });
 
   try {
     const response = await mockLoginApi(email.value, password.value);
