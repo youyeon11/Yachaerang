@@ -79,7 +79,6 @@ dependencies {
 
 def snippetsDir = layout.buildDirectory.dir("generated-snippets")
 def jacocoReportDir = layout.buildDirectory.dir("reports/jacoco/html")
-def copyDir = layout.buildDirectory.dir('docs')
 
 ext.jacocoExclusions = [
         '**/*Application*',
@@ -88,18 +87,14 @@ ext.jacocoExclusions = [
         '**/entity/**',
         '**/common/**',
         '**/test/**',
-        '**/*Test*'
+        '**/*Test*',
+        '**/*Filter*'
 ]
 
 tasks.register('copySnippets', Copy) {
-    dependsOn test
-
+    dependsOn 'asciidoctor'
     from(snippetsDir)
-    into(copyDir)
-
-    doFirst {
-        println ">>> Copying from ${snippetsDir.get().asFile} to ${copyDir.get().asFile}"
-    }
+    into("src/docs")
 }
 
 tasks.named('jacocoTestReport') {
@@ -138,14 +133,26 @@ tasks.named('jacocoTestCoverageVerification') {
     }
 }
 
+tasks.named('asciidoctor') {
+    dependsOn test
+    inputs.dir snippetsDir
+
+    sourceDir = file('src/docs')
+    outputDir = file("${buildDir}/docs/asciidoc")
+
+    attributes 'snippets': snippetsDir
+
+    configurations 'asciidoctorExt'
+
+    sources {
+        include 'index.adoc'
+    }
+}
+
 tasks.named('bootJar') {
-    dependsOn tasks.named('copySnippets')
+    dependsOn tasks.named('asciidoctor')
 
-    // JAR
-    archiveBaseName = 'backend'
-    archiveVersion = '0.0.1'
-
-    from(copyDir) {
+    from(layout.buildDirectory.dir('docs/asciidoc')) {
         into 'BOOT-INF/classes/static/docs'
     }
 }
@@ -155,6 +162,6 @@ tasks.named('test') {
     outputs.dir snippetsDir
     finalizedBy jacocoTestReport
     jacoco {
-        destinationFile = file("${buildDir}/jacoco/test.exec")
+        destinationFile = layout.buildDirectory.file("jacoco/test.exec").get().asFile
     }
 }

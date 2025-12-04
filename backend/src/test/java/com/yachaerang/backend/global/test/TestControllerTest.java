@@ -12,12 +12,15 @@ import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.test.context.ActiveProfiles;
+
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ActiveProfiles("test")
 @Import(ResponseWrappingAdvice.class)
 class TestControllerTest extends RestDocsSupport {
 

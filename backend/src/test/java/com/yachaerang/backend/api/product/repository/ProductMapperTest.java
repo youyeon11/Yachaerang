@@ -29,8 +29,8 @@ class ProductMapperTest {
 
     @Test
     @DisplayName("전체 ItemName과 ItemCode 조회 - 성공")
-    @Sql(scripts = "/product-test-data.sql", executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Sql(scripts = "/sql/product-test-data.sql", executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void 전체ItemName_ItemCode조회_성공() {
         // when
         List<ProductResponseDto.ItemDto> result = productMapper.findAllItemNameAndItemCodes();
@@ -44,8 +44,8 @@ class ProductMapperTest {
 
     @Test
     @DisplayName("ItemCode로 ProdcutName 조회 - 성공")
-    @Sql(scripts = "/product-test-data.sql", executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Sql(scripts = "/sql/product-test-data.sql", executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void ItemCode로_ProductName조회_성공() {
         // given
         String itemCode = "315";
@@ -77,8 +77,8 @@ class ProductMapperTest {
 
     @Test
     @DisplayName("전체 Item 조회 - 반환된 데이터 검증")
-    @Sql(scripts = "/product-test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Sql(scripts = "/sql/product-test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void 전체_Item_조회_반환된_데이터_검증() {
         // when
         List<ProductResponseDto.ItemDto> result = productMapper.findAllItemNameAndItemCodes();
@@ -95,8 +95,8 @@ class ProductMapperTest {
 
     @Test
     @DisplayName("SubItemDto 전체 필드 검증")
-    @Sql(scripts = "/product-test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Sql(scripts = "/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @Sql(scripts = "/sql/product-test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void SubItemDto_전체필드_검증 () {
         // given
         String itemCode = "215";
