@@ -33,6 +33,7 @@ jobs:
       # Image Build and Push
       - name: Build and Push Docker Image
         run: |
+          cd backend
           docker build -t ghcr.io/${{ secrets.ORG_NAME }}/spring-api:latest .
           docker push ghcr.io/${{ secrets.ORG_NAME }}/spring-api:latest
 
