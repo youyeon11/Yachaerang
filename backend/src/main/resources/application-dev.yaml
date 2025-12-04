@@ -39,5 +39,8 @@ mybatis:
   type-handlers-package: com.yachaerang.backend.global.util
 
 logging:
+  file:
+    path: ./logs
+  config: classpath:logback-spring.xml
   level:
-    org.apache.ibatis: INFO
+    root: info
