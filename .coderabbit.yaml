@@ -2,7 +2,7 @@
 language: "ko-KR"
 early_access: false
 reviews:
-  profile: "chill"
+  profile: chill
   request_changes_workflow: true
   high_level_summary: true
   poem: false
@@ -16,5 +16,8 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
+    base_branches:
+      - "main"
+      - "develop"
 chat:
   auto_reply: true
