@@ -45,6 +45,7 @@ public enum ErrorCode implements BaseCode{
 
     // Date
     WRONG_REQUEST_DATE(HttpStatus.BAD_REQUEST, "DATE_001", "날짜를 올바르게 입력해주세요."),
+    INVALID_ISO_WEEK_DATE(HttpStatus.BAD_REQUEST, "DATE_001", "표준 ISO 주간 규칙에 어긋납니다."),
 
     // 500
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500ERROR", "서버에서 장애가 일어났습니다."),
