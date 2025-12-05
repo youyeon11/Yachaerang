@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yachaerang.backend.api.product.repository.MonthlyPriceMapper">
+    <resultMap id="monthlyPriceResultMap"
+               type="com.yachaerang.backend.api.product.entity.MonthlyPrice">
+        <id property="monthlyPriceId" column="monthly_price_id"/>
+        <result property="productCode" column="product_code"/>
+        <result property="priceYear" column="price_year"/>
+        <result property="priceMonth" column="price_month"/>
+        <result property="avgPrice" column="avg_price"/>
+        <result property="minPrice" column="min_price"/>
+        <result property="maxPrice" column="max_price"/>
+        <result property="priceCount" column="price_count"/>
+    </resultMap>
+    <!-- PriceDto 매핑용 ResultMap -->
+    <resultMap id="priceDtoResultMap"
+               type="com.yachaerang.backend.api.product.dto.response.MonthlyPriceResponseDto$PriceDto">
+        <result property="priceYear" column="price_year"/>
+        <result property="priceMonth" column="price_month"/>
+        <result property="avgPrice" column="avg_price"/>
+        <result property="minPrice" column="min_price"/>
+        <result property="maxPrice" column="max_price"/>
+    </resultMap>
+    <!-- getPriceDuration -->
+    <select id="getPriceDuration"
+            resultMap="priceDtoResultMap">
+        SELECT
+        price_year,
+        price_month,
+        avg_price,
+        min_price,
+        max_price
+        FROM
+        monthly_price
+        WHERE
+        product_code = #{productCode}
+        AND (
+        (price_year > #{startYear})
+        OR (price_year = #{startYear} AND price_month >= #{startMonth})
+        )
+        AND (
+        (price_year < #{endYear})
+        OR (price_year = #{endYear} AND price_month <= #{endMonth})
+        )
+        ORDER BY
+        price_year ASC,
+        price_month ASC
+    </select>
+</mapper>
