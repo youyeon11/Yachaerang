@@ -44,7 +44,9 @@ apiClient.interceptors.response.use(
           {},
           {
             headers: {
-              Authorization: `Bearer ${refreshToken}`,
+              Authorization: refreshToken,
+              'Content-Type': 'application/json;charset=UTF-8',
+              Accept: 'application/json',
             },
           }
         );
