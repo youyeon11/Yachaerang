@@ -113,12 +113,13 @@ CREATE TABLE product (
 
 -- 6. article table
 CREATE TABLE article (
-                         article_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                         title VARCHAR(500) NOT NULL,
-                         content TEXT NOT NULL,
+    article_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(500) NOT NULL,
+    content TEXT NOT NULL,
+    url VARCHAR(500) NOT NULL,
 
-                         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 7. tag table
