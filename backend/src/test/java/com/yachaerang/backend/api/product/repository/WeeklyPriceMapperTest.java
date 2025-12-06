@@ -81,4 +81,28 @@ class WeeklyPriceMapperTest {
         // then
         assertThat(result).isNotNull();
     }
+
+    @Test
+    @DisplayName("모든 필드가 올바르게 매핑된다")
+    @Sql(scripts = {"/sql/product-test-data.sql", "/sql/weekly-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void 모든필드_올바르게_매핑_성공 () {
+        // given
+        String productCode = "KM-411-01-04";
+        LocalDate startDate = LocalDate.of(2025, 11, 10);
+        LocalDate endDate = LocalDate.of(2025, 11, 16);
+
+        // when
+        List<WeeklyPriceResponseDto.PriceRecordDto> result =
+                weeklyPriceMapper.getPriceDuration(productCode, startDate, endDate);
+
+        // then
+        assertThat(result).hasSize(1);
+        WeeklyPriceResponseDto.PriceRecordDto dto = result.get(0);
+        assertThat(dto.getStartDate()).isEqualTo(startDate);
+        assertThat(dto.getEndDate()).isEqualTo(endDate);
+        assertThat(dto.getMinPrice()).isEqualTo(45000);
+        assertThat(dto.getMaxPrice()).isEqualTo(47500);
+        assertThat(dto.getAvgPrice()).isEqualTo(46200);
+    }
 }

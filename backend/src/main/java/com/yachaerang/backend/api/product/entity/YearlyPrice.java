@@ -22,5 +22,8 @@ public class YearlyPrice extends BaseEntity {
     private Long minPrice;
     private Long maxPrice;
 
+    private Long startPrice;
+    private Long endPrice;
+
     private Integer priceCount;
 }
