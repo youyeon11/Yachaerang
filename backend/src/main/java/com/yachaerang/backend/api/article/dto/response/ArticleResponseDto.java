@@ -51,10 +51,24 @@ public class ArticleResponseDto {
     @NoArgsConstructor
     @Builder
     public static class DetailDto {
-        private Long id;
+        private Long articleId;
         private String title;
         private String content;
+        private String imageUrl;
         private String url;
+        private List<String> tagList;
+        private LocalDate createdAt;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class ListDto {
+        private Long articleId;
+        private String title;
+        private String imageUrl;
         private List<String> tagList;
         private LocalDate createdAt;
     }

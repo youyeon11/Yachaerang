@@ -6,11 +6,13 @@ import com.yachaerang.backend.api.article.entity.Article;
 import com.yachaerang.backend.api.article.entity.Tag;
 import com.yachaerang.backend.api.article.repository.ArticleMapper;
 import com.yachaerang.backend.api.article.repository.TagMapper;
+import com.yachaerang.backend.global.exception.GeneralException;
+import com.yachaerang.backend.global.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,35 +28,47 @@ public class ArticleService {
     /*
     기사 목록 전체 조회하기
      */
-    public ArticleResponseDto.PageDto<?> getAllArticles(
+    public ArticleResponseDto.PageDto<ArticleResponseDto.ListDto> getAllArticles(
             ArticleRequestDto.PageDto pageRequest) {
 
         // Article Pagination 조회
-        List<Article> articleList = articleMapper.findAllWithPagination(pageRequest);
+        List<Article> articleList = articleMapper.findAllWithPagination(pageRequest.getLimit(), pageRequest.getOffset());
 
+        // 빈 리스트일 때
         if (articleList.isEmpty()) {
-            return ArticleResponseDto.PageDto.of(articleList, pageRequest, 0L);
+            return ArticleResponseDto.PageDto.of(
+                    Collections.emptyList(), pageRequest, 0L
+            );
         }
 
+        // Article ID 목록
         List<Long> articleIdList = articleList.stream()
                 .map(Article::getId)
                 .collect(Collectors.toList());
 
-        // 모든 Article의 Tag를 한 번에 조회
-        List<Tag> tagList = tagMapper.findByArticleIdList(articleIdList);
-
-        // Article 별로 Tag 그룹핑
-        Map<Long, List<Tag>> tagMap = tagList.stream()
-                .collect(Collectors.groupingBy(Tag::getArticleId));
-
-        // 각 Article에 Tag 설정
-        articleList.forEach(article ->
-                article.setTagList(tagMap.getOrDefault(article.getId(), new ArrayList<>()))
-        );
+        // 모든 Article의 TagName 한 번에 조회와 mapping
+        Map<Long, List<String>> tagNameMap
+                 = tagMapper.findByArticleIdList(articleIdList)
+                .stream()
+                .collect(Collectors.groupingBy(
+                        Tag::getArticleId,
+                        Collectors.mapping(Tag::getName, Collectors.toList())
+                ));
+        List<ArticleResponseDto.ListDto> articleResponseDtoList
+                 = articleList.stream()
+                .map(article -> ArticleResponseDto.ListDto.builder()
+                        .articleId(article.getId())
+                        .title(article.getTitle())
+                        .imageUrl(article.getImageUrl())
+                        .createdAt(article.getCreatedAt().toLocalDate())
+                        .tagList(tagNameMap.getOrDefault(article.getId(), Collections.emptyList()))
+                        .build()
+                )
+                .toList();
 
         // 전체 개수 조회 및 PageResponse 생성
         long totalElements = articleMapper.countAll();
-        return ArticleResponseDto.PageDto.of(articleList, pageRequest, totalElements);
+        return ArticleResponseDto.PageDto.of(articleResponseDtoList, pageRequest, totalElements);
     }
 
     /*
@@ -63,9 +77,15 @@ public class ArticleService {
     public ArticleResponseDto.DetailDto getArticle(Long articleId) {
         List<String> tagList = tagMapper.findNameByArticleId(articleId);
         Article article = articleMapper.findById(articleId);
+
+        if (article == null) {
+            throw GeneralException.of(ErrorCode.ARTICLE_NOT_FOUND);
+        }
+
         return ArticleResponseDto.DetailDto.builder()
-                .id(articleId)
+                .articleId(articleId)
                 .title(article.getTitle())
+                .imageUrl(article.getImageUrl())
                 .content(article.getContent())
                 .url(article.getUrl())
                 .tagList(tagList)

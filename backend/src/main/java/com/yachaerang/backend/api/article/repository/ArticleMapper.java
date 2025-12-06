@@ -1,10 +1,8 @@
 package com.yachaerang.backend.api.article.repository;
 
-import com.yachaerang.backend.api.article.dto.request.ArticleRequestDto;
 import com.yachaerang.backend.api.article.entity.Article;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
@@ -16,10 +14,16 @@ public interface ArticleMapper {
      */
     Article findById(@Param("id") Long id);
 
-    /*
-    Article 페이지로 조회
+
+    /**
+     * 페이지로 Article 조회 (페이지의 단위 설정)
+     * @param limit : 몇 개 씩 보여줄 것인지 설정 -> size와 동일
+     * @param offset : 얼마나 건너뛸 것인지 설정 -> 몇 page인지에 따라 limit 을 (page-1)만큼 건너뜀
+     * @return
      */
-    List<Article> findAllWithPagination(ArticleRequestDto.PageDto pageRequest);
+    List<Article> findAllWithPagination(
+            @Param("limit") int limit, @Param("offset") int offset
+    );
 
     /*
     모든 Article 개수 조회
