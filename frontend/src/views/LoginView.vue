@@ -72,6 +72,9 @@ const handleLogin = async () => {
         refreshToken,
       });
 
+      email.value = '';
+      password.value = '';
+
       router.push('/');
       return;
     }
