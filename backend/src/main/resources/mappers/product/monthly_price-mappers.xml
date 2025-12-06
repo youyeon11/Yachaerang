@@ -23,28 +23,29 @@
         <result property="maxPrice" column="max_price"/>
     </resultMap>
     <!-- getPriceDuration -->
-    <select id="getPriceDuration"
-            resultMap="priceDtoResultMap">
+    <select id="getPriceDuration" resultMap="priceDtoResultMap">
+        <![CDATA[
         SELECT
-        price_year,
-        price_month,
-        avg_price,
-        min_price,
-        max_price
+            price_year,
+            price_month,
+            avg_price,
+            min_price,
+            max_price
         FROM
-        monthly_price
+            monthly_price
         WHERE
-        product_code = #{productCode}
-        AND (
-        (price_year > #{startYear})
-        OR (price_year = #{startYear} AND price_month >= #{startMonth})
-        )
-        AND (
-        (price_year < #{endYear})
-        OR (price_year = #{endYear} AND price_month <= #{endMonth})
-        )
+            product_code = #{productCode}
+          AND (
+            (price_year > #{startYear})
+                OR (price_year = #{startYear} AND price_month >= #{startMonth})
+            )
+          AND (
+            (price_year < #{endYear})
+                OR (price_year = #{endYear} AND price_month <= #{endMonth})
+            )
         ORDER BY
-        price_year ASC,
-        price_month ASC
+            price_year ASC,
+            price_month ASC
+        ]]>
     </select>
 </mapper>
