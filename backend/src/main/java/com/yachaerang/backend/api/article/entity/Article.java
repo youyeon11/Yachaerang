@@ -20,6 +20,8 @@ public class Article extends BaseEntity {
 
     private String content;
 
+    private String imageUrl;
+
     private String url;
 
     private List<Tag> tagList;
