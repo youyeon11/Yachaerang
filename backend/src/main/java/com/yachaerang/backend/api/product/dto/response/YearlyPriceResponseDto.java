@@ -14,5 +14,7 @@ public class YearlyPriceResponseDto {
         private Long avgPrice;
         private Long minPrice;
         private Long maxPrice;
+        private Long startPrice;
+        private Long endPrice;
     }
 }
