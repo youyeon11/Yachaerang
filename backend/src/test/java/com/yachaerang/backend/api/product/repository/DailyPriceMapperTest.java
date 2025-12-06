@@ -33,9 +33,9 @@ class DailyPriceMapperTest {
     @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void 특정기간동안의_가격정보_가져오기() {
         // given
-        String productCode = "KM-141-01-04";
-        LocalDate startDate = LocalDate.of(2025, 10, 1);
-        LocalDate endDate = LocalDate.of(2025, 10, 31);
+        String productCode = "KM-411-01-04";
+        LocalDate startDate = LocalDate.of(2025, 11, 1);
+        LocalDate endDate = LocalDate.of(2025, 11, 30);
 
         // when
         List<DailyPriceResponseDto.PriceRecordDto> result =

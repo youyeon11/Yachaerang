@@ -44,22 +44,6 @@ class WeeklyPriceServiceTest {
     void setUp() {
         productCode = "PROD001";
         today = LocalDate.of(2025, 11, 11);
-
-        WeeklyPrice weeklyPrice1 = WeeklyPrice.builder()
-                .productCode(productCode)
-                .startDate(LocalDate.of(2025, 11, 3))
-                .endDate(LocalDate.of(2025, 11, 9))
-                .build();
-        WeeklyPrice weeklyPrice2 = WeeklyPrice.builder()
-                .productCode(productCode)
-                .startDate(LocalDate.of(2025, 11, 10))
-                .endDate(LocalDate.of(2025, 11, 16))
-                .build();
-        WeeklyPrice weeklyPrice3 = WeeklyPrice.builder()
-                .productCode(productCode)
-                .startDate(LocalDate.of(2025, 11, 17))
-                .endDate(LocalDate.of(2025, 11, 18))
-                .build();
     }
 
     @Test

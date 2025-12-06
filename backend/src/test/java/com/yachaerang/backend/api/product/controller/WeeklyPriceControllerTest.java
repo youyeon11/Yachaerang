@@ -82,9 +82,6 @@ class WeeklyPriceControllerTest extends RestDocsSupport {
         given(weeklyPriceService.getPriceDuration(productCode, startDate, endDate))
                 .willReturn(priceList);
 
-        given(weeklyPriceService.getPriceDuration(productCode, startDate, endDate))
-                .willReturn(priceList);
-
         // when & then
         mockMvc.perform(get("/api/v1/weekly-prices/{productCode}", productCode)
                         .param("startDate", "2024-01-01")
