@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yachaerang.backend.api.product.repository.YearlyPriceMapper">
-    <resultMap id="monthlyPriceResultMap"
+    <resultMap id="yearlyResultMap"
                type="com.yachaerang.backend.api.product.entity.YearlyPrice">
         <id property="yearlyPriceId" column="yearly_price_id"/>
         <result property="productCode" column="product_code"/>
@@ -29,7 +29,6 @@
             resultMap="priceDtoResultMap">
         SELECT
         price_year,
-        price_month,
         avg_price,
         min_price,
         max_price,
@@ -51,7 +50,6 @@
             resultMap="priceDtoResultMap">
         SELECT
             price_year,
-            price_month,
             avg_price,
             min_price,
             max_price,
