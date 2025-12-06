@@ -33,6 +33,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/stores/auth';
+import apiClient from '@/api/axios';
 
 const router = useRouter();
 const { login } = useAuth();
@@ -40,86 +41,30 @@ const { login } = useAuth();
 const email = ref('');
 const password = ref('');
 
-const isFormValid = computed(() => {
-  return email.value.trim() !== '' && password.value.trim() !== '';
-});
-
-// 목 데이터
-const mockUsers = [{ email: 'yacherang@gmail.com', password: '1234' }];
-
+const isFormValid = computed(() => email.value.trim() !== '' && password.value.trim() !== '');
 const errorMessage = ref('');
 
-const mockLoginApi = async (email, password) => {
-  // 목 데이터
-  // TODO : 서버 연결이 안되어 있을 땐 목 데이터로,
-  // 서버 연결 되어 있을 땐 서버데이터로 사용할 수 있게 수정할 예정.
-  const requestData = { email, password };
-
-  // Console에서 요청 확인용 로그
-  console.group('[MOCK API] POST /api/v1/auth/login');
-  console.log('Request:', requestData);
-  console.log('Headers:', {
-    'Content-Type': 'application/json;charset=UTF-8',
-    Accept: 'application/json',
-  });
-
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const user = mockUsers.find((u) => u.email === email && u.password === password);
-
-      if (!user) {
-        const errorResponse = {
-          response: {
-            data: {
-              httpStatus: 'BAD_REQUEST',
-              success: false,
-              code: '400',
-              message: '이메일 또는 비밀번호가 올바르지 않습니다.',
-            },
-          },
-        };
-        console.log('Response:', errorResponse.response.data);
-        console.log('Status: 400 BAD_REQUEST');
-        console.groupEnd();
-        reject(errorResponse);
-        return;
-      }
-
-      const successResponse = {
-        data: {
-          httpStatus: 'OK',
-          success: true,
-          code: '200',
-          message: '요청이 성공적으로 처리되었습니다.',
-          data: {
-            accessToken: `mock-access-token-${Date.now()}`,
-            refreshToken: `mock-refresh-token-${Date.now()}`,
-          },
-        },
-      };
-      console.log('Response:', successResponse.data);
-      console.log('Status: 200 OK');
-      console.log('Tokens:', {
-        accessToken: successResponse.data.data.accessToken,
-        refreshToken: successResponse.data.data.refreshToken,
-      });
-      console.groupEnd();
-      resolve(successResponse);
-    }, 300);
-  });
+const loginApi = (email, password) => {
+  return apiClient.post('/api/v1/auth/login', { email, password });
 };
 
 const handleLogin = async () => {
   if (!isFormValid.value) return;
 
   errorMessage.value = '';
-  console.log('로그인 시도:', { email: email.value });
 
   try {
-    const response = await mockLoginApi(email.value, password.value);
+    const res = await loginApi(email.value, password.value);
+    const body = res.data;
 
-    if (response.data.success && response.data.data) {
-      const { accessToken, refreshToken } = response.data.data;
+    // 백엔드 응답: code가 "200"
+    if (body?.success === true && body?.code === '200') {
+      const { accessToken, refreshToken } = body.data || {};
+
+      if (!accessToken) {
+        errorMessage.value = '토큰이 응답에 없습니다. 백엔드 응답 data 구조를 확인해주세요.';
+        return;
+      }
 
       login({
         email: email.value,
@@ -127,14 +72,17 @@ const handleLogin = async () => {
         refreshToken,
       });
 
-      // 로그인 -> 홈
+      email.value = '';
+      password.value = '';
+
       router.push('/');
-    } else {
-      errorMessage.value = response.data.message || '로그인에 실패했습니다.';
+      return;
     }
-  } catch (error) {
-    console.error('로그인 실패:', error);
-    errorMessage.value = error.response?.data?.message || '이메일 또는 비밀번호가 올바르지 않습니다.';
+
+    errorMessage.value = body?.message || '로그인에 실패했습니다.';
+  } catch (err) {
+    const serverBody = err?.response?.data;
+    errorMessage.value = serverBody?.message || '로그인 요청 중 오류가 발생했습니다.';
   }
 };
 </script>

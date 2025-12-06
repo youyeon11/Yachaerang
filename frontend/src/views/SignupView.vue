@@ -66,6 +66,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import apiClient from '@/api/axios';
 
 const router = useRouter();
 
@@ -123,32 +124,33 @@ const checkEmailDuplicate = async () => {
   }
 };
 
-// 회원가입 처리
 const handleSignup = async () => {
   if (!isFormValid.value) return;
 
+  const payload = {
+    name: name.value,
+    nickname: nickname.value,
+    email: email.value,
+    password: password.value,
+  };
+
   try {
-    // TODO: 실제 백엔드 API 호출 (axios 사용)
-    // const response = await axios.post('/api/v1/auth/signup', {
-    //   email: email.value,
-    //   password: password.value,
-    //   name: name.value,
-    //   nickname: nickname.value
-    // })
+    const res = await apiClient.post('/api/v1/auth/signup', payload);
 
-    // 임시: 회원가입 성공 처리
-    console.log('회원가입 시도:', {
-      email: email.value,
-      password: password.value,
-      name: name.value,
-      nickname: nickname.value,
-    });
+    const body = res.data;
+    const ok = body?.success === true && (body?.code === '204' || body?.httpStatus === 'NO_CONTENT');
+    if (ok) {
+      alert('회원가입이 완료되었습니다!');
+      router.push('/login');
+      return;
+    }
 
-    alert('회원가입이 완료되었습니다!');
-    router.push('/login');
-  } catch (error) {
-    console.error('회원가입 실패:', error);
-    alert('회원가입에 실패했습니다.');
+    alert(body?.message || '회원가입에 실패했습니다.');
+  } catch (err) {
+    const status = err?.response?.status;
+    const data = err?.response?.data;
+    const url = err?.config?.baseURL ? err.config.baseURL + err.config.url : err?.config?.url;
+    alert(data?.message || `회원가입 실패 (status: ${status ?? 'unknown'})`);
   }
 };
 </script>
