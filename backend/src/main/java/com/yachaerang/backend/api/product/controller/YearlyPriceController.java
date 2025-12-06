@@ -12,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class YearlyPriceController {
 
-    private YearlyPriceService yearlyPriceService;
+    private final YearlyPriceService yearlyPriceService;
 
     @GetMapping("/{productCode}")
     public List<YearlyPriceResponseDto.PriceDto> getPrices(
@@ -23,6 +23,7 @@ public class YearlyPriceController {
         return yearlyPriceService.getPrices(productCode, startYear, endYear);
     }
 
+    @GetMapping("/{productCode}/detail")
     public YearlyPriceResponseDto.PriceDto getPrice(
             @PathVariable("productCode") String productCode,
             @RequestParam("year") int year
