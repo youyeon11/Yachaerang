@@ -13,7 +13,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class YearlyPriceService {
 
-    private YearlyPriceMapper yearlyPriceMapper;
+    private final YearlyPriceMapper yearlyPriceMapper;
 
     public List<YearlyPriceResponseDto.PriceDto> getPrices(
             String productCode, int startYear, int endYear
