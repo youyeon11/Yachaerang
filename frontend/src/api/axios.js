@@ -6,11 +6,25 @@ const apiClient = axios.create({
   headers: { 'Content-Type': 'application/json;charset=UTF-8' },
 });
 
+let isRefreshing = false;
+let refreshQueue = [];
+
+function processQueue(error, token) {
+  refreshQueue.forEach((p) => {
+    if (error) p.reject(error);
+    else p.resolve(token);
+  });
+  refreshQueue = [];
+}
+
 apiClient.interceptors.request.use(
   (config) => {
     const url = config.url || '';
 
-    const authFree = url.startsWith('/api/v1/auth/login') || url.startsWith('/api/v1/auth/reissue');
+    const authFree =
+      url.startsWith('/api/v1/auth/login') ||
+      url.startsWith('/api/v1/auth/signup') ||
+      url.startsWith('/api/v1/auth/reissue');
 
     if (!authFree) {
       const accessToken = localStorage.getItem('accessToken');
@@ -38,6 +52,19 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
       }
 
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          refreshQueue.push({ resolve, reject });
+        })
+          .then((newAccessToken) => {
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            return apiClient(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      isRefreshing = true;
+
       try {
         const response = await apiClient.post(
           '/api/v1/auth/reissue',
@@ -45,20 +72,30 @@ apiClient.interceptors.response.use(
           {
             headers: {
               Authorization: refreshToken,
-              'Content-Type': 'application/json;charset=UTF-8',
-              Accept: 'application/json',
             },
           }
         );
 
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data;
 
+        if (!newAccessToken) {
+          throw new Error('accessToken이 응답에 없습니다.');
+        }
+
         localStorage.setItem('accessToken', newAccessToken);
-        localStorage.setItem('refreshToken', newRefreshToken);
+
+        if (newRefreshToken && newRefreshToken.trim() !== '') {
+          localStorage.setItem('refreshToken', newRefreshToken);
+        }
+
+        processQueue(null, newAccessToken);
+        isRefreshing = false;
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
+        processQueue(refreshError, null);
+        isRefreshing = false;
         logout();
         return Promise.reject(refreshError);
       }
