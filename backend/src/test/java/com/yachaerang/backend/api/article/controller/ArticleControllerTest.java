@@ -19,6 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -126,6 +128,8 @@ class ArticleControllerTest extends RestDocsSupport {
                 .andExpect(status().isOk())
                 .andDo(doc(
                         "get-all-articles",
+                        requestHeaders(),
+                        pathParameters(),
                         queryParameters(
                                 parameterWithName("page").description("페이지 번호 (기본값: 1)"),
                                 parameterWithName("size").description("페이지 크기 (기본값: 5)")
@@ -155,9 +159,11 @@ class ArticleControllerTest extends RestDocsSupport {
                 .andExpect(status().isOk())
                 .andDo(doc(
                         "get-article",
+                        requestHeaders(),
                         pathParameters(
                                 parameterWithName("articleId").description("기사 ID")
                         ),
+                        queryParameters(),
                         responseFields(ENVELOPE_COMMON)
                                 .and(fieldWithPath("data").type(OBJECT).description("응답 데이터"))
                                 .andWithPrefix("data.",

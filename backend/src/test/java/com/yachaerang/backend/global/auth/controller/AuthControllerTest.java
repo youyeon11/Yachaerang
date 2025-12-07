@@ -24,6 +24,8 @@ import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.JsonFieldType.NULL;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Import(ResponseWrappingAdvice.class)
@@ -84,6 +86,9 @@ class AuthControllerTest extends RestDocsSupport {
                 .andExpect(status().isOk())
                 .andDo(doc(
                         "signup",
+                        requestHeaders(),
+                        pathParameters(),
+                        queryParameters(),
                         responseFields(ENVELOPE_COMMON).and(DATA_NULL_DESCRIPTOR)
                 ));
     }
@@ -112,6 +117,9 @@ class AuthControllerTest extends RestDocsSupport {
                 .andExpect(status().isOk())
                 .andDo(doc(
                         "login",
+                        requestHeaders(),
+                        pathParameters(),
+                        queryParameters(),
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_OBJECT_DESCRIPTOR)
                                 .andWithPrefix("data.",
@@ -137,6 +145,8 @@ class AuthControllerTest extends RestDocsSupport {
                         requestHeaders(
                                 headerWithName("Authorization").description("Access Token")
                         ),
+                        pathParameters(),
+                        queryParameters(),
                         responseFields(ENVELOPE_COMMON).and(DATA_NULL_DESCRIPTOR)
                 ));
     }
@@ -166,6 +176,8 @@ class AuthControllerTest extends RestDocsSupport {
                         requestHeaders(
                                 headerWithName("Authorization").description("Refresh Token")
                         ),
+                        pathParameters(),
+                        queryParameters(),
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_OBJECT_DESCRIPTOR)
                                 .andWithPrefix("data.",

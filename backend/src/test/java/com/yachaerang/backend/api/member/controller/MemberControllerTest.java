@@ -24,6 +24,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.headerWit
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -97,6 +98,8 @@ class MemberControllerTest extends RestDocsSupport {
                         requestHeaders(
                                 headerWithName("Authorization").description("Access Token")
                         ),
+                        pathParameters(),
+                        queryParameters(),
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_OBJECT_DESCRIPTOR)
                                 .andWithPrefix("data.",
@@ -131,6 +134,8 @@ class MemberControllerTest extends RestDocsSupport {
                         requestHeaders(
                                 headerWithName("Authorization").description("Access Token")
                         ),
+                        pathParameters(),
+                        queryParameters(),
                         responseFields(ENVELOPE_COMMON).and(DATA_OBJECT_DESCRIPTOR)
                                 .andWithPrefix("data.",
                                         fieldWithPath("email").type(STRING).description("email"),

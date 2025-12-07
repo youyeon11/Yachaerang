@@ -11,22 +11,19 @@ import org.springframework.context.annotation.Import;
 import org.springframework.restdocs.payload.FieldDescriptor;
 
 import static org.mockito.Mockito.mock;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.ResultActions;
-
-import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 
 @Import(ResponseWrappingAdvice.class)
 class YearlyPriceControllerTest extends RestDocsSupport {
@@ -122,15 +119,23 @@ class YearlyPriceControllerTest extends RestDocsSupport {
                 .andExpect(status().isOk())
                 .andDo(doc(
                         "get-yearly-prices",
+                        requestHeaders(),
+                        pathParameters(
+                                parameterWithName("productCode").description("상품 코드")
+                        ),
+                        queryParameters(
+                                parameterWithName("startYear").description("시작 연도"),
+                                parameterWithName("endYear").description("종료 연도")
+                        ),
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_LIST_DESCRIPTOR)
                                 .andWithPrefix("data[]",
-                                        fieldWithPath("priceYear").type(NUMBER).description("priceYear"),
-                                        fieldWithPath("avgPrice").type(NUMBER).description("avgPrice"),
-                                        fieldWithPath("minPrice").type(NUMBER).description("minPrice"),
-                                        fieldWithPath("maxPrice").type(NUMBER).description("maxPrice"),
-                                        fieldWithPath("startPrice").type(NUMBER).description("startPrice"),
-                                        fieldWithPath("endPrice").type(NUMBER).description("endPrice")
+                                        fieldWithPath("priceYear").type(NUMBER).description("기록 연도"),
+                                        fieldWithPath("avgPrice").type(NUMBER).description("평균 가격"),
+                                        fieldWithPath("minPrice").type(NUMBER).description("최소 가격"),
+                                        fieldWithPath("maxPrice").type(NUMBER).description("최대 가격"),
+                                        fieldWithPath("startPrice").type(NUMBER).description("연초 가격"),
+                                        fieldWithPath("endPrice").type(NUMBER).description("연말 가격")
                 )));
     }
 
@@ -150,6 +155,13 @@ class YearlyPriceControllerTest extends RestDocsSupport {
                 .andExpect(status().isOk())
                 .andDo(doc(
                         "get-yearly-price-detail",
+                        requestHeaders(),
+                        pathParameters(
+                                parameterWithName("productCode").description("상품 코드")
+                        ),
+                        queryParameters(
+                                parameterWithName("year").description("조사 대상 연도")
+                        ),
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_OBJECT_DESCRIPTOR)
                                 .andWithPrefix("data.",

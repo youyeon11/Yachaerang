@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.restdocs.payload.FieldDescriptor;
 
 import static org.mockito.Mockito.mock;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 
@@ -22,10 +24,11 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.hamcrest.Matchers.*;
@@ -94,11 +97,19 @@ class DailyPriceControllerTest extends RestDocsSupport {
                 .andExpect(status().isOk())
                 .andDo(doc(
                         "get-daily-prices",
+                        requestHeaders(),
+                        pathParameters(
+                                parameterWithName("productCode").description("상품 코드")
+                        ),
+                        queryParameters(
+                                parameterWithName("startDate").description("시작 날짜"),
+                                parameterWithName("endDate").description("종료 날짜")
+                        ),
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_LIST_DESCRIPTOR)
                                 .andWithPrefix("data[]",
-                                        fieldWithPath("priceDate").type(STRING).description("priceDate"),
-                                        fieldWithPath("price").type(NUMBER).description("price")
+                                        fieldWithPath("priceDate").type(STRING).description("기록 날짜"),
+                                        fieldWithPath("price").type(NUMBER).description("가격")
                                 )));
     }
 
