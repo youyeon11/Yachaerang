@@ -9,6 +9,7 @@ import com.yachaerang.backend.api.article.repository.TagMapper;
 import com.yachaerang.backend.global.exception.GeneralException;
 import com.yachaerang.backend.global.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional(readOnly = true)
 public class ArticleService {
 
@@ -47,13 +49,16 @@ public class ArticleService {
                 .collect(Collectors.toList());
 
         // 모든 Article의 TagName 한 번에 조회와 mapping
-        Map<Long, List<String>> tagNameMap
-                 = tagMapper.findByArticleIdList(articleIdList)
-                .stream()
+        List<Tag> tagList = tagMapper.findByArticleIdList(articleIdList);
+        Map<Long, List<String>> tagNameMap = tagList.stream()
+                .peek(tag -> log.debug("스트림 처리 중 Tag: {}", tag))
                 .collect(Collectors.groupingBy(
                         Tag::getArticleId,
                         Collectors.mapping(Tag::getName, Collectors.toList())
                 ));
+
+        log.debug("Articles found: {}", articleIdList);
+
         List<ArticleResponseDto.ListDto> articleResponseDtoList
                  = articleList.stream()
                 .map(article -> ArticleResponseDto.ListDto.builder()
