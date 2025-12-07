@@ -9,7 +9,7 @@
         <result property="title" column="title" javaType="String"/>
         <result property="content" column="content" javaType="String"/>
         <result property="url" column="url" javaType="String"/>
-        <result property="image_url" column="imageUrl" javaType="String"/>
+        <result property="imageUrl" column="image_url" javaType="String"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
         <!-- 1:N 관계 매핑 -->
