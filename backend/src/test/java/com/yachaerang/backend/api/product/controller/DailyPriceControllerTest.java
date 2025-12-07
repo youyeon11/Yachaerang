@@ -4,6 +4,7 @@ import com.yachaerang.backend.api.product.dto.response.DailyPriceResponseDto;
 import com.yachaerang.backend.api.product.service.DailyPriceService;
 import com.yachaerang.backend.global.response.ResponseWrappingAdvice;
 import com.yachaerang.backend.global.util.RestDocsSupport;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.context.annotation.Import;
 
 import org.junit.jupiter.api.DisplayName;
@@ -63,6 +64,54 @@ class DailyPriceControllerTest extends RestDocsSupport {
     private static final FieldDescriptor DATA_LIST_DESCRIPTOR =
             fieldWithPath("data").type(ARRAY).description("응답 데이터");
 
+    private List<DailyPriceResponseDto.RankDto> rankList1;
+    private List<DailyPriceResponseDto.RankDto> rankList2;
+
+    @BeforeEach
+    void setUp() {
+        rankList1 = List.of(
+                DailyPriceResponseDto.RankDto.builder()
+                        .itemName("수박")
+                        .itemCode("WATERMELON")
+                        .unit("개")
+                        .price(20000L)
+                        .build(),
+                DailyPriceResponseDto.RankDto.builder()
+                        .itemName("포도")
+                        .itemCode("GRAPE")
+                        .unit("kg")
+                        .price(15000L)
+                        .build(),
+                DailyPriceResponseDto.RankDto.builder()
+                        .itemName("딸기")
+                        .itemCode("STRAWBERRY")
+                        .unit("kg")
+                        .price(12000L)
+                        .build()
+            );
+        rankList2 = List.of(
+                DailyPriceResponseDto.RankDto.builder()
+                        .itemName("오렌지")
+                        .itemCode("ORANGE")
+                        .unit("개")
+                        .price(3000L)
+                        .build(),
+                DailyPriceResponseDto.RankDto.builder()
+                        .itemName("자두")
+                        .itemCode("PLUM")
+                        .unit("kg")
+                        .price(4000L)
+                        .build(),
+                DailyPriceResponseDto.RankDto.builder()
+                        .itemName("사과")
+                        .itemCode("APPLE")
+                        .unit("kg")
+                        .price(5000L)
+                        .build()
+        );
+    }
+
+
     @Test
     @DisplayName("[GET] /api/v1/daily-prices/{productCode}")
     void getDailyPrice() throws Exception {
@@ -109,6 +158,56 @@ class DailyPriceControllerTest extends RestDocsSupport {
                                 .and(DATA_LIST_DESCRIPTOR)
                                 .andWithPrefix("data[]",
                                         fieldWithPath("priceDate").type(STRING).description("기록 날짜"),
+                                        fieldWithPath("price").type(NUMBER).description("가격")
+                                )));
+    }
+
+    @Test
+    @DisplayName("[GET] /api/v1/daily-prices/rank/high-prices")
+    public void getHighPrices() throws Exception {
+        // given
+        given(dailyPriceService.getHighPriceRank())
+                .willReturn(rankList1);
+        // when & then
+        mockMvc.perform(get("/api/v1/daily-prices/rank/high-prices")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(doc(
+                        "get-high-prices",
+                        requestHeaders(),
+                        pathParameters(),
+                        queryParameters(),
+                        responseFields(ENVELOPE_COMMON)
+                                .and(DATA_LIST_DESCRIPTOR)
+                                .andWithPrefix("data[]",
+                                        fieldWithPath("itemName").type(STRING).description("상품 이름"),
+                                        fieldWithPath("itemCode").type(STRING).description("상품 코드"),
+                                        fieldWithPath("unit").type(STRING).description("단위"),
+                                        fieldWithPath("price").type(NUMBER).description("가격")
+                                )));
+    }
+
+    @Test
+    @DisplayName("[GET] /api/v1/daily-prices/rank/low-prices")
+    public void getLowPrices() throws Exception {
+        // given
+        given(dailyPriceService.getLowPriceRank())
+                .willReturn(rankList2);
+        // when & then
+        mockMvc.perform(get("/api/v1/daily-prices/rank/low-prices")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(doc(
+                        "get-low-prices",
+                        requestHeaders(),
+                        pathParameters(),
+                        queryParameters(),
+                        responseFields(ENVELOPE_COMMON)
+                                .and(DATA_LIST_DESCRIPTOR)
+                                .andWithPrefix("data[]",
+                                        fieldWithPath("itemName").type(STRING).description("상품 이름"),
+                                        fieldWithPath("itemCode").type(STRING).description("상품 코드"),
+                                        fieldWithPath("unit").type(STRING).description("단위"),
                                         fieldWithPath("price").type(NUMBER).description("가격")
                                 )));
     }
