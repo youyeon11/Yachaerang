@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @MybatisTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @ActiveProfiles("test")
-@Sql("classpath:H2_schema.sql")
+@Sql(value = "classpath:H2_schema.sql")
 @SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
 @Import(MyBatisConfig.class)
 class DailyPriceMapperTest {
