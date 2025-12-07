@@ -25,4 +25,21 @@ public class DailyPriceController {
     ) {
         return dailyPriceService.getDailyPrice(productCode, startDate, endDate);
     }
+
+    /*
+    어제자 높은 가격 순위 보여주기
+     */
+    @GetMapping("/rank/high-prices")
+    public List<DailyPriceResponseDto.RankDto> getHighPriceRank() {
+        return dailyPriceService.getHighPriceRank();
+    }
+
+    /*
+    어제자 낮은 가격 순위 보여주기
+     */
+    @GetMapping("/rank/low-prices")
+    public List<DailyPriceResponseDto.RankDto> getLowPriceRank() {
+        return dailyPriceService.getLowPriceRank();
+    }
+
 }
