@@ -44,8 +44,20 @@ public class MemberService {
     public MemberResponseDto.MyPageDto updateProfile(MemberRequestDto.MyPageDto myPageDto) {
         // Member 확인
         Long memberId = authenticatedMemberProvider.getCurrentMemberId();
+        if (memberId == null) {
+            throw new GeneralException(ErrorCode.MEMBER_NOT_FOUND);
+        }
 
-        int result = memberMapper.updateProfile(memberId, myPageDto.getName(), myPageDto.getNickname(), myPageDto.getImageUrl());
+        if (myPageDto.getName() == null && myPageDto.getNickname() == null && myPageDto.getImageUrl() == null) {
+            throw new GeneralException(ErrorCode.EMPTY_MYPAGE_REQUEST);
+        }
+
+        int result = memberMapper.updateProfile(
+                memberId,
+                myPageDto.getName(),
+                myPageDto.getNickname(),
+                myPageDto.getImageUrl()
+        );
 
         if (result == 0) {
             throw GeneralException.of(ErrorCode.INTERNAL_SERVER_ERROR);
