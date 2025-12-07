@@ -116,11 +116,11 @@ class MonthlyPriceControllerTest extends RestDocsSupport {
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_LIST_DESCRIPTOR)
                                 .andWithPrefix("data[]",
-                                        fieldWithPath("priceYear").description(NUMBER).description("priceYear"),
-                                        fieldWithPath("priceMonth").description(NUMBER).description("priceMonth"),
-                                        fieldWithPath("avgPrice").description(NUMBER).description("avgPrice"),
-                                        fieldWithPath("minPrice").description(NUMBER).description("minPrice"),
-                                        fieldWithPath("maxPrice").description(NUMBER).description("maxPrice"))
+                                        fieldWithPath("priceYear").type(NUMBER).description("priceYear"),
+                                        fieldWithPath("priceMonth").type(NUMBER).description("priceMonth"),
+                                        fieldWithPath("avgPrice").type(NUMBER).description("avgPrice"),
+                                        fieldWithPath("minPrice").type(NUMBER).description("minPrice"),
+                                        fieldWithPath("maxPrice").type(NUMBER).description("maxPrice"))
                         )
                 );
     }

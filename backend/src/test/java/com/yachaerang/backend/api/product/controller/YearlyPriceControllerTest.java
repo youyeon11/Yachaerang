@@ -125,12 +125,12 @@ class YearlyPriceControllerTest extends RestDocsSupport {
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_LIST_DESCRIPTOR)
                                 .andWithPrefix("data[]",
-                                        fieldWithPath("priceYear").description(NUMBER).description("priceYear"),
-                                        fieldWithPath("avgPrice").description(NUMBER).description("avgPrice"),
-                                        fieldWithPath("minPrice").description(NUMBER).description("minPrice"),
-                                        fieldWithPath("maxPrice").description(NUMBER).description("maxPrice"),
-                                        fieldWithPath("startPrice").description(NUMBER).description("startPrice"),
-                                        fieldWithPath("endPrice").description(NUMBER).description("endPrice")
+                                        fieldWithPath("priceYear").type(NUMBER).description("priceYear"),
+                                        fieldWithPath("avgPrice").type(NUMBER).description("avgPrice"),
+                                        fieldWithPath("minPrice").type(NUMBER).description("minPrice"),
+                                        fieldWithPath("maxPrice").type(NUMBER).description("maxPrice"),
+                                        fieldWithPath("startPrice").type(NUMBER).description("startPrice"),
+                                        fieldWithPath("endPrice").type(NUMBER).description("endPrice")
                 )));
     }
 
@@ -153,12 +153,12 @@ class YearlyPriceControllerTest extends RestDocsSupport {
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_OBJECT_DESCRIPTOR)
                                 .andWithPrefix("data.",
-                                        fieldWithPath("priceYear").description(NUMBER).description("priceYear"),
-                                        fieldWithPath("avgPrice").description(NUMBER).description("avgPrice"),
-                                        fieldWithPath("minPrice").description(NUMBER).description("minPrice"),
-                                        fieldWithPath("maxPrice").description(NUMBER).description("maxPrice"),
-                                        fieldWithPath("startPrice").description(NUMBER).description("startPrice"),
-                                        fieldWithPath("endPrice").description(NUMBER).description("endPrice")
+                                        fieldWithPath("priceYear").type(NUMBER).description("priceYear"),
+                                        fieldWithPath("avgPrice").type(NUMBER).description("avgPrice"),
+                                        fieldWithPath("minPrice").type(NUMBER).description("minPrice"),
+                                        fieldWithPath("maxPrice").type(NUMBER).description("maxPrice"),
+                                        fieldWithPath("startPrice").type(NUMBER).description("startPrice"),
+                                        fieldWithPath("endPrice").type(NUMBER).description("endPrice")
                                 )));
     }
 }

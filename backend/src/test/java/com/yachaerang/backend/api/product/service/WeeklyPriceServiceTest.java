@@ -315,7 +315,7 @@ class WeeklyPriceServiceTest {
 
     @Test
     @DisplayName("1월 1일이 목요일인 해의 1주차 조회 - 전년도 12월 29일부터 시작")
-    void shouldSucceedWhenJan1IsThuesday() {
+    void shouldSucceedWhenJan1IsThursday() {
         // given
         String productCode = "PRODUCT001";
         // 2015년 1월 1일은 목요일

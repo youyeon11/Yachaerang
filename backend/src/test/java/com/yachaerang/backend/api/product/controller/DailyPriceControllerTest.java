@@ -97,8 +97,8 @@ class DailyPriceControllerTest extends RestDocsSupport {
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_LIST_DESCRIPTOR)
                                 .andWithPrefix("data[]",
-                                        fieldWithPath("priceDate").description(STRING).description("priceDate"),
-                                        fieldWithPath("price").description(NUMBER).description("price")
+                                        fieldWithPath("priceDate").type(STRING).description("priceDate"),
+                                        fieldWithPath("price").type(NUMBER).description("price")
                                 )));
     }
 

@@ -91,7 +91,10 @@ ext.jacocoExclusions = [
         '**/common/**',
         '**/test/**',
         '**/*Test*',
-        '**/*Filter*'
+        '**/*Filter*',
+        '**/util/**',
+        '**/exception/**',
+        '**/response/**'
 ]
 
 tasks.register('copySnippets', Copy) {
