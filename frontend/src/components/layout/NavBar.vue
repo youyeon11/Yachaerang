@@ -269,4 +269,25 @@ const handleAvatarError = (e) => {
   object-fit: cover;
   transition: filter 0.18s ease;
 }
+
+.nav-section button:nth-child(-n + 2):hover,
+.nav-section button:nth-child(-n + 2).active {
+  color: #e53935 !important;
+}
+
+.nav-section button:nth-child(n + 3):hover,
+.nav-section button:nth-child(n + 3).active {
+  color: #fecc21 !important;
+}
+.user-button .icon :deep(svg) {
+  stroke: #000 !important;
+  stroke-width: 2 !important;
+}
+
+.user-button:hover .icon :deep(svg),
+.user-button:active .icon :deep(svg) {
+  stroke: #000 !important;
+  stroke-width: 2.4 !important;
+  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.3));
+}
 </style>
