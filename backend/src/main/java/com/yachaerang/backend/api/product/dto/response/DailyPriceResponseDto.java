@@ -15,4 +15,16 @@ public class DailyPriceResponseDto {
         private LocalDate priceDate;
         private Long price;
     }
+
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RankDto {
+        private String itemName;
+        private String itemCode;
+        private String unit;
+        private Long price;
+    }
 }

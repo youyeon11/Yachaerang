@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.restdocs.payload.FieldDescriptor;
 
 import static org.mockito.Mockito.mock;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 
@@ -22,11 +23,12 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 
 @Import({ResponseWrappingAdvice.class})
 class MonthlyPriceControllerTest extends RestDocsSupport {
@@ -113,14 +115,24 @@ class MonthlyPriceControllerTest extends RestDocsSupport {
                 .andExpect(status().isOk())
                 .andDo(doc(
                         "get-monthly-prices",
+                        requestHeaders(),
+                        pathParameters(
+                                parameterWithName("productCode").description("상품 코드")
+                        ),
+                        queryParameters(
+                                parameterWithName("startYear").description("시작 날짜의 연도"),
+                                parameterWithName("startMonth").description("시작 날짜의 달"),
+                                parameterWithName("endYear").description("종료 날짜의 연도"),
+                                parameterWithName("endMonth").description("종료 날짜의 연도")
+                        ),
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_LIST_DESCRIPTOR)
                                 .andWithPrefix("data[]",
-                                        fieldWithPath("priceYear").type(NUMBER).description("priceYear"),
-                                        fieldWithPath("priceMonth").type(NUMBER).description("priceMonth"),
-                                        fieldWithPath("avgPrice").type(NUMBER).description("avgPrice"),
-                                        fieldWithPath("minPrice").type(NUMBER).description("minPrice"),
-                                        fieldWithPath("maxPrice").type(NUMBER).description("maxPrice"))
+                                        fieldWithPath("priceYear").type(NUMBER).description("기록 연도"),
+                                        fieldWithPath("priceMonth").type(NUMBER).description("기록 월"),
+                                        fieldWithPath("avgPrice").type(NUMBER).description("평균 가격"),
+                                        fieldWithPath("minPrice").type(NUMBER).description("최소 가격"),
+                                        fieldWithPath("maxPrice").type(NUMBER).description("최고 가격"))
                         )
                 );
     }

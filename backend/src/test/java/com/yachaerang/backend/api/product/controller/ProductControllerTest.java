@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.restdocs.payload.FieldDescriptor;
 
 import static org.mockito.Mockito.mock;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 
@@ -21,10 +22,11 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 
 @Import({ResponseWrappingAdvice.class})
 class ProductControllerTest extends RestDocsSupport {
@@ -78,11 +80,14 @@ class ProductControllerTest extends RestDocsSupport {
                 .andExpect(status().isOk())
                 .andDo(doc(
                         "get-items",
+                        requestHeaders(),
+                        pathParameters(),
+                        queryParameters(),
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_LIST_DESCRIPTOR)
                                 .andWithPrefix("data[]",
-                                        fieldWithPath("itemName").type(STRING).description("itemName"),
-                                        fieldWithPath("itemCode").type(STRING).description("itemCode")
+                                        fieldWithPath("itemName").type(STRING).description("상위 품목 이름"),
+                                        fieldWithPath("itemCode").type(STRING).description("상위 품목 코드")
                         )
                 ));
     }
@@ -123,6 +128,11 @@ class ProductControllerTest extends RestDocsSupport {
                 .andExpect(status().isOk())
                 .andDo(doc(
                         "get-products",
+                        requestHeaders(),
+                        pathParameters(
+                                parameterWithName("itemCode").description("상위 품목 코드")
+                        ),
+                        queryParameters(),
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_LIST_DESCRIPTOR)
                                 .andWithPrefix("data[]",
