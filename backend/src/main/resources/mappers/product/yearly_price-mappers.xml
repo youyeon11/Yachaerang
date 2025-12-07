@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yachaerang.backend.api.product.repository.YearlyPriceMapper">
+    <resultMap id="yearlyResultMap"
+               type="com.yachaerang.backend.api.product.entity.YearlyPrice">
+        <id property="yearlyPriceId" column="yearly_price_id"/>
+        <result property="productCode" column="product_code"/>
+        <result property="priceYear" column="price_year"/>
+        <result property="avgPrice" column="avg_price"/>
+        <result property="minPrice" column="min_price"/>
+        <result property="maxPrice" column="max_price"/>
+        <result property="startPrice" column="start_price"/>
+        <result property="endPrice" column="end_price"/>
+        <result property="price_count" column="price_count"/>
+    </resultMap>
+    <!-- PriceDto 매핑용 ResultMap -->
+    <resultMap id="priceDtoResultMap"
+               type="com.yachaerang.backend.api.product.dto.response.YearlyPriceResponseDto$PriceDto">
+        <result property="priceYear" column="price_year"/>
+        <result property="avgPrice" column="avg_price"/>
+        <result property="minPrice" column="min_price"/>
+        <result property="maxPrice" column="max_price"/>
+        <result property="startPrice" column="start_price"/>
+        <result property="endPrice" column="end_price"/>
+    </resultMap>
+    <!-- getPriceDuration -->
+    <select id="getPriceDuration"
+            resultMap="priceDtoResultMap">
+        SELECT
+        price_year,
+        avg_price,
+        min_price,
+        max_price,
+        start_price,
+        end_price
+        FROM
+            yearly_price
+        WHERE
+            product_code = #{productCode}
+        AND
+            price_year <![CDATA[ >= ]]> #{startYear}
+          AND price_year <![CDATA[ <= ]]> #{endYear}
+        ORDER BY
+            price_year ASC
+    </select>
+
+    <!-- getPriceSpecification -->
+    <select id="getPriceSpecification"
+            resultMap="priceDtoResultMap">
+        SELECT
+            price_year,
+            avg_price,
+            min_price,
+            max_price,
+            start_price,
+            end_price
+        FROM
+            yearly_price
+        WHERE
+            product_code = #{productCode}
+          AND
+            price_year = #{startYear}
+    </select>
+</mapper>

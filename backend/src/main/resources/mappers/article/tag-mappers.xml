@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yachaerang.backend.api.article.repository.TagMapper">
+    <resultMap id="tagResultMap"
+               type="com.yachaerang.backend.api.article.entity.Tag">
+        <id property="id" column="tag_id"/>
+        <result property="name" column="name"/>
+        <result property="articleId" column="article_id"/>
+    </resultMap>
+
+    <!-- findByArticleIdList -->
+    <select id="findByArticleIdList" resultMap="tagResultMap">
+        SELECT *
+        FROM tag
+        WHERE article_id IN
+        <foreach collection="articleIdList" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY article_id, tag_id
+    </select>
+
+    <!-- findNameByArticleId -->
+    <select id="findNameByArticleId" resultType="String">
+        SELECT name
+        FROM tag
+        WHERE article_id = #{articleId}
+    </select>
+</mapper>

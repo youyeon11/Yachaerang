@@ -48,7 +48,7 @@ class ProductMapperTest {
     @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void ItemCode로_ProductName조회_성공() {
         // given
-        String itemCode = "315";
+        String itemCode = "411";
         // when
         List<ProductResponseDto.SubItemDto> result = productMapper.findProductNameByItemCode(itemCode);
 
@@ -86,11 +86,11 @@ class ProductMapperTest {
         // then
         assertThat(result)
                 .extracting(ProductResponseDto.ItemDto::getItemCode)
-                .contains("224", "225");
+                .contains("411", "412");
 
         assertThat(result)
                 .extracting(ProductResponseDto.ItemDto::getItemName)
-                .contains("호박", "토마토");
+                .contains("사과", "배");
     }
 
     @Test
@@ -99,7 +99,7 @@ class ProductMapperTest {
     @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void SubItemDto_전체필드_검증 () {
         // given
-        String itemCode = "215";
+        String itemCode = "411";
 
         // when
         List<ProductResponseDto.SubItemDto> result = productMapper.findProductNameByItemCode(itemCode);

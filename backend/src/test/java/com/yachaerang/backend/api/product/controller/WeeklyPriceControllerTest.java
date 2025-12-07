@@ -82,9 +82,6 @@ class WeeklyPriceControllerTest extends RestDocsSupport {
         given(weeklyPriceService.getPriceDuration(productCode, startDate, endDate))
                 .willReturn(priceList);
 
-        given(weeklyPriceService.getPriceDuration(productCode, startDate, endDate))
-                .willReturn(priceList);
-
         // when & then
         mockMvc.perform(get("/api/v1/weekly-prices/{productCode}", productCode)
                         .param("startDate", "2024-01-01")
@@ -96,11 +93,11 @@ class WeeklyPriceControllerTest extends RestDocsSupport {
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_LIST_DESCRIPTOR)
                                 .andWithPrefix("data[]",
-                                        fieldWithPath("startDate").description(VARIES).description("startDate"),
-                                        fieldWithPath("endDate").description(VARIES).description("endDate"),
-                                        fieldWithPath("avgPrice").description(NUMBER).description("avgPrice"),
-                                        fieldWithPath("minPrice").description(NUMBER).description("minPrice"),
-                                        fieldWithPath("maxPrice").description(NUMBER).description("maxPrice")
+                                        fieldWithPath("startDate").type(VARIES).description("startDate"),
+                                        fieldWithPath("endDate").type(VARIES).description("endDate"),
+                                        fieldWithPath("avgPrice").type(NUMBER).description("avgPrice"),
+                                        fieldWithPath("minPrice").type(NUMBER).description("minPrice"),
+                                        fieldWithPath("maxPrice").type(NUMBER).description("maxPrice")
                                 )));
     }
 
