@@ -15,7 +15,17 @@
           @keyup.enter="handleSearch"
         />
         <button class="search-btn" @click="handleSearch">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.3-4.3"></path>
           </svg>
@@ -23,14 +33,8 @@
       </div>
     </div>
 
-    <!-- 기사 목록 -->
     <div class="article-list">
-      <div
-        v-for="article in articles"
-        :key="article.id"
-        class="article-item"
-        @click="goToDetail(article.id)"
-      >
+      <div v-for="article in articles" :key="article.id" class="article-item" @click="goToDetail(article.id)">
         <div class="article-thumbnail">
           <img :src="article.thumbnail" :alt="article.title" />
         </div>
@@ -41,11 +45,20 @@
           </div>
           <div class="article-meta">
             <span class="date">{{ article.date }}</span>
-            <span class="author">작성자 : {{ article.author }}</span>
           </div>
         </div>
         <button class="bookmark-btn" @click.stop="toggleBookmark(article.id)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" :fill="article.bookmarked ? '#f5b041' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            :fill="article.bookmarked ? '#f5b041' : 'none'"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
           </svg>
         </button>
@@ -54,11 +67,19 @@
 
     <!-- 페이지네이션 -->
     <div class="pagination">
-      <button class="page-btn nav" :disabled="currentPage === 1" @click="goToPage(1)">
-        처음
-      </button>
+      <button class="page-btn nav" :disabled="currentPage === 1" @click="goToPage(1)">처음</button>
       <button class="page-btn nav" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="m15 18-6-6 6-6"></path>
         </svg>
       </button>
@@ -72,13 +93,21 @@
         {{ page }}
       </button>
       <button class="page-btn nav" :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <path d="m9 18 6-6-6-6"></path>
         </svg>
       </button>
-      <button class="page-btn nav" :disabled="currentPage === totalPages" @click="goToPage(totalPages)">
-        마지막
-      </button>
+      <button class="page-btn nav" :disabled="currentPage === totalPages" @click="goToPage(totalPages)">마지막</button>
     </div>
   </div>
 </template>
@@ -99,34 +128,30 @@ const articles = ref([
     title: '[환경] 두더지가 나타났다!!',
     tags: ['농촌', '여성', '청년', '시골'],
     date: '2025.11.25 01:02',
-    author: '김야치',
     thumbnail: 'https://via.placeholder.com/120x80',
     bookmarked: false,
   },
   {
     id: 2,
     title: '[환경] 두더지가 나타났다!!',
-    tags: [],
+    tags: ['농촌', '여성', '청년', '시골'],
     date: '2025.11.25 01:02',
-    author: '김야치',
     thumbnail: 'https://via.placeholder.com/120x80',
     bookmarked: false,
   },
   {
     id: 3,
     title: '[환경] 두더지가 나타났다!!',
-    tags: [],
+    tags: ['농촌', '여성', '청년', '시골'],
     date: '2025.11.25 01:02',
-    author: '김야치',
     thumbnail: 'https://via.placeholder.com/120x80',
     bookmarked: false,
   },
   {
     id: 4,
     title: '[환경] 두더지가 나타났다!!',
-    tags: [],
+    tags: ['농촌', '여성', '청년', '시골'],
     date: '2025.11.25 01:02',
-    author: '김야치',
     thumbnail: 'https://via.placeholder.com/120x80',
     bookmarked: false,
   },
@@ -202,7 +227,7 @@ const goToPage = (page) => {
 
 .search-box {
   display: flex;
-  border: 2px solid #f5b041;
+  border: 2px solid #fecc21;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -221,7 +246,7 @@ const goToPage = (page) => {
 
 .search-btn {
   padding: 10px 14px;
-  background-color: #f5b041;
+  background-color: #fecc21;
   border: none;
   cursor: pointer;
   display: flex;

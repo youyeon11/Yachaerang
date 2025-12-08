@@ -1,45 +1,18 @@
 <template>
   <div class="article-detail-page">
     <div class="page-header">
-      <h1 class="page-title">기사</h1>
-      <div class="search-box">
-        <input
-          type="text"
-          v-model="searchQuery"
-          placeholder="검색어를 입력하세요."
-          class="search-input"
-          @keyup.enter="handleSearch"
-        />
-        <button class="search-btn" @click="handleSearch">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.3-4.3"></path>
-          </svg>
-        </button>
+      <div class="header-left">
+        <h1 class="page-title">기사</h1>
+        <p class="page-subtitle">한눈에 확인하는, 야채랑 PICK 농촌 기사</p>
       </div>
     </div>
 
-    <!-- 기사 상세 -->
     <article class="article-content">
-      <!-- 제목 -->
       <h1 class="article-title">{{ article.title }}</h1>
 
-      <!-- 메타 정보 -->
       <div class="article-meta">
         <div class="meta-left">
           <span>작성일자 : {{ article.date }}</span>
-          <span class="divider">|</span>
-          <span>작성자 : {{ article.author }}</span>
         </div>
         <div class="meta-right">
           <span>출처: </span>
@@ -47,19 +20,16 @@
         </div>
       </div>
 
-      <!-- 대표 이미지 -->
       <div class="article-image" v-if="article.image">
         <img :src="article.image" :alt="article.title" />
       </div>
 
-      <!-- 본문 -->
       <div class="article-body">
         <p v-for="(paragraph, index) in article.content" :key="index">
           {{ paragraph }}
         </p>
       </div>
 
-      <!-- 태그 -->
       <div class="article-tags" v-if="article.tags && article.tags.length">
         <span class="tags-label">태그</span>
         <div class="tags-list">
@@ -68,7 +38,6 @@
       </div>
     </article>
 
-    <!-- 목록으로 돌아가기 -->
     <div class="back-to-list">
       <button class="back-btn" @click="goToList">
         <svg
@@ -103,7 +72,6 @@ const article = ref({
   id: 1,
   title: "청년 여성 농촌살이, 2025 '시골언니 프로젝트' 시작",
   date: '2025.12.01',
-  author: '김야치',
   sourceUrl: 'https://www.ikpnews.net/news/articleView.html?idxno=67411',
   image: 'https://via.placeholder.com/400x250',
   content: [
@@ -122,10 +90,6 @@ onMounted(() => {
   // article.value = response.data
 });
 
-const handleSearch = () => {
-  router.push({ path: '/articles', query: { search: searchQuery.value } });
-};
-
 const goToList = () => {
   router.push('/articles');
 };
@@ -135,13 +99,21 @@ const goToList = () => {
 .article-detail-page {
   max-width: 900px;
   margin: 0 auto;
+  padding: 16px 0 40px;
 }
 
 .page-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 40px;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .page-title {
@@ -151,40 +123,13 @@ const goToList = () => {
   margin: 0;
 }
 
-.search-box {
-  display: flex;
-  border: 2px solid #f5b041;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.search-input {
-  width: 240px;
-  padding: 10px 14px;
+.page-subtitle {
   font-size: 14px;
-  border: none;
-  outline: none;
+  color: #888;
+  margin: 0;
 }
 
-.search-input::placeholder {
-  color: #999;
-}
-
-.search-btn {
-  padding: 10px 14px;
-  background-color: #f5b041;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #333;
-}
-
-.search-btn:hover {
-  background-color: #e5a030;
-}
-
+/* 기사 내용 */
 .article-content {
   padding-bottom: 40px;
   border-bottom: 1px solid #eee;
@@ -305,6 +250,27 @@ const goToList = () => {
   background-color: #f5f5f5;
   border-color: #ccc;
 }
+
+/* 작은 화면에서는 위아래로 쌓이게 */
+@media (max-width: 640px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .article-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
 </style>
-
-

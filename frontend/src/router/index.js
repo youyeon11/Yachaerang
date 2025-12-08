@@ -18,12 +18,7 @@ const router = createRouter({
       name: 'signup',
       component: () => import('@/views/SignupView.vue'),
     },
-    {
-      path: '/mypage',
-      name: 'mypage',
-      component: () => import('@/views/MyPageView.vue'),
-      meta: { requiresAuth: true },
-    },
+
     {
       path: '/dashboard',
       name: 'dashboard',
@@ -49,28 +44,43 @@ const router = createRouter({
       name: 'ai-chat',
       component: () => import('@/views/AIChat.vue'),
     },
+    {
+      path: '/mypage',
+      component: () => import('@/views/mypage/MyPageLayout.vue'),
+      meta: { requiresAuth: true },
+      children: [
+        { path: '', redirect: '/mypage/farm' },
+
+        { path: 'farm', name: 'MyFarm', component: () => import('@/views/mypage/MyFarmView.vue') },
+        {
+          path: 'profile',
+          name: 'ProfilePasswordConfirm',
+          component: () => import('@/views/mypage/ProfilePasswordConfirm.vue'),
+        },
+        { path: 'profile/edit', name: 'ProfileEdit', component: () => import('@/views/mypage/ProfileEdit.vue') },
+        { path: 'password', name: 'PasswordChange', component: () => import('@/views/mypage/PasswordChange.vue') },
+        { path: 'items', name: 'MyItems', component: () => import('@/views/mypage/MyItemsPlaceholder.vue') },
+      ],
+    },
   ],
 });
 
-// 인증이 필요한 라우트 목록
-const authRequiredRoutes = ['mypage'];
-
-// 인증이 필요한 라우트(마이페이지) 로그인 상태 확인
 router.beforeEach((to, from, next) => {
-  const isAuthRequired = to.meta.requiresAuth || authRequiredRoutes.includes(to.name);
   const accessToken = localStorage.getItem('accessToken');
 
-  // 토큰 유효성 검사
   const hasValidToken =
     accessToken && accessToken.trim() !== '' && accessToken !== 'null' && accessToken !== 'undefined';
 
-  // 인증이 필요한 라우트이고 로그인하지 않은 경우
+  // 현재 라우트 체인(부모 포함) 중 하나라도 requiresAuth면 보호
+  const isAuthRequired = to.matched.some((record) => record.meta.requiresAuth);
+
+  // 1) 로그인 안 되어 있는데 보호 라우트 들어가면 -> 로그인으로
   if (isAuthRequired && !hasValidToken) {
     next({ name: 'login' });
     return;
   }
 
-  // 로그인 상태-> 로그인/회원가입 : 홈
+  // 2) 로그인 상태에서 로그인/회원가입 페이지 접근 -> 메인으로
   if ((to.name === 'login' || to.name === 'signup') && hasValidToken) {
     next({ name: 'main' });
     return;
