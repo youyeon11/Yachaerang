@@ -33,6 +33,11 @@ public class FavoriteService {
                 .productCode(requestDto.getProductCode())
                 .periodType(PeriodType.fromCode(requestDto.getPeriodType()))
                 .build();
+        // 이미 등록되어있는지 확인
+        if (favoriteMapper.findByMemberIdAndProductCode(memberId, requestDto.getProductCode(), requestDto.getPeriodType()) != null) {
+            throw GeneralException.of(ErrorCode.FAVORITE_DUPLICATED);
+        }
+
         int result = favoriteMapper.save(favorite);
 
         if (result != 1) {
