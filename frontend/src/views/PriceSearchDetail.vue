@@ -512,7 +512,7 @@ function getWeekRangeFromDate(date) {
   if (!date) return null;
   const d = new Date(date);
   const dayOfWeek = d.getDay();
-  const diff = d.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // 월요일로 이동
+  const diff = d.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
   const monday = new Date(d.setDate(diff));
   const sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6);
