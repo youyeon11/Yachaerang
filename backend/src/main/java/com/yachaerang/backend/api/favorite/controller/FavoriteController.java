@@ -1,0 +1,50 @@
+package com.yachaerang.backend.api.favorite.controller;
+
+import com.yachaerang.backend.api.favorite.dto.request.FavoriteRequestDto;
+import com.yachaerang.backend.api.favorite.dto.response.FavoriteResponseDto;
+import com.yachaerang.backend.api.favorite.service.FavoriteService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RequestMapping("/api/v1/favorites")
+@RequiredArgsConstructor
+public class FavoriteController {
+
+    private final FavoriteService favoriteService;
+
+    /**
+     * 관심사 등록하기
+     * @return
+     */
+    @PostMapping("")
+    public FavoriteResponseDto.RegisterDto register(
+            @RequestHeader("Authorization") String accessToken,
+            @RequestBody FavoriteRequestDto.RegisterDto requestDto
+            ) {
+        return favoriteService.register(requestDto);
+    }
+
+    /**
+     * 관심사 해제하기
+     * @return
+     */
+    @DeleteMapping("/{favoriteId}")
+    public void erase(
+            @RequestHeader("Authorization") String accessToken,
+            @RequestParam("favoriteId") Long favoriteId
+    ) {
+        favoriteService.erase(favoriteId);
+    }
+
+    /**
+     * 관심사 목록 전체 조회하기
+     */
+    @GetMapping("")
+    public List<FavoriteResponseDto.RegisterDto> getAll(
+            @RequestHeader("Authorization") String token
+    ) {
+        return favoriteService.getAllFavoriteList();
+    }
+}
