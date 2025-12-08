@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.jdbc.SqlMergeMode;
 
 import java.util.List;
@@ -22,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Sql("classpath:H2_schema.sql")
 @SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
 @Import(MyBatisConfig.class)
+@SqlConfig(encoding = "UTF-8")
 class ProductMapperTest {
 
     @Autowired
