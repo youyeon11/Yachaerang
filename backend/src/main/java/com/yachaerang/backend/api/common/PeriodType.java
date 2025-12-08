@@ -32,7 +32,7 @@ public enum PeriodType implements CodeEnum {
                 return periodType;
             }
         }
-        log.warn("Invalid member status code: {}", code);
+        log.warn("Invalid period type code: {}", code);
         throw GeneralException.of(ErrorCode.ENUM_MAPPED_FAILED);
     }
 }
