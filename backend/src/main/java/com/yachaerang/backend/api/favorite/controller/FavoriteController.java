@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RestController
 @RequestMapping("/api/v1/favorites")
 @RequiredArgsConstructor
 public class FavoriteController {
@@ -33,7 +34,7 @@ public class FavoriteController {
     @DeleteMapping("/{favoriteId}")
     public void erase(
             @RequestHeader("Authorization") String accessToken,
-            @RequestParam("favoriteId") Long favoriteId
+            @PathVariable Long favoriteId
     ) {
         favoriteService.erase(favoriteId);
     }
