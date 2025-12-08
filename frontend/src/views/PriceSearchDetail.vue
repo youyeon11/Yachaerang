@@ -6,7 +6,6 @@
     </header>
 
     <section class="search-card">
-      <!-- 1행: 품목 / 품종 -->
       <div class="row row-top">
         <div class="field">
           <span class="field-label">품목</span>
@@ -20,7 +19,6 @@
 
         <div class="field">
           <span class="field-label">품종</span>
-          <!-- ✅ 품종 = productCode 선택 -->
           <select v-model="selectedVariety" class="select" :disabled="!selectedItem">
             <option value="">선택</option>
             <option v-for="variety in varietyOptions" :key="variety.value" :value="variety.value">
@@ -32,9 +30,7 @@
 
       <div class="divider"></div>
 
-      <!-- 2행: 기간 + 날짜 + 버튼 -->
       <div class="row row-bottom">
-        <!-- 기간 탭 -->
         <div class="field period-field">
           <span class="field-label">기간</span>
           <div class="period-tabs">
@@ -51,11 +47,8 @@
           </div>
         </div>
 
-        <!-- 날짜 + 버튼 -->
         <div class="row row-bottom-right">
-          <!-- 날짜 선택 -->
           <div class="date-range">
-            <!-- 일별 -->
             <template v-if="periodType === 'day'">
               <div class="date-input">
                 <span class="date-icon">📅</span>
@@ -68,7 +61,6 @@
               </div>
             </template>
 
-            <!-- 주별 -->
             <template v-else-if="periodType === 'week'">
               <div class="date-input week-input" :class="{ 'week-selected': weekStart }">
                 <span class="date-icon">📅</span>
@@ -81,7 +73,6 @@
               </div>
             </template>
 
-            <!-- 월별 -->
             <template v-else-if="periodType === 'month'">
               <div class="date-input">
                 <span class="date-icon">📅</span>
@@ -94,9 +85,7 @@
               </div>
             </template>
 
-            <!-- 연도별 -->
             <template v-else>
-              <!-- 연도 범위 -->
               <div class="year-range" v-if="!isYearDetail">
                 <div class="date-input">
                   <span class="date-icon">📅</span>
@@ -119,7 +108,6 @@
                 </div>
               </div>
 
-              <!-- 특정 연도 하나 -->
               <div class="year-range" v-else>
                 <div class="date-input">
                   <span class="date-icon">📅</span>
@@ -134,7 +122,6 @@
             </template>
           </div>
 
-          <!-- 연도별 옵션 -->
           <div v-if="periodType === 'year'" class="year-detail-toggle">
             <label>
               <input type="checkbox" v-model="isYearDetail" />
@@ -142,7 +129,6 @@
             </label>
           </div>
 
-          <!-- 버튼 -->
           <div class="actions">
             <button type="button" class="reset-btn" @click="resetFilters">
               <span class="reset-icon">⟳</span>
@@ -154,7 +140,6 @@
       </div>
     </section>
 
-    <!-- 결과 테이블 (있을 때만) -->
     <section v-if="priceResult.length" class="result-card">
       <h2 class="result-title">조회 결과</h2>
       <table class="result-table">
@@ -179,15 +164,14 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import api from '@/api/axios';
 
-/* ===== 기본 상태 ===== */
 const selectedItem = ref('');
-const selectedVariety = ref(''); // ✅ 여기에 productCode가 들어가게 할 거임
+const selectedVariety = ref('');
 
 const itemOptions = ref([]);
 const varietyOptions = ref([]);
 const priceResult = ref([]);
 
-const periodType = ref('year'); // 기본 연간
+const periodType = ref('year');
 
 const periodTabs = [
   { value: 'year', label: '연간' },
@@ -226,7 +210,6 @@ const maxDate = yesterday.toISOString().slice(0, 10);
 // 월 max
 const maxMonth = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}`;
 
-// 연도 옵션
 const maxYear = yesterday.getFullYear();
 const minYear = 2000;
 
@@ -250,7 +233,7 @@ function getISOWeekYearAndNumber(date) {
 }
 
 // "완전히 끝난 주"까지만 선택 가능
-const weekday = today.getDay(); // 0=일,1=월,...6=토
+const weekday = today.getDay();
 const daysSinceMonday = (weekday + 6) % 7;
 const lastWeekSunday = new Date(today);
 lastWeekSunday.setDate(today.getDate() - daysSinceMonday - 1);
@@ -258,7 +241,6 @@ lastWeekSunday.setDate(today.getDate() - daysSinceMonday - 1);
 const maxWeekObj = getISOWeekYearAndNumber(lastWeekSunday);
 const maxWeek = `${maxWeekObj.year}-W${String(maxWeekObj.week).padStart(2, '0')}`;
 
-// "YYYY-Www" → 그 주의 월요일~일요일
 function getWeekRange(weekStr) {
   const [yearStr, weekPart] = weekStr.split('-W');
   const year = Number(yearStr);
@@ -281,7 +263,6 @@ function getWeekRange(weekStr) {
   };
 }
 
-/* ===== 품목 / 품종 API ===== */
 const fetchItems = async () => {
   try {
     const res = await api.get('/api/v1/products/item');
@@ -314,9 +295,8 @@ const fetchSubItems = async (itemCode) => {
     const body = res.data;
     const list = Array.isArray(body) ? body : Array.isArray(body?.data) ? body.data : [];
 
-    // ✅ 품종 value = productCode 로 통일
     varietyOptions.value = list.map((sub) => ({
-      value: sub.productCode ?? sub.code ?? sub.id, // ★ productCode
+      value: sub.productCode ?? sub.code ?? sub.id,
       label: sub.subItemName ?? sub.name ?? sub.productName ?? '',
     }));
 
@@ -336,7 +316,6 @@ onMounted(() => {
   fetchItems();
 });
 
-/* ===== 기간 탭 / 리셋 ===== */
 const handlePeriodClick = (type) => {
   periodType.value = type;
 
@@ -372,12 +351,6 @@ const resetFilters = () => {
   priceResult.value = [];
 };
 
-/* ===== 응답에서 data 배열 꺼내기 ===== */
-/** 백엔드 응답이
- *  1) [ { priceDate, price }, ... ]
- *  2) { data: [ { priceDate, price }, ... ] }
- *  둘 중 하나라고 가정
- */
 function extractPriceList(raw) {
   if (!raw) return [];
 
@@ -390,9 +363,7 @@ function extractPriceList(raw) {
   return [];
 }
 
-/* ===== 검색 ===== */
 const handleSearch = async () => {
-  // ✅ 무조건 품종(productCode) 기준으로 조회
   const productCode = selectedVariety.value;
 
   console.log('▶ handleSearch 호출됨', {
@@ -403,7 +374,7 @@ const handleSearch = async () => {
   });
 
   if (!productCode) {
-    console.warn('⛔ productCode 없음 (품종 미선택)');
+    console.warn('productCode 없음 (품종 미선택)');
     alert('품종을 먼저 선택해 주세요.');
     return;
   }
@@ -525,18 +496,18 @@ const handleSearch = async () => {
     }
 
     // 최종 URL 디버그용
-    console.log('📡 최종 요청 URL =', url + '?' + new URLSearchParams(params).toString());
+    console.log('최종 요청 URL =', url + '?' + new URLSearchParams(params).toString());
 
     const { data } = await api.get(url, { params });
 
-    console.log('📦 raw 응답 data', data);
+    console.log('raw 응답 data', data);
 
     const list = extractPriceList(data);
     priceResult.value = list;
 
-    console.log('✅ 조회 결과 리스트', list);
+    console.log('조회 결과 리스트', list);
   } catch (error) {
-    console.error('❌ 가격 조회 실패', error);
+    console.error('가격 조회 실패', error);
     if (error.response) {
       console.error('응답 상태코드:', error.response.status);
       console.error('응답 바디:', error.response.data);
@@ -755,7 +726,6 @@ const handleSearch = async () => {
   margin: 4px 0;
 }
 
-/* 결과 테이블 */
 .result-card {
   max-width: 1000px;
   margin: 24px auto 0;
