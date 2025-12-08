@@ -160,7 +160,7 @@ CREATE TABLE favorite (
         CHECK (period_type IN ('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY')),
 
     INDEX idx_favorite_member_id (member_id),
-    INDEX idx_favorite_product_id (product_code)
+    INDEX idx_favorite_product_code (product_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 9. daily_price table
