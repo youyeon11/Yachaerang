@@ -17,7 +17,6 @@ public class FavoriteController {
 
     /**
      * 관심사 등록하기
-     * @return
      */
     @PostMapping("")
     public FavoriteResponseDto.RegisterDto register(
@@ -29,7 +28,6 @@ public class FavoriteController {
 
     /**
      * 관심사 해제하기
-     * @return
      */
     @DeleteMapping("/{favoriteId}")
     public void erase(
