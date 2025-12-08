@@ -27,7 +27,7 @@ const router = createRouter({
     {
       path: '/search',
       name: 'search',
-      component: () => import('@/views/SerachDashboard.vue'),
+      component: () => import('@/views/PriceSearchDetail.vue'),
     },
     {
       path: '/articles',
