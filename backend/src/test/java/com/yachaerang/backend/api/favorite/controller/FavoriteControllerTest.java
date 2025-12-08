@@ -117,7 +117,7 @@ class FavoriteControllerTest extends RestDocsSupport {
                                     fieldWithPath("favoriteId").type(NUMBER).description("관심 대시보드(favorite) 고유 ID"),
                                     fieldWithPath("productCode").type(STRING).description("상품 코드"),
                                     fieldWithPath("periodType").type(STRING).description("기간 타입")
-                            )));;
+                            )));
     }
 
     @Test
