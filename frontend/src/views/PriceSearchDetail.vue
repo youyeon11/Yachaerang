@@ -16,7 +16,6 @@
             </option>
           </select>
         </div>
-
         <div class="field">
           <span class="field-label">품종</span>
           <select v-model="selectedVariety" class="select" :disabled="!selectedItem">
@@ -49,42 +48,152 @@
 
         <div class="row row-bottom-right">
           <div class="date-range">
+            <!-- 일별 -->
             <template v-if="periodType === 'day'">
-              <div class="date-input">
-                <span class="date-icon">📅</span>
-                <input v-model="dayStart" type="date" class="date-field" :max="maxDate" />
-              </div>
+              <VDatePicker
+                v-model="dayStartDate"
+                :max-date="yesterday"
+                locale="ko"
+                color="red"
+                :popover="{ visibility: 'click' }"
+              >
+                <template #default="{ inputValue, togglePopover }">
+                  <div class="date-input clickable" @click="togglePopover">
+                    <span class="date-icon">📅</span>
+                    <input :value="inputValue" class="date-field" placeholder="시작일" readonly />
+                  </div>
+                </template>
+              </VDatePicker>
               <span class="date-separator">~</span>
-              <div class="date-input">
-                <span class="date-icon">📅</span>
-                <input v-model="dayEnd" type="date" class="date-field" :max="maxDate" />
-              </div>
+              <VDatePicker
+                v-model="dayEndDate"
+                :max-date="yesterday"
+                :min-date="dayStartDate"
+                locale="ko"
+                color="red"
+                :popover="{ visibility: 'click' }"
+              >
+                <template #default="{ inputValue, togglePopover }">
+                  <div class="date-input clickable" @click="togglePopover">
+                    <span class="date-icon">📅</span>
+                    <input :value="inputValue" class="date-field" placeholder="종료일" readonly />
+                  </div>
+                </template>
+              </VDatePicker>
             </template>
 
+            <!-- 주별 -->
             <template v-else-if="periodType === 'week'">
-              <div class="date-input week-input" :class="{ 'week-selected': weekStart }">
-                <span class="date-icon">📅</span>
-                <input v-model="weekStart" type="week" class="date-field" :max="maxWeek" />
-              </div>
+              <VDatePicker
+                :attributes="weekStartAttributes"
+                :max-date="lastWeekSunday"
+                locale="ko"
+                color="red"
+                :popover="{ visibility: 'click' }"
+                @dayclick="onWeekStartClick"
+              >
+                <template #default="{ togglePopover }">
+                  <div class="date-input clickable" :class="{ 'week-selected': weekStartDate }" @click="togglePopover">
+                    <span class="date-icon">📅</span>
+                    <input
+                      :value="formatWeekDisplay(weekStartDate)"
+                      class="date-field"
+                      placeholder="시작 주"
+                      readonly
+                    />
+                  </div>
+                </template>
+              </VDatePicker>
               <span class="date-separator">~</span>
-              <div class="date-input week-input" :class="{ 'week-selected': weekEnd }">
-                <span class="date-icon">📅</span>
-                <input v-model="weekEnd" type="week" class="date-field" :max="maxWeek" />
-              </div>
+              <VDatePicker
+                :attributes="weekEndAttributes"
+                :max-date="lastWeekSunday"
+                :min-date="weekStartDate || null"
+                locale="ko"
+                color="red"
+                :popover="{ visibility: 'click' }"
+                @dayclick="onWeekEndClick"
+              >
+                <template #default="{ togglePopover }">
+                  <div class="date-input clickable" :class="{ 'week-selected': weekEndDate }" @click="togglePopover">
+                    <span class="date-icon">📅</span>
+                    <input :value="formatWeekDisplay(weekEndDate)" class="date-field" placeholder="종료 주" readonly />
+                  </div>
+                </template>
+              </VDatePicker>
             </template>
 
+            <!-- 월별 -->
             <template v-else-if="periodType === 'month'">
-              <div class="date-input">
-                <span class="date-icon">📅</span>
-                <input v-model="monthStart" type="month" class="date-field" :max="maxMonth" />
+              <div class="month-picker-wrapper">
+                <div class="date-input clickable" @click="toggleMonthStartPicker">
+                  <span class="date-icon">📅</span>
+                  <input
+                    :value="formatMonthDisplay(monthStartDate)"
+                    class="date-field"
+                    placeholder="시작 월"
+                    readonly
+                  />
+                </div>
+                <div v-if="showMonthStartPicker" class="month-picker-popup">
+                  <div class="month-picker-header">
+                    <button type="button" class="month-nav-btn" @click="monthStartYear--">‹</button>
+                    <span class="month-picker-year">{{ monthStartYear }}년</span>
+                    <button type="button" class="month-nav-btn" @click="monthStartYear++">›</button>
+                  </div>
+                  <div class="month-grid">
+                    <button
+                      v-for="m in 12"
+                      :key="'start-' + m"
+                      type="button"
+                      class="month-btn"
+                      :class="{
+                        selected: isMonthSelected(monthStartDate, monthStartYear, m),
+                        disabled: isMonthDisabled(monthStartYear, m),
+                      }"
+                      :disabled="isMonthDisabled(monthStartYear, m)"
+                      @click="selectMonthStart(monthStartYear, m)"
+                    >
+                      {{ m }}월
+                    </button>
+                  </div>
+                </div>
               </div>
+
               <span class="date-separator">~</span>
-              <div class="date-input">
-                <span class="date-icon">📅</span>
-                <input v-model="monthEnd" type="month" class="date-field" :max="maxMonth" />
+
+              <div class="month-picker-wrapper">
+                <div class="date-input clickable" @click="toggleMonthEndPicker">
+                  <span class="date-icon">📅</span>
+                  <input :value="formatMonthDisplay(monthEndDate)" class="date-field" placeholder="종료 월" readonly />
+                </div>
+                <div v-if="showMonthEndPicker" class="month-picker-popup">
+                  <div class="month-picker-header">
+                    <button type="button" class="month-nav-btn" @click="monthEndYear--">‹</button>
+                    <span class="month-picker-year">{{ monthEndYear }}년</span>
+                    <button type="button" class="month-nav-btn" @click="monthEndYear++">›</button>
+                  </div>
+                  <div class="month-grid">
+                    <button
+                      v-for="m in 12"
+                      :key="'end-' + m"
+                      type="button"
+                      class="month-btn"
+                      :class="{
+                        selected: isMonthSelected(monthEndDate, monthEndYear, m),
+                        disabled: isMonthEndDisabled(monthEndYear, m),
+                      }"
+                      :disabled="isMonthEndDisabled(monthEndYear, m)"
+                      @click="selectMonthEnd(monthEndYear, m)"
+                    >
+                      {{ m }}월
+                    </button>
+                  </div>
+                </div>
               </div>
             </template>
 
+            <!-- 연별 -->
             <template v-else>
               <div class="year-range" v-if="!isYearDetail">
                 <div class="date-input">
@@ -107,7 +216,6 @@
                   </select>
                 </div>
               </div>
-
               <div class="year-range" v-else>
                 <div class="date-input">
                   <span class="date-icon">📅</span>
@@ -161,18 +269,18 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import api from '@/api/axios';
+
+/* ================= 공통 상태: 품목 / 기간 ================= */
 
 const selectedItem = ref('');
 const selectedVariety = ref('');
-
 const itemOptions = ref([]);
 const varietyOptions = ref([]);
 const priceResult = ref([]);
 
 const periodType = ref('year');
-
 const periodTabs = [
   { value: 'year', label: '연간' },
   { value: 'month', label: '월간' },
@@ -180,35 +288,13 @@ const periodTabs = [
   { value: 'day', label: '일간' },
 ];
 
-// 일별
-const dayStart = ref('');
-const dayEnd = ref('');
+/* ================= 공통: 날짜 제한 / 연도 옵션 ================= */
 
-// 주간
-const weekStart = ref('');
-const weekEnd = ref('');
-
-// 월별
-const monthStart = ref('');
-const monthEnd = ref('');
-
-// 연도별
-const isYearDetail = ref(false);
-const yearStart = ref('');
-const yearEnd = ref('');
-const yearDetail = ref('');
-
-/* ===== 날짜 제한 (과거만) ===== */
 const today = new Date();
 today.setHours(0, 0, 0, 0);
+
 const yesterday = new Date(today);
 yesterday.setDate(yesterday.getDate() - 1);
-
-// 일자 max
-const maxDate = yesterday.toISOString().slice(0, 10);
-
-// 월 max
-const maxMonth = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}`;
 
 const maxYear = yesterday.getFullYear();
 const minYear = 2000;
@@ -221,7 +307,17 @@ const yearOptions = computed(() => {
   return years;
 });
 
-/* ===== 주차 관련 ===== */
+/* ================= 일별 ================= */
+
+const dayStartDate = ref(null);
+const dayEndDate = ref(null);
+
+/* ================= 주별 ================= */
+
+const weekStartDate = ref(null);
+const weekEndDate = ref(null);
+
+// ISO 주차 계산 (표시용)
 function getISOWeekYearAndNumber(date) {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const dayNum = d.getUTCDay() || 7;
@@ -232,45 +328,220 @@ function getISOWeekYearAndNumber(date) {
   return { year, week };
 }
 
-// "완전히 끝난 주"까지만 선택 가능
+// 해당 날짜가 속한 주의 월요일
+function getMondayOfWeek(date) {
+  const d = new Date(date);
+  const dayOfWeek = d.getDay();
+  const diff = d.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+  const monday = new Date(d);
+  monday.setDate(diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+}
+
+// 주 범위 (월~일) - Date 범위 (v-calendar highlight용)
+function getWeekRange(date) {
+  if (!date) return null;
+  const monday = getMondayOfWeek(date);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
+  return { start: monday, end: sunday };
+}
+
+// 시작 주 클릭
+function onWeekStartClick(day) {
+  const monday = getMondayOfWeek(day.date);
+  weekStartDate.value = monday;
+
+  // 시작 주를 뒤로 옮기면 종료 주 초기화
+  if (weekEndDate.value && monday > getMondayOfWeek(weekEndDate.value)) {
+    weekEndDate.value = null;
+  }
+}
+
+// 종료 주 클릭
+function onWeekEndClick(day) {
+  const monday = getMondayOfWeek(day.date);
+
+  // 시작 주 이전은 선택 불가
+  if (weekStartDate.value && monday < getMondayOfWeek(weekStartDate.value)) {
+    alert('종료 주는 시작 주 이후여야 합니다.');
+    return;
+  }
+
+  weekEndDate.value = monday;
+}
+
+// v-calendar highlight attributes
+const weekStartAttributes = computed(() => {
+  if (!weekStartDate.value) return [];
+  const range = getWeekRange(weekStartDate.value);
+  if (!range) return [];
+  return [
+    {
+      key: 'week-highlight-start',
+      highlight: {
+        start: { fillMode: 'solid', color: 'red' },
+        base: { fillMode: 'light', color: 'red' },
+        end: { fillMode: 'solid', color: 'red' },
+      },
+      dates: range,
+    },
+  ];
+});
+
+const weekEndAttributes = computed(() => {
+  if (!weekEndDate.value) return [];
+  const range = getWeekRange(weekEndDate.value);
+  if (!range) return [];
+  return [
+    {
+      key: 'week-highlight-end',
+      highlight: {
+        start: { fillMode: 'solid', color: 'red' },
+        base: { fillMode: 'light', color: 'red' },
+        end: { fillMode: 'solid', color: 'red' },
+      },
+      dates: range,
+    },
+  ];
+});
+
+// "완전히 끝난 주"까지만 선택 가능하게 하는 기준 일요일
 const weekday = today.getDay();
 const daysSinceMonday = (weekday + 6) % 7;
 const lastWeekSunday = new Date(today);
 lastWeekSunday.setDate(today.getDate() - daysSinceMonday - 1);
 
-const maxWeekObj = getISOWeekYearAndNumber(lastWeekSunday);
-const maxWeek = `${maxWeekObj.year}-W${String(maxWeekObj.week).padStart(2, '0')}`;
+/* ================= 월별 ================= */
 
-function getWeekRange(weekStr) {
-  const [yearStr, weekPart] = weekStr.split('-W');
-  const year = Number(yearStr);
-  const week = Number(weekPart);
+const monthStartDate = ref(null);
+const monthEndDate = ref(null);
 
-  const simple = new Date(Date.UTC(year, 0, 1 + (week - 1) * 7));
-  const dow = simple.getUTCDay() || 7;
-  const monday = new Date(simple);
-  if (dow <= 4) {
-    monday.setUTCDate(simple.getUTCDate() - (dow - 1));
-  } else {
-    monday.setUTCDate(simple.getUTCDate() + (8 - dow));
+const showMonthStartPicker = ref(false);
+const showMonthEndPicker = ref(false);
+const monthStartYear = ref(new Date().getFullYear());
+const monthEndYear = ref(new Date().getFullYear());
+
+function toggleMonthStartPicker() {
+  showMonthStartPicker.value = !showMonthStartPicker.value;
+  showMonthEndPicker.value = false;
+  if (showMonthStartPicker.value && monthStartDate.value) {
+    monthStartYear.value = new Date(monthStartDate.value).getFullYear();
   }
-  const sunday = new Date(monday);
-  sunday.setUTCDate(monday.getUTCDate() + 6);
+}
 
+function toggleMonthEndPicker() {
+  showMonthEndPicker.value = !showMonthEndPicker.value;
+  showMonthStartPicker.value = false;
+  if (showMonthEndPicker.value && monthEndDate.value) {
+    monthEndYear.value = new Date(monthEndDate.value).getFullYear();
+  }
+}
+
+function selectMonthStart(year, month) {
+  monthStartDate.value = new Date(year, month - 1, 1);
+  showMonthStartPicker.value = false;
+
+  // 시작 월보다 이전인 종료 월은 초기화
+  if (monthEndDate.value && monthEndDate.value < monthStartDate.value) {
+    monthEndDate.value = null;
+  }
+}
+
+function selectMonthEnd(year, month) {
+  monthEndDate.value = new Date(year, month - 1, 1);
+  showMonthEndPicker.value = false;
+}
+
+function isMonthSelected(selectedDate, year, month) {
+  if (!selectedDate) return false;
+  const d = new Date(selectedDate);
+  return d.getFullYear() === year && d.getMonth() === month - 1;
+}
+
+// 미래 월 비활성화
+function isMonthDisabled(year, month) {
+  const target = new Date(year, month - 1, 1);
+  const maxDateForMonth = new Date(yesterday.getFullYear(), yesterday.getMonth(), 1);
+  return target > maxDateForMonth;
+}
+
+// 시작 월 이전의 종료 월 비활성화
+function isMonthEndDisabled(year, month) {
+  if (isMonthDisabled(year, month)) return true;
+  if (monthStartDate.value) {
+    const target = new Date(year, month - 1, 1);
+    return target < monthStartDate.value;
+  }
+  return false;
+}
+
+// 외부 클릭 시 월 팝업 닫기
+function handleClickOutside(event) {
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+  if (!target.closest('.month-picker-wrapper')) {
+    showMonthStartPicker.value = false;
+    showMonthEndPicker.value = false;
+  }
+}
+
+/* ================= 연도별 ================= */
+
+const isYearDetail = ref(false);
+const yearStart = ref('');
+const yearEnd = ref('');
+const yearDetail = ref('');
+
+/* ================= 공통 포맷터 / 변환 ================= */
+
+// 날짜 → 'YYYY-MM-DD'
+function formatDateToString(date) {
+  if (!date) return '';
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+// Date 기준 주(월~일) → 문자열 범위
+function getWeekRangeFromDate(date) {
+  if (!date) return null;
+  const d = new Date(date);
+  const dayOfWeek = d.getDay();
+  const diff = d.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // 월요일로 이동
+  const monday = new Date(d.setDate(diff));
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
   return {
-    start: monday.toISOString().slice(0, 10),
-    end: sunday.toISOString().slice(0, 10),
+    start: formatDateToString(monday),
+    end: formatDateToString(sunday),
   };
 }
+
+function formatWeekDisplay(date) {
+  if (!date) return '';
+  const { year, week } = getISOWeekYearAndNumber(new Date(date));
+  return `${year}년 ${week}주차`;
+}
+
+function formatMonthDisplay(date) {
+  if (!date) return '';
+  const d = new Date(date);
+  return `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
+}
+
+/* ================= API: 품목 / 품종 ================= */
 
 const fetchItems = async () => {
   try {
     const res = await api.get('/api/v1/products/item');
     console.log('품목 응답:', res.data);
-
     const body = res.data;
     const list = Array.isArray(body) ? body : Array.isArray(body?.data) ? body.data : [];
-
     itemOptions.value = list.map((item) => ({
       value: item.itemCode ?? item.code ?? item.id,
       label: item.itemName ?? item.name ?? '',
@@ -287,19 +558,15 @@ const fetchSubItems = async (itemCode) => {
     selectedVariety.value = '';
     return;
   }
-
   try {
     const res = await api.get(`/api/v1/products/${itemCode}/subItem`);
     console.log('하위품목 응답:', res.data);
-
     const body = res.data;
     const list = Array.isArray(body) ? body : Array.isArray(body?.data) ? body.data : [];
-
     varietyOptions.value = list.map((sub) => ({
       value: sub.productCode ?? sub.code ?? sub.id,
       label: sub.subItemName ?? sub.name ?? sub.productName ?? '',
     }));
-
     selectedVariety.value = '';
   } catch (error) {
     console.error('하위품목 목록 조회 실패:', error);
@@ -312,19 +579,29 @@ watch(selectedItem, (newItem) => {
   fetchSubItems(newItem);
 });
 
+/* ================= 라이프사이클 ================= */
+
 onMounted(() => {
   fetchItems();
+  document.addEventListener('click', handleClickOutside);
 });
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
+
+/* ================= 필터 / 초기화 ================= */
 
 const handlePeriodClick = (type) => {
   periodType.value = type;
 
-  dayStart.value = '';
-  dayEnd.value = '';
-  weekStart.value = '';
-  weekEnd.value = '';
-  monthStart.value = '';
-  monthEnd.value = '';
+  // 기간 변경 시 날짜 관련 상태 모두 초기화
+  dayStartDate.value = null;
+  dayEndDate.value = null;
+  weekStartDate.value = null;
+  weekEndDate.value = null;
+  monthStartDate.value = null;
+  monthEndDate.value = null;
   yearStart.value = '';
   yearEnd.value = '';
   yearDetail.value = '';
@@ -337,12 +614,12 @@ const resetFilters = () => {
   selectedVariety.value = '';
   periodType.value = 'year';
 
-  dayStart.value = '';
-  dayEnd.value = '';
-  weekStart.value = '';
-  weekEnd.value = '';
-  monthStart.value = '';
-  monthEnd.value = '';
+  dayStartDate.value = null;
+  dayEndDate.value = null;
+  weekStartDate.value = null;
+  weekEndDate.value = null;
+  monthStartDate.value = null;
+  monthEndDate.value = null;
   yearStart.value = '';
   yearEnd.value = '';
   yearDetail.value = '';
@@ -351,26 +628,24 @@ const resetFilters = () => {
   priceResult.value = [];
 };
 
+/* ================= 응답 파싱 ================= */
+
 function extractPriceList(raw) {
   if (!raw) return [];
-
   if (Array.isArray(raw)) return raw;
-
-  if (raw && typeof raw === 'object') {
-    if (Array.isArray(raw.data)) return raw.data;
+  if (raw && typeof raw === 'object' && Array.isArray(raw.data)) {
+    return raw.data;
   }
-
   return [];
 }
 
+/* ================= 검색 ================= */
+
 const handleSearch = async () => {
   const productCode = selectedVariety.value;
-
   console.log('▶ handleSearch 호출됨', {
     periodType: periodType.value,
     productCode,
-    dayStart: dayStart.value,
-    dayEnd: dayEnd.value,
   });
 
   if (!productCode) {
@@ -385,74 +660,59 @@ const handleSearch = async () => {
   try {
     if (periodType.value === 'day') {
       // 일별
-      if (!dayStart.value || !dayEnd.value) {
+      if (!dayStartDate.value || !dayEndDate.value) {
         alert('일별 조회: 시작일과 종료일을 모두 선택해 주세요.');
         return;
       }
-      if (dayStart.value > dayEnd.value) {
+      const startStr = formatDateToString(dayStartDate.value);
+      const endStr = formatDateToString(dayEndDate.value);
+      if (startStr > endStr) {
         alert('일별 조회: 시작일이 종료일보다 늦을 수 없습니다.');
         return;
       }
-      if (dayEnd.value > maxDate) {
-        alert('일별 조회: 오늘과 미래 날짜는 선택할 수 없습니다.');
-        return;
-      }
-
       url = `/api/v1/daily-prices/${productCode}`;
       params = {
-        startDate: dayStart.value,
-        endDate: dayEnd.value,
+        startDate: startStr,
+        endDate: endStr,
       };
     } else if (periodType.value === 'week') {
       // 주간
-      if (!weekStart.value || !weekEnd.value) {
+      if (!weekStartDate.value || !weekEndDate.value) {
         alert('주간 조회: 시작 주와 종료 주를 모두 선택해 주세요.');
         return;
       }
-      if (weekStart.value > weekEnd.value) {
+      const startRange = getWeekRangeFromDate(weekStartDate.value);
+      const endRange = getWeekRangeFromDate(weekEndDate.value);
+      if (startRange.start > endRange.start) {
         alert('주간 조회: 시작 주가 종료 주보다 늦을 수 없습니다.');
         return;
       }
-      if (weekEnd.value > maxWeek) {
-        alert('주간 조회: 미래 주는 선택할 수 없습니다.');
-        return;
-      }
-
-      const startRange = getWeekRange(weekStart.value);
-      const endRange = getWeekRange(weekEnd.value);
-
       url = `/api/v1/weekly-prices/${productCode}`;
       params = {
         startDate: startRange.start,
         endDate: endRange.end,
       };
     } else if (periodType.value === 'month') {
-      // 월별
-      if (!monthStart.value || !monthEnd.value) {
+      // 월간
+      if (!monthStartDate.value || !monthEndDate.value) {
         alert('월간 조회: 시작 월과 종료 월을 모두 선택해 주세요.');
         return;
       }
-      if (monthStart.value > monthEnd.value) {
+      const startD = new Date(monthStartDate.value);
+      const endD = new Date(monthEndDate.value);
+      if (startD > endD) {
         alert('월간 조회: 시작 월이 종료 월보다 늦을 수 없습니다.');
         return;
       }
-      if (monthEnd.value > maxMonth) {
-        alert('월간 조회: 미래 월은 선택할 수 없습니다.');
-        return;
-      }
-
-      const [sy, sm] = monthStart.value.split('-').map(Number);
-      const [ey, em] = monthEnd.value.split('-').map(Number);
-
       url = `/api/v1/monthly-prices/${productCode}`;
       params = {
-        startYear: sy,
-        startMonth: sm,
-        endYear: ey,
-        endMonth: em,
+        startYear: startD.getFullYear(),
+        startMonth: startD.getMonth() + 1,
+        endYear: endD.getFullYear(),
+        endMonth: endD.getMonth() + 1,
       };
     } else if (periodType.value === 'year') {
-      // 연도별
+      // 연간
       if (isYearDetail.value) {
         // 특정 연도 하나만
         if (!yearDetail.value) {
@@ -464,7 +724,6 @@ const handleSearch = async () => {
           alert(`특정 연도 조회: ${minYear} ~ ${maxYear} 사이의 연도만 가능합니다.`);
           return;
         }
-
         url = `/api/v1/yearly-prices/${productCode}/detail`;
         params = { year: y };
       } else {
@@ -483,7 +742,6 @@ const handleSearch = async () => {
           alert(`연간 조회: ${maxYear}년 이후는 선택할 수 없습니다.`);
           return;
         }
-
         url = `/api/v1/yearly-prices/${productCode}`;
         params = {
           startYear: ys,
@@ -495,16 +753,11 @@ const handleSearch = async () => {
       return;
     }
 
-    // 최종 URL 디버그용
     console.log('최종 요청 URL =', url + '?' + new URLSearchParams(params).toString());
-
     const { data } = await api.get(url, { params });
-
     console.log('raw 응답 data', data);
-
     const list = extractPriceList(data);
     priceResult.value = list;
-
     console.log('조회 결과 리스트', list);
   } catch (error) {
     console.error('가격 조회 실패', error);
@@ -637,6 +890,17 @@ const handleSearch = async () => {
   border-radius: 999px;
   border: 1px solid #ddd;
   background-color: #fff;
+  min-width: 130px;
+}
+
+.date-input.clickable {
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.date-input.clickable:hover {
+  border-color: #e53935;
+  background-color: #fff5f5;
 }
 
 .date-icon {
@@ -648,6 +912,8 @@ const handleSearch = async () => {
   outline: none;
   font-size: 13px;
   background: transparent;
+  cursor: inherit;
+  width: 100%;
 }
 
 .date-separator {
@@ -655,13 +921,93 @@ const handleSearch = async () => {
   color: #999;
 }
 
-.week-input.week-selected {
+.week-selected {
   border-color: #e53935;
   background-color: #ffecec;
 }
 
-.week-input.week-selected .date-icon {
+.week-selected .date-icon {
   color: #e53935;
+}
+.month-picker-wrapper {
+  position: relative;
+}
+
+.month-picker-popup {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 12px;
+  min-width: 220px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 20;
+}
+
+.month-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.month-picker-year {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.month-nav-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 16px;
+  line-height: 1;
+  color: #666;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.month-nav-btn:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.month-btn {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background-color: #fafafa;
+  padding: 6px 0;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.month-btn:hover {
+  background-color: #ffecec;
+  border-color: #ffcdd2;
+}
+
+.month-btn.selected {
+  background-color: #e53935;
+  border-color: #e53935;
+  color: #fff;
+}
+
+.month-btn.disabled {
+  background-color: #f5f5f5;
+  border-color: #eee;
+  color: #ccc;
+  cursor: not-allowed;
 }
 
 .year-range {
@@ -763,7 +1109,44 @@ const handleSearch = async () => {
   color: #333;
 }
 
-/* 반응형 */
+/* v-calendar 팝오버 스타일 커스텀 */
+:deep(.vc-popover-content) {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+:deep(.vc-red) {
+  --vc-accent-50: #ffebee;
+  --vc-accent-100: #ffcdd2;
+  --vc-accent-200: #ef9a9a;
+  --vc-accent-300: #e57373;
+  --vc-accent-400: #ef5350;
+  --vc-accent-500: #e53935;
+  --vc-accent-600: #e53935;
+  --vc-accent-700: #d32f2f;
+  --vc-accent-800: #c62828;
+  --vc-accent-900: #b71c1c;
+}
+:deep(.vc-highlight) {
+  border-radius: 0 !important;
+}
+
+:deep(.vc-highlight-base-start) {
+  border-radius: 50% 0 0 50% !important;
+}
+
+:deep(.vc-highlight-base-end) {
+  border-radius: 0 50% 50% 0 !important;
+}
+
+:deep(.vc-highlight-bg-light) {
+  background-color: rgba(229, 57, 53, 0.15) !important;
+}
+
+:deep(.vc-day-content:hover) {
+  background-color: rgba(229, 57, 53, 0.25) !important;
+}
+
 @media (max-width: 768px) {
   .price-search-page {
     padding: 20px 0;
@@ -812,10 +1195,12 @@ const handleSearch = async () => {
   .date-range {
     width: 100%;
     justify-content: space-between;
+    flex-wrap: wrap;
   }
 
   .date-input {
     flex: 1;
+    min-width: 120px;
   }
 
   .actions {
@@ -829,7 +1214,6 @@ const handleSearch = async () => {
   word-break: keep-all;
   white-space: nowrap;
   writing-mode: horizontal-tb;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
