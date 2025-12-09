@@ -1,8 +1,10 @@
 <template>
-  <div class="price-search-page">
+  <div class="page-container price-search-page">
     <header class="page-header">
-      <h1 class="page-title">세부 가격 검색</h1>
-      <p class="page-subtitle">내가 원하는대로 검색하고 정렬할 수 있는 야채랑 농, 수산물 가격정보</p>
+      <div class="page-header-left">
+        <h1 class="page-title">세부 가격 검색</h1>
+        <p class="page-subtitle">내가 원하는대로 검색하고 정렬할 수 있는 야채랑 농, 수산물 가격정보</p>
+      </div>
     </header>
 
     <section class="search-card">
@@ -47,194 +49,210 @@
         </div>
 
         <div class="row row-bottom-right">
-          <div class="date-range">
-            <!-- 일별 -->
-            <template v-if="periodType === 'day'">
-              <VDatePicker
-                v-model="dayStartDate"
-                :max-date="yesterday"
-                locale="ko"
-                color="red"
-                :popover="{ visibility: 'click' }"
-              >
-                <template #default="{ inputValue, togglePopover }">
-                  <div class="date-input clickable" @click="togglePopover">
-                    <span class="date-icon">📅</span>
-                    <input :value="inputValue" class="date-field" placeholder="시작일" readonly />
-                  </div>
-                </template>
-              </VDatePicker>
-              <span class="date-separator">~</span>
-              <VDatePicker
-                v-model="dayEndDate"
-                :max-date="yesterday"
-                :min-date="dayStartDate"
-                locale="ko"
-                color="red"
-                :popover="{ visibility: 'click' }"
-              >
-                <template #default="{ inputValue, togglePopover }">
-                  <div class="date-input clickable" @click="togglePopover">
-                    <span class="date-icon">📅</span>
-                    <input :value="inputValue" class="date-field" placeholder="종료일" readonly />
-                  </div>
-                </template>
-              </VDatePicker>
-            </template>
+          <div class="filters-col">
+            <div class="date-range">
+              <!-- 일별 -->
+              <template v-if="periodType === 'day'">
+                <VDatePicker
+                  v-model="dayStartDate"
+                  :max-date="yesterday"
+                  locale="ko"
+                  color="red"
+                  :popover="{ visibility: 'click' }"
+                >
+                  <template #default="{ inputValue, togglePopover }">
+                    <div class="date-input clickable" @click="togglePopover">
+                      <span class="date-icon">📅</span>
+                      <input :value="inputValue" class="date-field" placeholder="시작일" readonly />
+                    </div>
+                  </template>
+                </VDatePicker>
+                <span class="date-separator">~</span>
+                <VDatePicker
+                  v-model="dayEndDate"
+                  :max-date="yesterday"
+                  :min-date="dayStartDate"
+                  locale="ko"
+                  color="red"
+                  :popover="{ visibility: 'click' }"
+                >
+                  <template #default="{ inputValue, togglePopover }">
+                    <div class="date-input clickable" @click="togglePopover">
+                      <span class="date-icon">📅</span>
+                      <input :value="inputValue" class="date-field" placeholder="종료일" readonly />
+                    </div>
+                  </template>
+                </VDatePicker>
+              </template>
 
-            <!-- 주별 -->
-            <template v-else-if="periodType === 'week'">
-              <VDatePicker
-                :attributes="weekStartAttributes"
-                :max-date="lastWeekSunday"
-                locale="ko"
-                color="red"
-                :popover="{ visibility: 'click' }"
-                @dayclick="onWeekStartClick"
-              >
-                <template #default="{ togglePopover }">
-                  <div class="date-input clickable" :class="{ 'week-selected': weekStartDate }" @click="togglePopover">
+              <!-- 주별 -->
+              <template v-else-if="periodType === 'week'">
+                <VDatePicker
+                  :attributes="weekStartAttributes"
+                  :max-date="lastWeekSunday"
+                  locale="ko"
+                  color="red"
+                  :popover="{ visibility: 'click' }"
+                  @dayclick="onWeekStartClick"
+                >
+                  <template #default="{ togglePopover }">
+                    <div
+                      class="date-input clickable"
+                      :class="{ 'week-selected': weekStartDate }"
+                      @click="togglePopover"
+                    >
+                      <span class="date-icon">📅</span>
+                      <input
+                        :value="formatWeekDisplay(weekStartDate)"
+                        class="date-field"
+                        placeholder="시작 주"
+                        readonly
+                      />
+                    </div>
+                  </template>
+                </VDatePicker>
+                <span class="date-separator">~</span>
+                <VDatePicker
+                  :attributes="weekEndAttributes"
+                  :max-date="lastWeekSunday"
+                  :min-date="weekStartDate || null"
+                  locale="ko"
+                  color="red"
+                  :popover="{ visibility: 'click' }"
+                  @dayclick="onWeekEndClick"
+                >
+                  <template #default="{ togglePopover }">
+                    <div class="date-input clickable" :class="{ 'week-selected': weekEndDate }" @click="togglePopover">
+                      <span class="date-icon">📅</span>
+                      <input
+                        :value="formatWeekDisplay(weekEndDate)"
+                        class="date-field"
+                        placeholder="종료 주"
+                        readonly
+                      />
+                    </div>
+                  </template>
+                </VDatePicker>
+              </template>
+
+              <!-- 월별 -->
+              <template v-else-if="periodType === 'month'">
+                <div class="month-picker-wrapper">
+                  <div class="date-input clickable" @click="toggleMonthStartPicker">
                     <span class="date-icon">📅</span>
                     <input
-                      :value="formatWeekDisplay(weekStartDate)"
+                      :value="formatMonthDisplay(monthStartDate)"
                       class="date-field"
-                      placeholder="시작 주"
+                      placeholder="시작 월"
                       readonly
                     />
                   </div>
-                </template>
-              </VDatePicker>
-              <span class="date-separator">~</span>
-              <VDatePicker
-                :attributes="weekEndAttributes"
-                :max-date="lastWeekSunday"
-                :min-date="weekStartDate || null"
-                locale="ko"
-                color="red"
-                :popover="{ visibility: 'click' }"
-                @dayclick="onWeekEndClick"
-              >
-                <template #default="{ togglePopover }">
-                  <div class="date-input clickable" :class="{ 'week-selected': weekEndDate }" @click="togglePopover">
-                    <span class="date-icon">📅</span>
-                    <input :value="formatWeekDisplay(weekEndDate)" class="date-field" placeholder="종료 주" readonly />
+                  <div v-if="showMonthStartPicker" class="month-picker-popup">
+                    <div class="month-picker-header">
+                      <button type="button" class="month-nav-btn" @click="monthStartYear--">‹</button>
+                      <span class="month-picker-year">{{ monthStartYear }}년</span>
+                      <button type="button" class="month-nav-btn" @click="monthStartYear++">›</button>
+                    </div>
+                    <div class="month-grid">
+                      <button
+                        v-for="m in 12"
+                        :key="'start-' + m"
+                        type="button"
+                        class="month-btn"
+                        :class="{
+                          selected: isMonthSelected(monthStartDate, monthStartYear, m),
+                          disabled: isMonthDisabled(monthStartYear, m),
+                        }"
+                        :disabled="isMonthDisabled(monthStartYear, m)"
+                        @click="selectMonthStart(monthStartYear, m)"
+                      >
+                        {{ m }}월
+                      </button>
+                    </div>
                   </div>
-                </template>
-              </VDatePicker>
-            </template>
+                </div>
 
-            <!-- 월별 -->
-            <template v-else-if="periodType === 'month'">
-              <div class="month-picker-wrapper">
-                <div class="date-input clickable" @click="toggleMonthStartPicker">
-                  <span class="date-icon">📅</span>
-                  <input
-                    :value="formatMonthDisplay(monthStartDate)"
-                    class="date-field"
-                    placeholder="시작 월"
-                    readonly
-                  />
-                </div>
-                <div v-if="showMonthStartPicker" class="month-picker-popup">
-                  <div class="month-picker-header">
-                    <button type="button" class="month-nav-btn" @click="monthStartYear--">‹</button>
-                    <span class="month-picker-year">{{ monthStartYear }}년</span>
-                    <button type="button" class="month-nav-btn" @click="monthStartYear++">›</button>
-                  </div>
-                  <div class="month-grid">
-                    <button
-                      v-for="m in 12"
-                      :key="'start-' + m"
-                      type="button"
-                      class="month-btn"
-                      :class="{
-                        selected: isMonthSelected(monthStartDate, monthStartYear, m),
-                        disabled: isMonthDisabled(monthStartYear, m),
-                      }"
-                      :disabled="isMonthDisabled(monthStartYear, m)"
-                      @click="selectMonthStart(monthStartYear, m)"
-                    >
-                      {{ m }}월
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <span class="date-separator">~</span>
-
-              <div class="month-picker-wrapper">
-                <div class="date-input clickable" @click="toggleMonthEndPicker">
-                  <span class="date-icon">📅</span>
-                  <input :value="formatMonthDisplay(monthEndDate)" class="date-field" placeholder="종료 월" readonly />
-                </div>
-                <div v-if="showMonthEndPicker" class="month-picker-popup">
-                  <div class="month-picker-header">
-                    <button type="button" class="month-nav-btn" @click="monthEndYear--">‹</button>
-                    <span class="month-picker-year">{{ monthEndYear }}년</span>
-                    <button type="button" class="month-nav-btn" @click="monthEndYear++">›</button>
-                  </div>
-                  <div class="month-grid">
-                    <button
-                      v-for="m in 12"
-                      :key="'end-' + m"
-                      type="button"
-                      class="month-btn"
-                      :class="{
-                        selected: isMonthSelected(monthEndDate, monthEndYear, m),
-                        disabled: isMonthEndDisabled(monthEndYear, m),
-                      }"
-                      :disabled="isMonthEndDisabled(monthEndYear, m)"
-                      @click="selectMonthEnd(monthEndYear, m)"
-                    >
-                      {{ m }}월
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </template>
-
-            <!-- 연별 -->
-            <template v-else>
-              <div class="year-range" v-if="!isYearDetail">
-                <div class="date-input">
-                  <span class="date-icon">📅</span>
-                  <select v-model="yearStart" class="date-field">
-                    <option value="">시작 연도</option>
-                    <option v-for="y in yearOptions" :key="'ys-' + y" :value="y">
-                      {{ y }}
-                    </option>
-                  </select>
-                </div>
                 <span class="date-separator">~</span>
-                <div class="date-input">
-                  <span class="date-icon">📅</span>
-                  <select v-model="yearEnd" class="date-field">
-                    <option value="">종료 연도</option>
-                    <option v-for="y in yearOptions" :key="'ye-' + y" :value="y">
-                      {{ y }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-              <div class="year-range" v-else>
-                <div class="date-input">
-                  <span class="date-icon">📅</span>
-                  <select v-model="yearDetail" class="date-field">
-                    <option value="">연도 선택</option>
-                    <option v-for="y in yearOptions" :key="'yd-' + y" :value="y">
-                      {{ y }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-            </template>
-          </div>
 
-          <div v-if="periodType === 'year'" class="year-detail-toggle">
-            <label>
-              <input type="checkbox" v-model="isYearDetail" />
-              특정 연도만 조회
-            </label>
+                <div class="month-picker-wrapper">
+                  <div class="date-input clickable" @click="toggleMonthEndPicker">
+                    <span class="date-icon">📅</span>
+                    <input
+                      :value="formatMonthDisplay(monthEndDate)"
+                      class="date-field"
+                      placeholder="종료 월"
+                      readonly
+                    />
+                  </div>
+                  <div v-if="showMonthEndPicker" class="month-picker-popup">
+                    <div class="month-picker-header">
+                      <button type="button" class="month-nav-btn" @click="monthEndYear--">‹</button>
+                      <span class="month-picker-year">{{ monthEndYear }}년</span>
+                      <button type="button" class="month-nav-btn" @click="monthEndYear++">›</button>
+                    </div>
+                    <div class="month-grid">
+                      <button
+                        v-for="m in 12"
+                        :key="'end-' + m"
+                        type="button"
+                        class="month-btn"
+                        :class="{
+                          selected: isMonthSelected(monthEndDate, monthEndYear, m),
+                          disabled: isMonthEndDisabled(monthEndYear, m),
+                        }"
+                        :disabled="isMonthEndDisabled(monthEndYear, m)"
+                        @click="selectMonthEnd(monthEndYear, m)"
+                      >
+                        {{ m }}월
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+              <!-- 연별 -->
+              <template v-else>
+                <div class="year-range" v-if="!isYearDetail">
+                  <div class="date-input">
+                    <span class="date-icon">📅</span>
+                    <select v-model="yearStart" class="date-field">
+                      <option value="">시작 연도</option>
+                      <option v-for="y in yearOptions" :key="'ys-' + y" :value="y">
+                        {{ y }}
+                      </option>
+                    </select>
+                  </div>
+                  <span class="date-separator">~</span>
+                  <div class="date-input">
+                    <span class="date-icon">📅</span>
+                    <select v-model="yearEnd" class="date-field">
+                      <option value="">종료 연도</option>
+                      <option v-for="y in yearOptions" :key="'ye-' + y" :value="y">
+                        {{ y }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="year-range" v-else>
+                  <div class="date-input">
+                    <span class="date-icon">📅</span>
+                    <select v-model="yearDetail" class="date-field">
+                      <option value="">연도 선택</option>
+                      <option v-for="y in yearOptions" :key="'yd-' + y" :value="y">
+                        {{ y }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </template>
+            </div>
+
+            <div v-if="periodType === 'year'" class="year-detail-toggle">
+              <label>
+                <input type="checkbox" v-model="isYearDetail" />
+                특정 연도만 조회
+              </label>
+            </div>
           </div>
 
           <div class="actions">
@@ -776,23 +794,6 @@ const handleSearch = async () => {
   box-sizing: border-box;
 }
 
-.page-header {
-  margin-bottom: 24px;
-}
-
-.page-title {
-  font-size: 24px;
-  font-weight: 700;
-  margin: 0 0 8px;
-  color: #222;
-}
-
-.page-subtitle {
-  margin: 0;
-  font-size: 13px;
-  color: #999;
-}
-
 .search-card {
   background-color: #fff;
   border-radius: 16px;
@@ -813,14 +814,24 @@ const handleSearch = async () => {
 }
 
 .row-bottom {
-  justify-content: space-between;
-  margin-top: 16px;
+  align-items: flex-start;
 }
 
 .row-bottom-right {
+  align-items: flex-start;
+}
+.filters-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ✅ 날짜 입력 줄은 항상 한 줄 아래(여기서 한 줄로 유지) */
+.date-range {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 8px;
+  flex-wrap: nowrap; /* 줄바꿈 방지(원하시면 wrap으로 변경 가능) */
 }
 
 .field {
@@ -869,6 +880,8 @@ const handleSearch = async () => {
   font-size: 13px;
   cursor: pointer;
   color: #777;
+  white-space: nowrap; /* ← 줄바꿈 금지 */
+  word-break: keep-all;
 }
 
 .period-tab.active {
