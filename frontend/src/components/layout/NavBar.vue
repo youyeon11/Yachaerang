@@ -124,6 +124,7 @@ const goToMain = () => {
 };
 
 const handleTabClick = (tab) => {
+  console.log('탭 클릭:', tab);
   activeTab.value = tab.id;
   router.push(tab.path);
 };
