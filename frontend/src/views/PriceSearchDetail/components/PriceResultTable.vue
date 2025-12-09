@@ -9,12 +9,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="row in rows"
-          :key="row.priceDate"
-        >
+        <tr v-for="row in rows" :key="row.priceDate">
           <td>{{ row.priceDate }}</td>
-          <td>{{ row.price.toLocaleString() }}</td>
+          <td>{{ row.price != null ? row.price.toLocaleString() : '-' }}</td>
         </tr>
       </tbody>
     </table>
@@ -29,5 +26,3 @@ defineProps({
   },
 });
 </script>
-
-

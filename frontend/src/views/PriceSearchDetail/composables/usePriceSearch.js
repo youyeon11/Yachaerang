@@ -101,7 +101,6 @@ export function usePriceSearch() {
   const fetchItems = async () => {
     try {
       const res = await fetchItemsApi();
-      // eslint-disable-next-line no-console
       console.log('품목 응답:', res.data);
       const body = res.data;
       const list = Array.isArray(body) ? body : Array.isArray(body?.data) ? body.data : [];
@@ -110,7 +109,6 @@ export function usePriceSearch() {
         label: item.itemName ?? item.name ?? '',
       }));
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error('품목 목록 조회 실패:', error);
       itemOptions.value = [];
     }
@@ -124,7 +122,6 @@ export function usePriceSearch() {
     }
     try {
       const res = await fetchSubItemsApi(itemCode);
-      // eslint-disable-next-line no-console
       console.log('하위품목 응답:', res.data);
       const body = res.data;
       const list = Array.isArray(body) ? body : Array.isArray(body?.data) ? body.data : [];
@@ -134,7 +131,6 @@ export function usePriceSearch() {
       }));
       selectedVariety.value = '';
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error('하위품목 목록 조회 실패:', error);
       varietyOptions.value = [];
       selectedVariety.value = '';
