@@ -18,58 +18,44 @@
       <div class="divider"></div>
 
       <div class="row row-bottom">
-        <PeriodSelector
-          :period-tabs="periodTabs"
-          :period-type="periodType"
-          @change="handlePeriodClick"
-        />
+        <PeriodSelector :period-tabs="periodTabs" :period-type="periodType" @change="handlePeriodClick" />
 
-        <div class="row row-bottom-right">
-          <div class="filters-col">
-            <template v-if="periodType === 'day'">
-              <DayPicker
-                v-model:startDate="dayStartDate"
-                v-model:endDate="dayEndDate"
-                :max-date="yesterday"
-              />
-            </template>
+        <div class="filters-col">
+          <template v-if="periodType === 'day'">
+            <DayPicker v-model:startDate="dayStartDate" v-model:endDate="dayEndDate" :max-date="yesterday" />
+          </template>
 
-            <template v-else-if="periodType === 'week'">
-              <WeekPicker
-                v-model:startDate="weekStartDate"
-                v-model:endDate="weekEndDate"
-                :last-week-sunday="lastWeekSunday"
-              />
-            </template>
+          <template v-else-if="periodType === 'week'">
+            <WeekPicker
+              v-model:startDate="weekStartDate"
+              v-model:endDate="weekEndDate"
+              :last-week-sunday="lastWeekSunday"
+            />
+          </template>
 
-            <template v-else-if="periodType === 'month'">
-              <MonthPicker
-                v-model:startDate="monthStartDate"
-                v-model:endDate="monthEndDate"
-                :yesterday="yesterday"
-              />
-            </template>
+          <template v-else-if="periodType === 'month'">
+            <MonthPicker v-model:startDate="monthStartDate" v-model:endDate="monthEndDate" :yesterday="yesterday" />
+          </template>
 
-            <template v-else>
-              <YearPicker
-                :year-options="yearOptions"
-                v-model:isYearDetail="isYearDetail"
-                v-model:yearStart="yearStart"
-                v-model:yearEnd="yearEnd"
-                v-model:yearDetail="yearDetail"
-                :show-detail-toggle="periodType === 'year'"
-              />
-            </template>
-          </div>
-
-          <div class="actions">
-            <button type="button" class="reset-btn" @click="resetFilters">
-              <span class="reset-icon">⟳</span>
-              <span>선택초기화</span>
-            </button>
-            <button type="button" class="search-btn" @click="handleSearch">검색하기</button>
-          </div>
+          <template v-else>
+            <YearPicker
+              :year-options="yearOptions"
+              v-model:isYearDetail="isYearDetail"
+              v-model:yearStart="yearStart"
+              v-model:yearEnd="yearEnd"
+              v-model:yearDetail="yearDetail"
+              :show-detail-toggle="periodType === 'year'"
+            />
+          </template>
         </div>
+      </div>
+
+      <div class="actions actions-bottom">
+        <button type="button" class="reset-btn" @click="resetFilters">
+          <span class="reset-icon">⟳</span>
+          <span>선택초기화</span>
+        </button>
+        <button type="button" class="search-btn" @click="handleSearch">검색하기</button>
       </div>
     </section>
 
@@ -140,24 +126,13 @@ const {
 }
 
 .row-bottom {
-  align-items: flex-start;
-}
-
-.row-bottom-right {
-  align-items: flex-start;
+  align-items: center;
+  justify-content: space-between;
 }
 .filters-col {
   display: flex;
   flex-direction: column;
   gap: 10px;
-}
-
-/* ✅ 날짜 입력 줄은 항상 한 줄 아래(여기서 한 줄로 유지) */
-.date-range {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: nowrap; /* 줄바꿈 방지(원하시면 wrap으로 변경 가능) */
 }
 
 .field {
@@ -206,7 +181,7 @@ const {
   font-size: 13px;
   cursor: pointer;
   color: #777;
-  white-space: nowrap; /* ← 줄바꿈 금지 */
+  white-space: nowrap;
   word-break: keep-all;
 }
 
@@ -369,6 +344,11 @@ const {
   gap: 10px;
 }
 
+.actions-bottom {
+  margin-top: 12px;
+  justify-content: flex-end;
+}
+
 .reset-btn {
   display: inline-flex;
   align-items: center;
@@ -448,7 +428,6 @@ const {
   color: #333;
 }
 
-/* v-calendar 팝오버 스타일 커스텀 */
 :deep(.vc-popover-content) {
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);

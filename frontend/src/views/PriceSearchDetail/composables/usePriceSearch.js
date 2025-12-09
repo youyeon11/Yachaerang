@@ -10,8 +10,6 @@ import {
 } from '@/api/price';
 
 export function usePriceSearch() {
-  /* ================= 공통 상태: 품목 / 기간 ================= */
-
   const selectedItem = ref('');
   const selectedVariety = ref('');
   const itemOptions = ref([]);
@@ -25,8 +23,6 @@ export function usePriceSearch() {
     { value: 'week', label: '주간' },
     { value: 'day', label: '일간' },
   ];
-
-  /* ================= 공통: 날짜 제한 / 연도 옵션 ================= */
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -206,16 +202,13 @@ export function usePriceSearch() {
 
   const handleSearch = async () => {
     const productCode = selectedVariety.value;
-    // eslint-disable-next-line no-console
-    console.log('▶ handleSearch 호출됨', {
+    console.log('handleSearch 호출됨', {
       periodType: periodType.value,
       productCode,
     });
 
     if (!productCode) {
-      // eslint-disable-next-line no-console
       console.warn('productCode 없음 (품종 미선택)');
-      // eslint-disable-next-line no-alert
       alert('품종을 먼저 선택해 주세요.');
       return;
     }
@@ -224,14 +217,12 @@ export function usePriceSearch() {
       if (periodType.value === 'day') {
         // 일별
         if (!dayStartDate.value || !dayEndDate.value) {
-          // eslint-disable-next-line no-alert
           alert('일별 조회: 시작일과 종료일을 모두 선택해 주세요.');
           return;
         }
         const startStr = formatDateToString(dayStartDate.value);
         const endStr = formatDateToString(dayEndDate.value);
         if (startStr > endStr) {
-          // eslint-disable-next-line no-alert
           alert('일별 조회: 시작일이 종료일보다 늦을 수 없습니다.');
           return;
         }
@@ -239,26 +230,21 @@ export function usePriceSearch() {
           startDate: startStr,
           endDate: endStr,
         };
-        // eslint-disable-next-line no-console
         console.log('최종 요청 (일별)', { productCode, params });
         const { data } = await fetchDailyPricesApi(productCode, params);
-        // eslint-disable-next-line no-console
         console.log('raw 응답 data', data);
         const list = extractPriceList(data);
         priceResult.value = list;
-        // eslint-disable-next-line no-console
         console.log('조회 결과 리스트', list);
       } else if (periodType.value === 'week') {
         // 주간
         if (!weekStartDate.value || !weekEndDate.value) {
-          // eslint-disable-next-line no-alert
           alert('주간 조회: 시작 주와 종료 주를 모두 선택해 주세요.');
           return;
         }
         const startRange = getWeekRangeFromDate(weekStartDate.value);
         const endRange = getWeekRangeFromDate(weekEndDate.value);
         if (startRange.start > endRange.start) {
-          // eslint-disable-next-line no-alert
           alert('주간 조회: 시작 주가 종료 주보다 늦을 수 없습니다.');
           return;
         }
@@ -266,26 +252,21 @@ export function usePriceSearch() {
           startDate: startRange.start,
           endDate: endRange.end,
         };
-        // eslint-disable-next-line no-console
         console.log('최종 요청 (주간)', { productCode, params });
         const { data } = await fetchWeeklyPricesApi(productCode, params);
-        // eslint-disable-next-line no-console
         console.log('raw 응답 data', data);
         const list = extractPriceList(data);
         priceResult.value = list;
-        // eslint-disable-next-line no-console
         console.log('조회 결과 리스트', list);
       } else if (periodType.value === 'month') {
         // 월간
         if (!monthStartDate.value || !monthEndDate.value) {
-          // eslint-disable-next-line no-alert
           alert('월간 조회: 시작 월과 종료 월을 모두 선택해 주세요.');
           return;
         }
         const startD = new Date(monthStartDate.value);
         const endD = new Date(monthEndDate.value);
         if (startD > endD) {
-          // eslint-disable-next-line no-alert
           alert('월간 조회: 시작 월이 종료 월보다 늦을 수 없습니다.');
           return;
         }
@@ -295,56 +276,45 @@ export function usePriceSearch() {
           endYear: endD.getFullYear(),
           endMonth: endD.getMonth() + 1,
         };
-        // eslint-disable-next-line no-console
         console.log('최종 요청 (월간)', { productCode, params });
         const { data } = await fetchMonthlyPricesApi(productCode, params);
-        // eslint-disable-next-line no-console
         console.log('raw 응답 data', data);
         const list = extractPriceList(data);
         priceResult.value = list;
-        // eslint-disable-next-line no-console
         console.log('조회 결과 리스트', list);
       } else if (periodType.value === 'year') {
         // 연간
         if (isYearDetail.value) {
           // 특정 연도 하나만
           if (!yearDetail.value) {
-            // eslint-disable-next-line no-alert
             alert('특정 연도 조회: 연도를 선택해 주세요.');
             return;
           }
           const y = Number(yearDetail.value);
           if (Number.isNaN(y) || y < minYear || y > maxYear) {
-            // eslint-disable-next-line no-alert
             alert(`특정 연도 조회: ${minYear} ~ ${maxYear} 사이의 연도만 가능합니다.`);
             return;
           }
           const params = { year: y };
-          // eslint-disable-next-line no-console
           console.log('최종 요청 (연간-상세)', { productCode, params });
           const { data } = await fetchYearlyPriceDetailApi(productCode, params);
-          // eslint-disable-next-line no-console
           console.log('raw 응답 data', data);
           const list = extractPriceList(data);
           priceResult.value = list;
-          // eslint-disable-next-line no-console
           console.log('조회 결과 리스트', list);
         } else {
           // 연도 범위
           if (!yearStart.value || !yearEnd.value) {
-            // eslint-disable-next-line no-alert
             alert('연간 조회: 시작 연도와 종료 연도를 모두 선택해 주세요.');
             return;
           }
           const ys = Number(yearStart.value);
           const ye = Number(yearEnd.value);
           if (ys > ye) {
-            // eslint-disable-next-line no-alert
             alert('연간 조회: 시작 연도가 종료 연도보다 클 수 없습니다.');
             return;
           }
           if (ye > maxYear) {
-            // eslint-disable-next-line no-alert
             alert(`연간 조회: ${maxYear}년 이후는 선택할 수 없습니다.`);
             return;
           }
@@ -352,30 +322,22 @@ export function usePriceSearch() {
             startYear: ys,
             endYear: ye,
           };
-          // eslint-disable-next-line no-console
           console.log('최종 요청 (연간-범위)', { productCode, params });
           const { data } = await fetchYearlyPricesApi(productCode, params);
-          // eslint-disable-next-line no-console
           console.log('raw 응답 data', data);
           const list = extractPriceList(data);
           priceResult.value = list;
-          // eslint-disable-next-line no-console
           console.log('조회 결과 리스트', list);
         }
       } else {
-        // eslint-disable-next-line no-alert
         alert('잘못된 기간 유형입니다.');
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error('가격 조회 실패', error);
       if (error.response) {
-        // eslint-disable-next-line no-console
         console.error('응답 상태코드:', error.response.status);
-        // eslint-disable-next-line no-console
         console.error('응답 바디:', error.response.data);
       }
-      // eslint-disable-next-line no-alert
       alert('가격 정보를 가져오는 중 오류가 발생했습니다.');
     }
   };
