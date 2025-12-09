@@ -4,7 +4,7 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - .env
+      - /home/ubuntu/backend/docker/.env
     volumes:
       - /home/ubuntu/logs:/app/logs
     depends_on:
@@ -44,7 +44,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - /home/ubuntu/deploy/nginx.conf:/etc/nginx/nginx.conf
+      - /home/ubuntu/backend/deploy/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - app-blue
       - app-green

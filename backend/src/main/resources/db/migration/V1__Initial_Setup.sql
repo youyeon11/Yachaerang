@@ -138,28 +138,29 @@ CREATE TABLE tag (
             ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 8. member_product table
-CREATE TABLE member_product (
-    member_product_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+-- 8. favorite table
+CREATE TABLE favorite (
+    favorite_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     member_id BIGINT NOT NULL,
-    product_id BIGINT NOT NULL,
+    product_code VARCHAR(100) NOT NULL,
+    period_type VARCHAR(50) NOT NULL,
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_member_product_member
+    CONSTRAINT fk_favorite_member
         FOREIGN KEY (member_id)
             REFERENCES member(member_id)
             ON DELETE CASCADE,
-    CONSTRAINT fk_member_product_product
-        FOREIGN KEY (product_id)
-            REFERENCES product(product_id)
+    CONSTRAINT fk_favorite_product
+        FOREIGN KEY (product_code)
+            REFERENCES product(product_code)
             ON DELETE CASCADE,
+    CONSTRAINT chk_period_type
+        CHECK (period_type IN ('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY')),
 
-    UNIQUE KEY uk_member_product (member_id, product_id),
-
-    INDEX idx_member_product_member_id (member_id),
-    INDEX idx_member_product_product_id (product_id)
+    INDEX idx_favorite_member_id (member_id),
+    INDEX idx_favorite_product_code (product_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 9. daily_price table

@@ -51,6 +51,11 @@ public enum ErrorCode implements BaseCode{
     // article
     ARTICLE_NOT_FOUND(HttpStatus.BAD_REQUEST, "ARTICLE_001", "기사를 찾을 수 없습니다."),
 
+    // favorite
+    FAVORITE_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAVORITE_001", "관심 대시보드 등록에 실패했습니다."),
+    FAVORITE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAVORITE_002", "관심 대시보드 해제에 실패했습니다."),
+    FAVORITE_DUPLICATED(HttpStatus.BAD_REQUEST, "FAVORITE_003", "이미 등록된 관심사입니다."),
+
     // 500
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500ERROR", "서버에서 장애가 일어났습니다."),
     ;
