@@ -66,7 +66,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import apiClient from '@/api/axios';
+import { signupApi } from '@/api/auth';
 
 const router = useRouter();
 
@@ -110,18 +110,22 @@ const checkEmailDuplicate = async () => {
     return;
   }
 
+  emailValid.value = true;
+  emailMessage.value = '중복 확인을 건너뛰었습니다. (임시로 허용)';
+  /** 
   try {
-    // TODO: 실제 백엔드 API 호출 (axios 사용)
-    // const response = await axios.get(`/api/v1/auth/check-email?email=${email.value}`)
-    // emailValid.value = response.data.available
+    const { data } = await checkEmailDuplicateApi(email.value);
 
-    // 임시: 중복 확인 성공 처리
-    emailValid.value = true;
-    emailMessage.value = '사용 가능한 이메일입니다.';
+    const available = data?.data?.available ?? data?.available ?? true;
+
+    emailValid.value = !!available;
+    emailMessage.value = available ? '사용 가능한 이메일입니다.' : '이미 사용 중인 이메일입니다.';
   } catch (error) {
     emailValid.value = false;
-    emailMessage.value = '이미 사용 중인 이메일입니다.';
+    const msg = error?.response?.data?.message;
+    emailMessage.value = msg || '이미 사용 중인 이메일입니다.';
   }
+    */
 };
 
 const handleSignup = async () => {
@@ -135,7 +139,7 @@ const handleSignup = async () => {
   };
 
   try {
-    const res = await apiClient.post('/api/v1/auth/signup', payload);
+    const res = await signupApi(payload);
 
     const body = res.data;
     const ok = body?.success === true && (body?.code === '204' || body?.httpStatus === 'NO_CONTENT');
@@ -279,6 +283,3 @@ const handleSignup = async () => {
   cursor: not-allowed;
 }
 </style>
-
-
-
