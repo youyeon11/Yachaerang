@@ -1,14 +1,24 @@
 <template>
-  <div class="page-container">
-    <header class="page-header">
-      <div class="page-header-left">
-        <h1 class="page-title">메인페이지</h1>
-        <p class="page-subtitle">뇽뇽</p>
-      </div>
-
-      <div class="page-header-right"></div>
-    </header>
-
-    <!-- 여기부터 각 페이지 고유 내용 -->
+  <div class="main-wrapper">
+    <SectionIntro />
+    <SectionAI />
+    <SectionDashboard />
+    <SectionNews />
+    <SectionMyFarm />
   </div>
 </template>
+
+<script setup>
+import SectionIntro from '@/components/main/SectionIntro.vue';
+import SectionAI from '@/components/main/SectionAI.vue';
+import SectionDashboard from '@/components/main/SectionDashboard.vue';
+import SectionNews from '@/components/main/SectionNews.vue';
+import SectionMyFarm from '@/components/main/SectionMyFarm.vue';
+</script>
+
+<style scoped>
+.main-wrapper {
+  width: 100%;
+  overflow-x: hidden;
+}
+</style>
