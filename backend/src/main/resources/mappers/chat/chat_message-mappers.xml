@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
 <mapper namespace="com.yachaerang.backend.api.chat.repository.ChatMessageMapper">
-
     <resultMap id="ChatMessageResultMap"
                type="com.yachaerang.backend.api.chat.entity.ChatMessage">
         <id property="id" column="chat_message_id"/>
         <result property="chatSessionId" column="chat_session_id"/>
-        <result property="senderRole"   column="sender_role" javaType="com.yachaerang.backend.api.common.SenderRole"
-            typeHandler="com.yachaerang.backend.global.util.SenderRoleHandler"/>
+        <result property="senderRole"   column="sender_role"
+                javaType="com.yachaerang.backend.api.common.SenderRole"
+                typeHandler="com.yachaerang.backend.global.util.SenderRoleHandler"/>
         <result property="senderId"     column="sender_id"/>
         <result property="sentAt"       column="sent_at"/>
         <result property="content"      column="content"/>
-        <result property="createdAt" column="msg_created_at"/>
-        <result property="updatedAt" column="msg_updated_at"/>
+        <result property="createdAt"    column="created_at"/>
+        <result property="updatedAt"    column="updated_at"/>
     </resultMap>
 
     <!-- save -->
@@ -37,32 +36,9 @@
                      #{senderId},
                      #{sentAt},
                      #{content},
-                     NOW(),
-                     NOW()
+                     CURRENT_TIMESTAMP(),
+                     CURRENT_TIMESTAMP()
                  )
-    </insert>
-
-    <!-- Batch save -->
-    <insert id="saveAll" parameterType="list">
-        <foreach collection="list" item="message" separator=";">
-            INSERT INTO chat_message (
-            chat_session_id,
-            sender_role,
-            sender_id,
-            sent_at,
-            content,
-            created_at,
-            updated_at
-            ) VALUES (
-            #{message.chatSessionId},
-            #{message.senderRole},
-            #{message.senderId},
-            #{message.sentAt},
-            #{message.content},
-            NOW(),
-            NOW()
-            )
-        </foreach>
     </insert>
 
     <!-- findById -->
@@ -83,14 +59,14 @@
     <!-- SELECT by sessionId -->
     <select id="findAllByChatSessionIdOrderByCreatedAtAsc" resultMap="ChatMessageResultMap">
         SELECT
-            cm.chat_message_id,
-            cm.chat_session_id,
-            cm.sender_role,
-            cm.sender_id,
-            cm.sent_at,
-            cm.content,
-            cm.created_at,
-            cm.updated_at
+        cm.chat_message_id,
+        cm.chat_session_id,
+        cm.sender_role,
+        cm.sender_id,
+        cm.sent_at,
+        cm.content,
+        cm.created_at,
+        cm.updated_at
         FROM chat_message cm
         WHERE cm.chat_session_id = #{chatSessionId}
         ORDER BY cm.created_at ASC
@@ -104,20 +80,20 @@
             resultMap="ChatMessageResultMap">
         SELECT *
         FROM (
-        SELECT
-            cm.chat_message_id,
-            cm.chat_session_id,
-            cm.sender_role,
-            cm.sender_id,
-            cm.sent_at,
-            cm.content,
-            cm.created_at,
-            cm.updated_at
-        FROM chat_message cm
-        WHERE cm.chat_session_id = #{chatSessionId}
-        ORDER BY cm.created_at DESC
-        LIMIT #{limit}
-        ) AS recent
+                 SELECT
+                     cm.chat_message_id,
+                     cm.chat_session_id,
+                     cm.sender_role,
+                     cm.sender_id,
+                     cm.sent_at,
+                     cm.content,
+                     cm.created_at,
+                     cm.updated_at
+                 FROM chat_message cm
+                 WHERE cm.chat_session_id = #{chatSessionId}
+                 ORDER BY cm.created_at DESC
+                     LIMIT #{limit}
+             ) AS recent
         ORDER BY recent.created_at ASC
     </select>
 

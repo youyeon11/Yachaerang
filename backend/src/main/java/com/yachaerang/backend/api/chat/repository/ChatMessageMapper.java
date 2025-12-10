@@ -16,11 +16,6 @@ public interface ChatMessageMapper {
     int save(ChatMessage chatMessage);
 
     /**
-     * 여러 메시지 배치 저장
-     */
-    int saveAll(@Param("list") List<ChatMessage> messages);
-
-    /**
      * ID로 메시지 조회
      */
     Optional<ChatMessage> findById(@Param("id") Long id);

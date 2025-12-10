@@ -3,17 +3,18 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.yachaerang.backend.api.chat.repository.ChatSessionMapper">
-
     <resultMap id="ChatSessionResultMap"
                type="com.yachaerang.backend.api.chat.entity.ChatSession">
         <id property="chatSessionId" column="chat_session_id"/>
         <result property="senderId" column="sender_id"/>
         <result property="startedAt" column="started_at"/>
-        <result property="sessionStatus" column="session_status" javaType="com.yachaerang.backend.api.common.SessionStatus"
-        typeHandler="com.yachaerang.backend.global.util.SessionStatusHandler"/>
+        <result property="sessionStatus" column="session_status"
+                javaType="com.yachaerang.backend.api.common.SessionStatus"
+                typeHandler="com.yachaerang.backend.global.util.SessionStatusHandler"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
+
     <!-- save -->
     <insert id="save"
             parameterType="com.yachaerang.backend.api.chat.entity.ChatSession"
@@ -27,17 +28,16 @@
             created_at,
             updated_at
         ) VALUES (
-                     #{senederId},
+                     #{senderId},
                      #{startedAt},
                      #{sessionStatus},
-                     NOW(),
-                     NOW()
+                     CURRENT_TIMESTAMP(),
+                     CURRENT_TIMESTAMP()
                  )
     </insert>
 
     <!-- SELECT by ID -->
     <select id="findById"
-            parameterType="long"
             resultMap="ChatSessionResultMap">
         SELECT
             cs.chat_session_id,
@@ -52,7 +52,6 @@
 
     <!-- SELECT all by senderId -->
     <select id="findAllByMemberId"
-            parameterType="long"
             resultMap="ChatSessionResultMap">
         SELECT
             cs.chat_session_id,
@@ -62,13 +61,12 @@
             cs.created_at,
             cs.updated_at
         FROM chat_session cs
-        WHERE cs.sender_id = #{memberId}
+        WHERE cs.sender_id = #{senderId}
         ORDER BY cs.created_at DESC
     </select>
 
     <!-- SELECT active sessions by senderId -->
     <select id="findActiveSessionsByMemberId"
-            parameterType="long"
             resultMap="ChatSessionResultMap">
         SELECT
             cs.chat_session_id,
@@ -78,8 +76,8 @@
             cs.created_at,
             cs.updated_at
         FROM chat_session cs
-        WHERE cs.sender_id = #{memberId}
-        AND cs.session_status = 'ACTIVE'
+        WHERE cs.sender_id = #{senderId}
+          AND cs.session_status = 'ACTIVE'
         ORDER BY cs.created_at DESC
     </select>
 
@@ -88,7 +86,7 @@
             parameterType="com.yachaerang.backend.api.chat.entity.ChatSession">
         UPDATE chat_session
         SET session_status = #{sessionStatus},
-            updated_at      = NOW()
+            updated_at      = CURRENT_TIMESTAMP()
         WHERE chat_session_id = #{chatSessionId}
     </update>
 

@@ -27,25 +27,15 @@ public interface ChatSessionMapper {
     /**
      * 회원별 전체 세션 조회
      */
-    List<ChatSession> findAllByMemberId(@Param("senderId") Long memberId);
+    List<ChatSession> findAllByMemberId(@Param("senderId") Long senderId);
 
     /**
      * 회원별 ACTIVE 세션 조회
      */
-    List<ChatSession> findActiveSessionsByMemberId(@Param("senderId") Long memberId);
+    List<ChatSession> findActiveSessionsByMemberId(@Param("senderId") Long senderId);
 
     /**
      * 세션 업데이트
      */
     int updateStatus(ChatSession chatSession);
-
-    /**
-     * ID로 세션 삭제
-     */
-    int deleteById(@Param("id") Long chatSessionId);
-
-    /**
-     * 회원 ID 기준으로 세션 전체 삭제
-     */
-    int deleteAllByMemberId(@Param("senderId") Long memberId);
 }
