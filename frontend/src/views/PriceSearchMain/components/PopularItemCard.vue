@@ -2,13 +2,19 @@
   <div class="card">
     <h3>{{ item.name }}</h3>
     <small>1kg</small>
-    <p class="price">{{ item.price.toLocaleString() }}원</p>
+    <p class="price">{{ (item.price ?? 0).toLocaleString() }}원</p>
   </div>
 </template>
 
 <script setup>
 defineProps({
-  item: Object,
+  item: {
+    type: Object,
+    required: true,
+    validator: (value) => {
+      return value.name && typeof value.price === 'number';
+    },
+  },
 });
 </script>
 

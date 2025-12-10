@@ -36,8 +36,8 @@ onMounted(() => {
 .text-area {
   display: flex;
   flex-direction: column;
-  align-items: flex-end; /* 오른쪽 정렬 */
-  text-align: right; /* 글자 정렬 오른쪽 */
+  align-items: flex-end;
+  text-align: right;
 }
 .text-area h3 {
   color: #fecc21;

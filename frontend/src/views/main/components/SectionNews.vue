@@ -1,5 +1,5 @@
 <template>
-  <section class="section myfarm" ref="target" :class="{ show: isVisible }">
+  <section class="section news" ref="target" :class="{ show: isVisible }">
     <div class="content">
       <div class="img-area"></div>
 
