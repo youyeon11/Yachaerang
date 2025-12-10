@@ -17,6 +17,7 @@ import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.google.genai.GoogleGenAiChatModel;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +45,7 @@ public class ChatService {
     public Long startNewSession() {
         Long memberId = authenticatedMemberProvider.getCurrentMemberId();
         ChatSession chatSession = ChatSession.builder()
-                .memberId(memberId)
+                .senderId(memberId)
                 .build();
 
         int result = chatSessionMapper.save(chatSession);
@@ -53,7 +54,7 @@ public class ChatService {
         }
 
         Long sessionId = chatSession.getChatSessionId();
-        LogUtil.info("새로운 채팅 세션 시작: sessionId={}, memberId={}", sessionId, memberId);
+        LogUtil.info("새로운 채팅 세션 시작: sessionId={}, senderId={}", sessionId, memberId);
 
         return sessionId;
     }
@@ -65,6 +66,7 @@ public class ChatService {
      * @return : 모델 응답
      */
     @Transactional
+    @Async("asyncExecutor")
     public ChatResponseDto.MessageDto getChatResponse(
             ChatRequestDto.MessageDto requestDto, Long chatSessionId) {
 
