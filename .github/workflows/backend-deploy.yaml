@@ -80,6 +80,7 @@ jobs:
             mkdir -p ~/backend
             cd ~/backend
             
+            cd docker
             echo "${{ secrets.ENV_FILE_CONTENTS }}" > .env
             
             echo "${{ secrets.YY_GITHUB_PAT }}" | docker login ghcr.io -u ${{ secrets.YY_GITHUB_USERNAME }} --password-stdin

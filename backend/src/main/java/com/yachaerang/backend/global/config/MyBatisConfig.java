@@ -1,8 +1,10 @@
 package com.yachaerang.backend.global.config;
 
 import com.yachaerang.backend.api.common.MemberStatus;
+import com.yachaerang.backend.api.common.PeriodType;
 import com.yachaerang.backend.api.common.Role;
 import com.yachaerang.backend.global.util.MemberStatusTypeHandler;
+import com.yachaerang.backend.global.util.PeriodTypeHandler;
 import com.yachaerang.backend.global.util.RoleTypeHandler;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.TypeHandlerRegistry;
@@ -29,6 +31,7 @@ public class MyBatisConfig {
         // CodeEnumTypeHandler
         registry.register(MemberStatus.class, new MemberStatusTypeHandler());
         registry.register(Role.class, new RoleTypeHandler());
+        registry.register(PeriodType.class, new PeriodTypeHandler());
 
         sqlSessionFactoryBean.setConfiguration(configuration);
 

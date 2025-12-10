@@ -26,7 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     private static final List<String> NON_FILTER_PATTERNS = List.of(
-            "/test/**",
+            "/health",
             "/api/v1/auth/**",
             "/api/v1/products/**",
             "/api/v1/daily-prices/**",
