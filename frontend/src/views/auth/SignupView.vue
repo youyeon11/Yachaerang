@@ -64,7 +64,7 @@
 </template>
 
 <script setup>
-import { useSignupForm } from '@/composables/useSignupForm';
+import { useSignupForm } from '@/views/auth/composables/useSignupForm';
 
 const {
   email,

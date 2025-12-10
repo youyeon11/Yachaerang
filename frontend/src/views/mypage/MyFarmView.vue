@@ -13,9 +13,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import MyFarmEmpty from '@/components/mypage/MyFarmEmpty.vue';
-import MyFarmForm from '@/components/mypage/MyFarmForm.vue';
-import MyFarmSummary from '@/components/mypage/MyFarmSummary.vue';
+import MyFarmEmpty from '@/views/mypage/components/MyFarmEmpty.vue';
+import MyFarmForm from '@/views/mypage/components/MyFarmForm.vue';
+import MyFarmSummary from '@/views/mypage/components/MyFarmSummary.vue';
 
 const mode = ref('empty');
 const farm = ref(null);

@@ -30,15 +30,9 @@
 </template>
 
 <script setup>
-import { useLoginForm } from '@/composables/useLoginForm';
+import { useLoginForm } from '@/views/auth/composables/useLoginForm';
 
-const {
-  email,
-  password,
-  isFormValid,
-  errorMessage,
-  handleLogin,
-} = useLoginForm();
+const { email, password, isFormValid, errorMessage, handleLogin } = useLoginForm();
 </script>
 
 <style scoped>

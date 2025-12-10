@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-import MyPageSidebar from '@/components/mypage/MyPageSidebar.vue';
+import MyPageSidebar from '@/views/mypage/components/MyPageSidebar.vue';
 </script>
 
 <style scoped>
