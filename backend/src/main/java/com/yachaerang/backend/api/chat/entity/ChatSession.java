@@ -17,7 +17,7 @@ import java.util.List;
 @Builder
 public class ChatSession extends BaseEntity {
 
-    private Long id;
+    private Long chatSessionId;
 
     private Long memberId;
 
