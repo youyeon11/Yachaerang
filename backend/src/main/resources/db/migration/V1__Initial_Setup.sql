@@ -58,8 +58,8 @@ CREATE TABLE chat_session (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    INDEX idx_chat_session_member_id (member_id),
-    INDEX idx_chat_session_member_session_status (member_id, session_status),
+    INDEX idx_chat_session_member_id (sender_id),
+    INDEX idx_chat_session_member_session_status (sender_id, session_status),
 
     CONSTRAINT fk_chat_session_member
         FOREIGN KEY (sender_id) REFERENCES member(member_id)
