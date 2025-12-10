@@ -1,37 +1,39 @@
 <template>
-  <div class="article-page">
-    <!-- 헤더 -->
-    <div class="page-header">
-      <div class="header-left">
+  <div class="page-container article-page">
+    <header class="page-header">
+      <div class="page-header-left">
         <h1 class="page-title">기사</h1>
         <p class="page-subtitle">한눈에 확인하는, 야채랑 PICK 농촌 기사</p>
       </div>
-      <div class="search-box">
-        <input
-          type="text"
-          v-model="searchQuery"
-          placeholder="검색어를 입력하세요."
-          class="search-input"
-          @keyup.enter="handleSearch"
-        />
-        <button class="search-btn" @click="handleSearch">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.3-4.3"></path>
-          </svg>
-        </button>
+
+      <div class="page-header-right">
+        <div class="search-box">
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="검색어를 입력하세요."
+            class="search-input"
+            @keyup.enter="handleSearch"
+          />
+          <button class="search-btn" @click="handleSearch">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+          </button>
+        </div>
       </div>
-    </div>
+    </header>
 
     <div class="article-list">
       <div v-for="article in articles" :key="article.id" class="article-item" @click="goToDetail(article.id)">
@@ -199,30 +201,10 @@ const goToPage = (page) => {
   margin: 0 auto;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 32px;
-}
-
 .header-left {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #333;
-  margin: 0;
-}
-
-.page-subtitle {
-  font-size: 14px;
-  color: #888;
-  margin: 0;
 }
 
 .search-box {

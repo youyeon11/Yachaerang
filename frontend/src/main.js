@@ -4,6 +4,8 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
+import VCalendar from 'v-calendar';
+import 'v-calendar/style.css';
 
 // 앱 시작 전 localStorage 정리 (잘못된 토큰 제거)
 const accessToken = localStorage.getItem('accessToken');
@@ -19,4 +21,7 @@ if (accessToken) {
 const app = createApp(App);
 app.use(createPinia());
 app.use(router);
+
+app.use(VCalendar, {});
+
 app.mount('#app');

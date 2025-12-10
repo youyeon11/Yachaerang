@@ -1,11 +1,11 @@
 <template>
-  <div class="article-detail-page">
-    <div class="page-header">
-      <div class="header-left">
+  <div class="page-container article-detail-page">
+    <header class="page-header">
+      <div class="page-header-left">
         <h1 class="page-title">기사</h1>
         <p class="page-subtitle">한눈에 확인하는, 야채랑 PICK 농촌 기사</p>
       </div>
-    </div>
+    </header>
 
     <article class="article-content">
       <h1 class="article-title">{{ article.title }}</h1>
@@ -102,31 +102,10 @@ const goToList = () => {
   padding: 16px 0 40px;
 }
 
-.page-header {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
 .header-left {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #333;
-  margin: 0;
-}
-
-.page-subtitle {
-  font-size: 14px;
-  color: #888;
-  margin: 0;
 }
 
 /* 기사 내용 */

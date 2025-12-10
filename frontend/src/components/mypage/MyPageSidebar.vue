@@ -8,8 +8,8 @@
       </div>
 
       <div class="profile-info">
-        <p class="profile-name">김야치</p>
-        <p class="profile-email">yachaerang@gmail.com</p>
+        <p class="profile-name">{{ displayName }}</p>
+        <p class="profile-email">{{ displayEmail }}</p>
       </div>
     </div>
 
@@ -35,12 +35,20 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { logout } from '@/stores/auth';
+import { useAuth, logout } from '@/stores/auth';
 import apiClient from '@/api/axios';
 
 const router = useRouter();
 const route = useRoute();
+const { user } = useAuth();
+
+const displayEmail = computed(() => user.value?.email || '');
+
+const displayName = computed(() => {
+  if (user.value?.nickname) return user.value.nickname;
+});
 
 const menuItems = [
   { id: 'farm', label: '나의 농장', path: '/mypage' },

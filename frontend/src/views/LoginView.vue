@@ -30,61 +30,15 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuth } from '@/stores/auth';
-import apiClient from '@/api/axios';
+import { useLoginForm } from '@/composables/useLoginForm';
 
-const router = useRouter();
-const { login } = useAuth();
-
-const email = ref('');
-const password = ref('');
-
-const isFormValid = computed(() => email.value.trim() !== '' && password.value.trim() !== '');
-const errorMessage = ref('');
-
-const loginApi = (email, password) => {
-  return apiClient.post('/api/v1/auth/login', { email, password });
-};
-
-const handleLogin = async () => {
-  if (!isFormValid.value) return;
-
-  errorMessage.value = '';
-
-  try {
-    const res = await loginApi(email.value, password.value);
-    const body = res.data;
-
-    // 백엔드 응답: code가 "200"
-    if (body?.success === true && body?.code === '200') {
-      const { accessToken, refreshToken } = body.data || {};
-
-      if (!accessToken) {
-        errorMessage.value = '토큰이 응답에 없습니다. 백엔드 응답 data 구조를 확인해주세요.';
-        return;
-      }
-
-      login({
-        email: email.value,
-        accessToken,
-        refreshToken,
-      });
-
-      email.value = '';
-      password.value = '';
-
-      router.push('/');
-      return;
-    }
-
-    errorMessage.value = body?.message || '로그인에 실패했습니다.';
-  } catch (err) {
-    const serverBody = err?.response?.data;
-    errorMessage.value = serverBody?.message || '로그인 요청 중 오류가 발생했습니다.';
-  }
-};
+const {
+  email,
+  password,
+  isFormValid,
+  errorMessage,
+  handleLogin,
+} = useLoginForm();
 </script>
 
 <style scoped>

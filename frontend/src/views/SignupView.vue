@@ -64,95 +64,22 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import apiClient from '@/api/axios';
+import { useSignupForm } from '@/composables/useSignupForm';
 
-const router = useRouter();
-
-const email = ref('');
-const password = ref('');
-const passwordConfirm = ref('');
-const name = ref('');
-const nickname = ref('');
-
-const emailMessage = ref('');
-const emailValid = ref(false);
-
-// 비밀번호 유효성 검사 (문자, 숫자, 특수문자 포함 8~20자)
-const isPasswordValid = computed(() => {
-  const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$/;
-  return regex.test(password.value);
-});
-
-// 비밀번호 일치 확인
-const isPasswordMatch = computed(() => {
-  return password.value === passwordConfirm.value;
-});
-
-// 전체 폼 유효성 검사
-const isFormValid = computed(() => {
-  return (
-    email.value.trim() !== '' &&
-    emailValid.value &&
-    isPasswordValid.value &&
-    isPasswordMatch.value &&
-    name.value.trim() !== '' &&
-    nickname.value.trim() !== ''
-  );
-});
-
-// 이메일 중복 확인
-const checkEmailDuplicate = async () => {
-  if (!email.value.trim()) {
-    emailMessage.value = '이메일을 입력해주세요.';
-    emailValid.value = false;
-    return;
-  }
-
-  try {
-    // TODO: 실제 백엔드 API 호출 (axios 사용)
-    // const response = await axios.get(`/api/v1/auth/check-email?email=${email.value}`)
-    // emailValid.value = response.data.available
-
-    // 임시: 중복 확인 성공 처리
-    emailValid.value = true;
-    emailMessage.value = '사용 가능한 이메일입니다.';
-  } catch (error) {
-    emailValid.value = false;
-    emailMessage.value = '이미 사용 중인 이메일입니다.';
-  }
-};
-
-const handleSignup = async () => {
-  if (!isFormValid.value) return;
-
-  const payload = {
-    name: name.value,
-    nickname: nickname.value,
-    email: email.value,
-    password: password.value,
-  };
-
-  try {
-    const res = await apiClient.post('/api/v1/auth/signup', payload);
-
-    const body = res.data;
-    const ok = body?.success === true && (body?.code === '204' || body?.httpStatus === 'NO_CONTENT');
-    if (ok) {
-      alert('회원가입이 완료되었습니다!');
-      router.push('/login');
-      return;
-    }
-
-    alert(body?.message || '회원가입에 실패했습니다.');
-  } catch (err) {
-    const status = err?.response?.status;
-    const data = err?.response?.data;
-    const url = err?.config?.baseURL ? err.config.baseURL + err.config.url : err?.config?.url;
-    alert(data?.message || `회원가입 실패 (status: ${status ?? 'unknown'})`);
-  }
-};
+const {
+  email,
+  password,
+  passwordConfirm,
+  name,
+  nickname,
+  emailMessage,
+  emailValid,
+  isPasswordValid,
+  isPasswordMatch,
+  isFormValid,
+  checkEmailDuplicate,
+  handleSignup,
+} = useSignupForm();
 </script>
 
 <style scoped>

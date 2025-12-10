@@ -46,6 +46,8 @@ const handleLogoError = (e) => {
 
 .footer-inner {
   max-width: 1200px;
+  width: 100%;
+  box-sizing: border-box;
   margin: 0 auto;
   padding: 24px 32px;
   display: flex;
