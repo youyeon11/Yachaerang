@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @MybatisTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @ActiveProfiles("test")
-@Sql("classpath:H2_schema.sql")
+@Sql(value = "classpath:H2_schema.sql")
 @SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
 @Import(MyBatisConfig.class)
 class DailyPriceMapperTest {
@@ -33,9 +33,9 @@ class DailyPriceMapperTest {
     @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void 특정기간동안의_가격정보_가져오기() {
         // given
-        String productCode = "KM-141-01-04";
-        LocalDate startDate = LocalDate.of(2025, 10, 1);
-        LocalDate endDate = LocalDate.of(2025, 10, 31);
+        String productCode = "KM-411-01-04";
+        LocalDate startDate = LocalDate.of(2025, 11, 1);
+        LocalDate endDate = LocalDate.of(2025, 11, 30);
 
         // when
         List<DailyPriceResponseDto.PriceRecordDto> result =
@@ -191,5 +191,69 @@ class DailyPriceMapperTest {
             assertThat(record.getPrice()).isNotNull();
             assertThat(record.getPrice()).isGreaterThanOrEqualTo(0L);
         });
+    }
+
+    @Test
+    @DisplayName("특정 날짜의 가격 오름차순 성공")
+    @Sql(scripts = {"/sql/product-test-data.sql", "/sql/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void 특정날짜의_가격_오름차순_성공() {
+        // when
+        List<DailyPriceResponseDto.RankDto> result = dailyPriceMapper.getPricesAscending(
+                LocalDate.of(2025, 11, 1)
+        );
+
+        // then
+        assertThat(result).isNotEmpty();
+        assertThat(result).hasSize(8);
+
+        // 오름차순 정렬 검증
+        for (int i = 0; i < result.size() - 1; i++) {
+            assertThat(result.get(i).getPrice())
+                    .isLessThanOrEqualTo(result.get(i + 1).getPrice());
+        }
+    }
+
+    @Test
+    @DisplayName("가장 저렴한 상품이 첫 번째")
+    @Sql(scripts = {"/sql/product-test-data.sql", "/sql/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void 가장_저렴한_상품이_첫번재() {
+        // when
+        List<DailyPriceResponseDto.RankDto> result = dailyPriceMapper.getPricesAscending(LocalDate.of(2025,11,01));
+
+        // then
+        assertThat(result).isNotEmpty();
+    }
+
+    @Test
+    @Sql(scripts = {"/sql/product-test-data.sql", "/sql/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @DisplayName("결과가 8개로 제한된다")
+    void shouldLimitResultsToEight() {
+        // when
+        List<DailyPriceResponseDto.RankDto> result = dailyPriceMapper.getPricesAscending(LocalDate.of(2025,11,01));
+
+        // then
+        assertThat(result).hasSize(8);
+
+        List<String> itemNames = result.stream()
+                .map(DailyPriceResponseDto.RankDto::getItemName)
+                .toList();
+        assertThat(itemNames).hasSize(8);
+    }
+    @Test
+    @DisplayName("Descending과 Ascending의 첫 번째 항목은 서로 다르다")
+    @Sql(scripts = {"/sql/product-test-data.sql", "/sql/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void shouldHaveDifferentFirstItems() {
+        // when
+        LocalDate targetDate = LocalDate.of(2025, 11, 1);
+        List<DailyPriceResponseDto.RankDto> descending = dailyPriceMapper.getPricesDescending(targetDate);
+        List<DailyPriceResponseDto.RankDto> ascending = dailyPriceMapper.getPricesAscending(targetDate);
+
+        // then
+        assertThat(descending.get(0).getItemCode() + descending.get(0).getUnit())
+                .isNotEqualTo(ascending.get(0).getItemCode() + ascending.get(0).getUnit());
     }
 }

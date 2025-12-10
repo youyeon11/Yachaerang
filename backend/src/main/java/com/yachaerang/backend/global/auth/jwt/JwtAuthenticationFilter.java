@@ -26,11 +26,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     private static final List<String> NON_FILTER_PATTERNS = List.of(
-            "/test/**",
+            "/health",
             "/api/v1/auth/**",
             "/api/v1/products/**",
             "/api/v1/daily-prices/**",
-            "/api/v1/weekly-prices/**"
+            "/api/v1/weekly-prices/**",
+            "/api/v1/monthly-prices/**",
+            "/api/v1/yearly-prices/**",
+            "/api/v1/articles",
+            "/api/v1/articles/**"
     );
 
     private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();

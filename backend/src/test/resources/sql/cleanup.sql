@@ -1,1 +1,1 @@
-DELETE FROM product;
+DROP ALL OBJECTS;

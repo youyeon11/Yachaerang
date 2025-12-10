@@ -18,4 +18,18 @@ public interface DailyPriceMapper {
             @Param("startDate")LocalDate startDate,
             @Param("endDate")LocalDate endDate
             );
+
+    /*
+    특정날짜를 기준으로 가격 내림차순 정렬을 기반으로 보여주기
+     */
+    List<DailyPriceResponseDto.RankDto> getPricesDescending(
+            @Param("priceDate") LocalDate priceDate
+    );
+
+    /*
+    특정날짜를 기준으로 가격 오름차순 정렬을 기반으로 보여주기
+     */
+    List<DailyPriceResponseDto.RankDto> getPricesAscending(
+            @Param("priceDate") LocalDate priceDate
+    );
 }

@@ -15,6 +15,15 @@
         <result property="priceDate" column="price_date" javaType="java.time.LocalDate"/>
         <result property="price" column="price" javaType="java.lang.Long"/>
     </resultMap>
+    <!-- RankDto 매핑용 ResultMap -->
+    <resultMap id="rankDtoResultMap"
+               type="com.yachaerang.backend.api.product.dto.response.DailyPriceResponseDto$RankDto">
+        <result property="itemName" column="item_name" javaType="String"/>
+        <result property="itemCode" column="item_code" javaType="String"/>
+        <result property="unit" column="unit" javaType="String"/>
+        <result property="price" column="price" javaType="java.lang.Long"/>
+    </resultMap>
+
     <!-- getPriceDuration -->
     <select id="getPriceDuration"
             resultMap="priceDtoResultMap">
@@ -29,5 +38,51 @@
           AND price_date <![CDATA[ <= ]]> #{endDate}
         ORDER BY
             price_date ASC
+    </select>
+
+    <!-- getPricesDescending -->
+    <select id="getPricesDescending" resultMap="rankDtoResultMap">
+        SELECT
+            item_name,
+            item_code,
+            unit,
+            price
+        FROM (
+            SELECT
+                p.item_name AS item_name,
+                p.item_code as item_code,
+                p.unit as unit,
+                dp.price as price,
+                dp.price_date as price_date
+            FROM product p
+            JOIN daily_price dp
+                ON dp.product_code = p.product_code
+        ) t
+        WHERE t.price_date = #{priceDate}
+        ORDER BY t.price DESC
+        LIMIT 8
+    </select>
+
+    <!-- getPricesAscending-->
+    <select id="getPricesAscending" resultMap="rankDtoResultMap">
+        SELECT
+            item_name,
+            item_code,
+            unit,
+            price
+        FROM (
+                 SELECT
+                     p.item_name AS item_name,
+                     p.item_code as item_code,
+                     p.unit as unit,
+                     dp.price as price,
+                     dp.price_date as price_date
+                 FROM product p
+                          JOIN daily_price dp
+                               ON dp.product_code = p.product_code
+             ) t
+        WHERE t.price_date = #{priceDate}
+        ORDER BY t.price ASC
+        LIMIT 8
     </select>
 </mapper>

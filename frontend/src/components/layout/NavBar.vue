@@ -19,7 +19,13 @@
     </nav>
 
     <div class="user-section">
-      <button class="user-button" aria-label="User profile" title="Profile" @click="handleUserClick">
+      <button
+        class="user-button"
+        :class="{ active: isProfileActive }"
+        aria-label="User profile"
+        title="Profile"
+        @click="handleUserClick"
+      >
         <img
           v-if="props.userAvatar"
           :src="props.userAvatar"
@@ -34,7 +40,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuth } from '@/stores/auth';
 
@@ -50,7 +56,7 @@ const tabs = [
   {
     id: 1,
     label: '오늘의 품목',
-    path: '/dashboard',
+    path: '/searchMainpage',
     icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="3" width="7" height="7"></rect>
       <rect x="14" y="3" width="7" height="7"></rect>
@@ -96,6 +102,8 @@ const userIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fi
   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
   <circle cx="12" cy="7" r="4"></circle>
 </svg>`;
+
+const isProfileActive = computed(() => route.path === '/mypage');
 
 const getActiveTabFromRoute = (path) => {
   const tab = tabs.find((t) => t.path === path);
@@ -193,8 +201,8 @@ const handleAvatarError = (e) => {
   display: grid;
   place-items: center;
   color: #666;
-  transition: color 0.18s ease;
   outline: none;
+  transition: color 0.18s ease;
 }
 
 .nav-button:focus {
@@ -211,7 +219,7 @@ const handleAvatarError = (e) => {
 .icon :deep(svg) {
   width: 24px;
   height: 24px;
-  transition: filter 0.18s ease;
+  transition: filter 0.18s ease, color 0.18s ease;
 }
 
 .nav-button:hover {
@@ -236,6 +244,16 @@ const handleAvatarError = (e) => {
   filter: none;
 }
 
+.nav-section button:nth-child(-n + 2):hover,
+.nav-section button:nth-child(-n + 2).active {
+  color: #e53935 !important;
+}
+
+.nav-section button:nth-child(n + 3):hover,
+.nav-section button:nth-child(n + 3).active {
+  color: #fecc21 !important;
+}
+
 .user-section {
   padding: 12px 8px 0;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
@@ -253,13 +271,22 @@ const handleAvatarError = (e) => {
   outline: none;
 }
 
-.user-button:hover {
-  color: rgba(254, 204, 33, 0.65);
+.user-button .icon :deep(svg) {
+  stroke: #000;
+  stroke-width: 2;
+  transition: stroke 0.18s ease, stroke-width 0.18s ease, filter 0.18s ease;
+}
+
+.user-button:hover .icon :deep(svg),
+.user-button.active .icon :deep(svg) {
+  stroke: #65be34 !important;
+  stroke-width: 2.4 !important;
+  filter: drop-shadow(0 6px 10px rgba(101, 190, 52, 0.35));
 }
 
 .user-button:hover .user-avatar,
-.user-button:hover .icon :deep(svg) {
-  filter: drop-shadow(0 6px 10px rgba(254, 204, 33, 0.35));
+.user-button.active .user-avatar {
+  filter: drop-shadow(0 6px 10px rgba(101, 190, 52, 0.35));
 }
 
 .user-avatar {

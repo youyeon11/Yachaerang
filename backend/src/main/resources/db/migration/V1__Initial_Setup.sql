@@ -49,44 +49,36 @@ CREATE TABLE farm (
         INDEX idx_farm_member_id (member_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 3. bot_session table
-CREATE TABLE bot_session (
-                             bot_session_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                             member_id BIGINT NOT NULL,
-                             started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+-- 3. chat_session table
+CREATE TABLE chat_session (
+    chat_session_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    sender_id BIGINT NOT NULL,
+    started_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    session_status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-                             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_chat_session_member_id (sender_id),
+    INDEX idx_chat_session_member_session_status (sender_id, session_status),
 
-                             CONSTRAINT fk_bot_session_member
-                                 FOREIGN KEY (member_id)
-                                     REFERENCES member(member_id)
-                                     ON DELETE CASCADE,
-
-                             INDEX idx_bot_session_member_id (member_id),
-                             INDEX idx_bot_session_started_at (started_at)
+    CONSTRAINT fk_chat_session_member
+        FOREIGN KEY (sender_id) REFERENCES member(member_id)
+            ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 4. bot_message table
-CREATE TABLE bot_message (
-                             bot_message_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                             sender_id BIGINT NOT NULL,
-                             content TEXT NOT NULL,
-                             bot_session_id BIGINT NOT NULL,
+-- 4. chat_message table
+CREATE TABLE chat_message (
+    chat_message_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    chat_session_id BIGINT NOT NULL,
+    sender_role VARCHAR(20) NOT NULL COMMENT 'USER, ASSISTANT',
+    sender_id BIGINT NULL COMMENT 'USER일 때만 값 존재, ASSISTANT는 NULL',
+    sent_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    content TEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-                             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-                             CONSTRAINT fk_bot_message_sender
-                                 FOREIGN KEY (sender_id) REFERENCES member(member_id)
-                                     ON DELETE CASCADE,
-
-                             CONSTRAINT fk_bot_message_bot_session
-                                 FOREIGN KEY (bot_session_id) REFERENCES bot_session(bot_session_id)
-                                     ON DELETE CASCADE,
-
-                             INDEX idx_bot_message_sender_id (sender_id),
-                             INDEX idx_bot_message_bot_session_id (bot_session_id)
+    INDEX idx_chat_message_session_id (chat_session_id),
+    INDEX idx_chat_message_session_created (chat_session_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 5. product 테이블
@@ -106,62 +98,59 @@ CREATE TABLE product (
     image_url VARCHAR(500),
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    INDEX idx_product_code (product_code)
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 6. article table
 CREATE TABLE article (
-                         article_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                         title VARCHAR(500) NOT NULL,
-                         content TEXT NOT NULL,
+    article_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(500) NOT NULL,
+    content TEXT NOT NULL,
+    url VARCHAR(500) NOT NULL,
+    image_url VARCHAR(500) NOT NULL,
 
-                         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 7. tag table
 CREATE TABLE tag (
-                     tag_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                     name VARCHAR(100) NOT NULL,
-                     article_id BIGINT NOT NULL,
-
-                     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-                     CONSTRAINT fk_tag_article
-                         FOREIGN KEY (article_id)
-                             REFERENCES article(article_id)
-                             ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 8. member_product table
-CREATE TABLE member_product (
-    member_product_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    member_id BIGINT NOT NULL,
-    product_id BIGINT NOT NULL,
-    interest_type VARCHAR(10),
-    quantity INT,
+    tag_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    article_id BIGINT NOT NULL,
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_member_product_member
+    CONSTRAINT fk_tag_article
+        FOREIGN KEY (article_id)
+            REFERENCES article(article_id)
+            ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 8. favorite table
+CREATE TABLE favorite (
+    favorite_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    member_id BIGINT NOT NULL,
+    product_code VARCHAR(100) NOT NULL,
+    period_type VARCHAR(50) NOT NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_favorite_member
         FOREIGN KEY (member_id)
             REFERENCES member(member_id)
             ON DELETE CASCADE,
-    CONSTRAINT fk_member_product_product
-        FOREIGN KEY (product_id)
-            REFERENCES product(product_id)
+    CONSTRAINT fk_favorite_product
+        FOREIGN KEY (product_code)
+            REFERENCES product(product_code)
             ON DELETE CASCADE,
-    CONSTRAINT chk_interest_type
-        CHECK (interest_type IN ('WATCHING', 'FARMING')),
+    CONSTRAINT chk_period_type
+        CHECK (period_type IN ('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY')),
 
-    UNIQUE KEY uk_member_product (member_id, product_id),
-
-    INDEX idx_member_product_member_id (member_id),
-    INDEX idx_member_product_product_id (product_id)
+    INDEX idx_favorite_member_id (member_id),
+    INDEX idx_favorite_product_code (product_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 9. daily_price table
@@ -174,14 +163,13 @@ CREATE TABLE daily_price (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-                              CONSTRAINT fk_daily_product_product
-                                  FOREIGN KEY (product_code)
-                                      REFERENCES product(product_code)
-                                      ON DELETE CASCADE,
+    CONSTRAINT fk_daily_product_product
+        FOREIGN KEY (product_code)
+            REFERENCES product(product_code)
+            ON DELETE CASCADE,
 
-                              UNIQUE KEY uk_daily_product_product_date (product_code, price_date),
-                              INDEX idx_daily_product_product_code (product_code),
-                              INDEX idx_daily_product_price_date (price_date)
+    UNIQUE KEY uk_daily_product_product_date (product_code, price_date),
+    INDEX idx_daily_product_price_date (price_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 10. weekly_price table
@@ -200,14 +188,14 @@ CREATE TABLE weekly_price (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-                                CONSTRAINT fk_weekly_product_product
-                                    FOREIGN KEY (product_code)
-                                        REFERENCES product(product_code)
-                                        ON DELETE CASCADE,
+    CONSTRAINT fk_weekly_product_product
+        FOREIGN KEY (product_code)
+            REFERENCES product(product_code)
+            ON DELETE CASCADE,
 
-                                UNIQUE KEY uk_weekly_product_product_week (product_code, start_date),
-                                INDEX idx_weekly_product_product_code (product_code),
-                                INDEX idx_weekly_product_week_start (start_date)
+    UNIQUE KEY uk_weekly_product_product_week (product_code, start_date),
+    INDEX idx_weekly_product_product_code (product_code),
+    INDEX idx_weekly_product_week_start (start_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 11. monthly_price table
@@ -220,13 +208,14 @@ CREATE TABLE monthly_price (
     min_price DECIMAL(15, 0),
     max_price DECIMAL(15, 0),
     price_count INT DEFAULT 0,
-                                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                 updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-                                 CONSTRAINT fk_monthly_product_product
-                                     FOREIGN KEY (product_code)
-                                         REFERENCES product(product_code)
-                                         ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_monthly_product_product
+        FOREIGN KEY (product_code)
+            REFERENCES product(product_code)
+            ON DELETE CASCADE,
 
     UNIQUE KEY uk_monthly_product_product_month (product_code, price_year, price_month),
     INDEX idx_monthly_product_month (price_year, price_month)
@@ -244,13 +233,13 @@ CREATE TABLE yearly_price (
     end_price DECIMAL(15, 0) NULL,
     price_count INT DEFAULT 0,
 
-                              created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                              updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-                              CONSTRAINT fk_yearly_price_product
-                                  FOREIGN KEY (product_code) REFERENCES product(product_code)
-                                      ON DELETE CASCADE,
+    CONSTRAINT fk_yearly_price_product
+        FOREIGN KEY (product_code) REFERENCES product(product_code)
+            ON DELETE CASCADE,
 
-                              UNIQUE KEY uk_yearly_price (product_code, price_year),
-                              INDEX idx_year (price_year)
+    UNIQUE KEY uk_yearly_price (product_code, price_year),
+    INDEX idx_year (price_year)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -46,6 +46,8 @@ const handleLogoError = (e) => {
 
 .footer-inner {
   max-width: 1200px;
+  width: 100%;
+  box-sizing: border-box;
   margin: 0 auto;
   padding: 24px 32px;
   display: flex;
@@ -70,8 +72,8 @@ const handleLogoError = (e) => {
 }
 
 .brand-logo img {
-  width: 100%;
-  height: 100%;
+  width: 92%;
+  height: 92%;
   object-fit: contain;
 }
 

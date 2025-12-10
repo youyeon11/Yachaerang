@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.restdocs.payload.FieldDescriptor;
 
 import static org.mockito.Mockito.mock;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 
@@ -22,10 +23,11 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 
 @Import({ResponseWrappingAdvice.class})
 class WeeklyPriceControllerTest extends RestDocsSupport {
@@ -82,9 +84,6 @@ class WeeklyPriceControllerTest extends RestDocsSupport {
         given(weeklyPriceService.getPriceDuration(productCode, startDate, endDate))
                 .willReturn(priceList);
 
-        given(weeklyPriceService.getPriceDuration(productCode, startDate, endDate))
-                .willReturn(priceList);
-
         // when & then
         mockMvc.perform(get("/api/v1/weekly-prices/{productCode}", productCode)
                         .param("startDate", "2024-01-01")
@@ -93,14 +92,22 @@ class WeeklyPriceControllerTest extends RestDocsSupport {
                 .andExpect(status().isOk())
                 .andDo(doc(
                         "get-weekly-prices",
+                        requestHeaders(),
+                        pathParameters(
+                                parameterWithName("productCode").description("상품 코드")
+                        ),
+                        queryParameters(
+                                parameterWithName("startDate").description("시작 날짜"),
+                                parameterWithName("endDate").description("종료 날짜")
+                        ),
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_LIST_DESCRIPTOR)
                                 .andWithPrefix("data[]",
-                                        fieldWithPath("startDate").description(VARIES).description("startDate"),
-                                        fieldWithPath("endDate").description(VARIES).description("endDate"),
-                                        fieldWithPath("avgPrice").description(NUMBER).description("avgPrice"),
-                                        fieldWithPath("minPrice").description(NUMBER).description("minPrice"),
-                                        fieldWithPath("maxPrice").description(NUMBER).description("maxPrice")
+                                        fieldWithPath("startDate").type(VARIES).description("기록 시작 날짜"),
+                                        fieldWithPath("endDate").type(VARIES).description("기록 종료 날짜"),
+                                        fieldWithPath("avgPrice").type(NUMBER).description("평균 가격"),
+                                        fieldWithPath("minPrice").type(NUMBER).description("최소 가격"),
+                                        fieldWithPath("maxPrice").type(NUMBER).description("최고 가격")
                                 )));
     }
 
