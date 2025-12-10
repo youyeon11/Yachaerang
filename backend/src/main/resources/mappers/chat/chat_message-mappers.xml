@@ -4,54 +4,20 @@
 
 <mapper namespace="com.yachaerang.backend.api.chat.repository.ChatMessageMapper">
 
-    <!--
-        JOIN 시(ChatSessionMapper.findByIdWithMessages)용 ResultMap
-        createdAt, updatedAt 컬럼만 msg_ prefix 를 사용 (JOIN 쿼리와 맞춰야 함)
-    -->
     <resultMap id="ChatMessageResultMap"
                type="com.yachaerang.backend.api.chat.entity.ChatMessage">
-        <!-- PK -->
         <id property="id" column="chat_message_id"/>
-
-        <!-- 기본 필드 -->
         <result property="chatSessionId" column="chat_session_id"/>
         <result property="senderRole"   column="sender_role" javaType="com.yachaerang.backend.api.common.SenderRole"
-        typeHandler="com.yachaerang.backend.global.util.SenderRoleHandler"/>
+            typeHandler="com.yachaerang.backend.global.util.SenderRoleHandler"/>
         <result property="senderId"     column="sender_id"/>
         <result property="sentAt"       column="sent_at"/>
         <result property="content"      column="content"/>
-
-        <!-- ChatSession JOIN 시 message 쪽 created/updated alias (msg_created_at / msg_updated_at) 사용 -->
         <result property="createdAt" column="msg_created_at"/>
         <result property="updatedAt" column="msg_updated_at"/>
     </resultMap>
 
-    <!-- 단독 조회용 ResultMap (테이블에서 직접 조회할 때 사용) -->
-    <resultMap id="ChatMessageSimpleResultMap"
-               type="com.yachaerang.backend.api.chat.entity.ChatMessage">
-        <id property="id" column="chat_message_id"/>
-        <result property="chatSessionId" column="chat_session_id"/>
-        <result property="senderRole"   column="sender_role"/>
-        <result property="senderId"     column="sender_id"/>
-        <result property="sentAt"       column="sent_at"/>
-        <result property="content"      column="content"/>
-        <result property="createdAt"    column="created_at"/>
-        <result property="updatedAt"    column="updated_at"/>
-    </resultMap>
-
-    <!-- 공통 컬럼 (단독 조회/리스트 조회에서 사용) -->
-    <sql id="chatMessageColumns">
-        cm.chat_message_id,
-        cm.chat_session_id,
-        cm.sender_role,
-        cm.sender_id,
-        cm.sent_at,
-        cm.content,
-        cm.created_at,
-        cm.updated_at
-    </sql>
-
-    <!-- INSERT -->
+    <!-- save -->
     <insert id="save"
             parameterType="com.yachaerang.backend.api.chat.entity.ChatMessage"
             useGeneratedKeys="true"
@@ -76,19 +42,18 @@
                  )
     </insert>
 
-    <!-- Batch INSERT -->
+    <!-- Batch save -->
     <insert id="saveAll" parameterType="list">
-        INSERT INTO chat_message (
-        chat_session_id,
-        sender_role,
-        sender_id,
-        sent_at,
-        content,
-        created_at,
-        updated_at
-        ) VALUES
-        <foreach collection="list" item="message" separator=",">
-            (
+        <foreach collection="list" item="message" separator=";">
+            INSERT INTO chat_message (
+            chat_session_id,
+            sender_role,
+            sender_id,
+            sent_at,
+            content,
+            created_at,
+            updated_at
+            ) VALUES (
             #{message.chatSessionId},
             #{message.senderRole},
             #{message.senderId},
@@ -100,21 +65,32 @@
         </foreach>
     </insert>
 
-    <!-- SELECT by ID -->
-    <select id="findById"
-            parameterType="long"
-            resultMap="ChatMessageSimpleResultMap">
+    <!-- findById -->
+    <select id="findById" parameterType="long" resultMap="ChatMessageResultMap">
         SELECT
-        <include refid="chatMessageColumns"/>
+            cm.chat_message_id,
+            cm.chat_session_id,
+            cm.sender_role,
+            cm.sender_id,
+            cm.sent_at,
+            cm.content,
+            cm.created_at,
+            cm.updated_at
         FROM chat_message cm
         WHERE cm.chat_message_id = #{id}
     </select>
 
-    <!-- SELECT by sessionId (오름차순, limit 옵션) -->
-    <select id="findAllByChatSessionIdOrderByCreatedAtAsc"
-            resultMap="ChatMessageSimpleResultMap">
+    <!-- SELECT by sessionId -->
+    <select id="findAllByChatSessionIdOrderByCreatedAtAsc" resultMap="ChatMessageResultMap">
         SELECT
-        <include refid="chatMessageColumns"/>
+            cm.chat_message_id,
+            cm.chat_session_id,
+            cm.sender_role,
+            cm.sender_id,
+            cm.sent_at,
+            cm.content,
+            cm.created_at,
+            cm.updated_at
         FROM chat_message cm
         WHERE cm.chat_session_id = #{chatSessionId}
         ORDER BY cm.created_at ASC
@@ -123,13 +99,20 @@
         </if>
     </select>
 
-    <!-- SELECT recent messages (최근 N개를 가져온 뒤 다시 오름차순 정렬) -->
+    <!-- findRecentMessagesByChatSessionId -->
     <select id="findRecentMessagesByChatSessionId"
-            resultMap="ChatMessageSimpleResultMap">
+            resultMap="ChatMessageResultMap">
         SELECT *
         FROM (
         SELECT
-        <include refid="chatMessageColumns"/>
+            cm.chat_message_id,
+            cm.chat_session_id,
+            cm.sender_role,
+            cm.sender_id,
+            cm.sent_at,
+            cm.content,
+            cm.created_at,
+            cm.updated_at
         FROM chat_message cm
         WHERE cm.chat_session_id = #{chatSessionId}
         ORDER BY cm.created_at DESC
@@ -139,28 +122,9 @@
     </select>
 
     <!-- COUNT by sessionId -->
-    <select id="countByChatSessionId"
-            parameterType="long"
-            resultType="int">
+    <select id="countByChatSessionId" parameterType="long" resultType="int">
         SELECT COUNT(*)
         FROM chat_message
         WHERE chat_session_id = #{chatSessionId}
     </select>
-
-    <!-- SELECT by sessionId and senderRole -->
-    <select id="findByChatSessionIdAndSenderRole"
-            resultMap="ChatMessageSimpleResultMap">
-        SELECT
-        <include refid="chatMessageColumns"/>
-        FROM chat_message cm
-        WHERE cm.chat_session_id = #{chatSessionId}
-        AND cm.sender_role = #{senderRole}
-        ORDER BY cm.created_at ASC
-    </select>
-
-    <!-- DELETE by sessionId -->
-    <delete id="deleteByChatSessionId" parameterType="long">
-        DELETE FROM chat_message
-        WHERE chat_session_id = #{chatSessionId}
-    </delete>
 </mapper>

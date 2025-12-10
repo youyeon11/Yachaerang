@@ -52,7 +52,7 @@ CREATE TABLE farm (
 -- 3. chat_session table
 CREATE TABLE chat_session (
     chat_session_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    member_id BIGINT NOT NULL,
+    sender_id BIGINT NOT NULL,
     started_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     session_status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -62,7 +62,7 @@ CREATE TABLE chat_session (
     INDEX idx_chat_session_member_session_status (member_id, session_status),
 
     CONSTRAINT fk_chat_session_member
-        FOREIGN KEY (member_id) REFERENCES member(member_id)
+        FOREIGN KEY (sender_id) REFERENCES member(member_id)
             ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

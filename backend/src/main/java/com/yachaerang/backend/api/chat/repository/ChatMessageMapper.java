@@ -46,9 +46,4 @@ public interface ChatMessageMapper {
      * 세션별 메시지 개수 조회
      */
     int countByChatSessionId(@Param("chatSessionId") Long chatSessionId);
-
-    /**
-     * 세션별 메시지 전체 삭제
-     */
-    int deleteByChatSessionId(@Param("chatSessionId") Long chatSessionId);
 }

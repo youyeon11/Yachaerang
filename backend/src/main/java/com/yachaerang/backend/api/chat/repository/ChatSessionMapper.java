@@ -23,15 +23,16 @@ public interface ChatSessionMapper {
      * @return
      */
     Optional<ChatSession> findById(@Param("id") Long chatSessionId);
+
     /**
      * 회원별 전체 세션 조회
      */
-    List<ChatSession> findAllByMemberId(@Param("memberId") Long memberId);
+    List<ChatSession> findAllByMemberId(@Param("senderId") Long memberId);
 
     /**
      * 회원별 ACTIVE 세션 조회
      */
-    List<ChatSession> findActiveSessionsByMemberId(@Param("memberId") Long memberId);
+    List<ChatSession> findActiveSessionsByMemberId(@Param("senderId") Long memberId);
 
     /**
      * 세션 업데이트
@@ -46,5 +47,5 @@ public interface ChatSessionMapper {
     /**
      * 회원 ID 기준으로 세션 전체 삭제
      */
-    int deleteAllByMemberId(@Param("memberId") Long memberId);
+    int deleteAllByMemberId(@Param("senderId") Long memberId);
 }

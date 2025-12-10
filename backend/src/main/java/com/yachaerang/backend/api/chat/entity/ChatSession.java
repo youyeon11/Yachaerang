@@ -2,7 +2,6 @@ package com.yachaerang.backend.api.chat.entity;
 
 import com.yachaerang.backend.api.common.BaseEntity;
 import com.yachaerang.backend.api.common.SessionStatus;
-import com.yachaerang.backend.api.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +18,7 @@ public class ChatSession extends BaseEntity {
 
     private Long chatSessionId;
 
-    private Long memberId;
+    private Long senderId;
 
     private List<ChatMessage> chatMessageList;
 
@@ -30,7 +29,7 @@ public class ChatSession extends BaseEntity {
     public SessionStatus sessionStatus = SessionStatus.ACTIVE;
 
     public boolean isOwnedBy(Long memberId) {
-        return this.memberId != null && this.memberId.equals(memberId);
+        return this.senderId != null && this.senderId.equals(memberId);
     }
 
     public void end() {
