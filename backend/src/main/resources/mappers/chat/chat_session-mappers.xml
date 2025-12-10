@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yachaerang.backend.api.chat.repository.ChatSessionMapper">
+
+    <!-- 기본 ResultMap -->
+    <resultMap id="ChatSessionResultMap"
+               type="com.yachaerang.backend.api.chat.entity.ChatSession">
+        <id property="chatSessionId" column="chat_session_id"/>
+        <result property="memberId" column="member_id"/>
+        <result property="startedAt" column="started_at"/>
+        <result property="sessionStatus" column="session_status" javaType="com.yachaerang.backend.api.common.SessionStatus"
+        typeHandler="com.yachaerang.backend.global.util.SessionStatusHandler"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 메시지까지 포함한 ResultMap (JOIN 용) -->
+    <resultMap id="ChatSessionWithMessagesResultMap"
+               type="com.yachaerang.backend.api.chat.entity.ChatSession"
+               extends="ChatSessionResultMap">
+        <!-- ChatSession.chatMessageList -->
+        <collection property="chatMessageList"
+                    resultMap="com.yachaerang.backend.api.chat.repository.ChatMessageMapper.ChatMessageResultMap"/>
+    </resultMap>
+
+    <!-- 공통 컬럼 -->
+    <sql id="chatSessionColumns">
+        cs.chat_session_id,
+        cs.member_id,
+        cs.started_at,
+        cs.session_status,
+        cs.created_at,
+        cs.updated_at
+    </sql>
+
+    <!-- INSERT -->
+    <insert id="save"
+            parameterType="com.yachaerang.backend.api.chat.entity.ChatSession"
+            useGeneratedKeys="true"
+            keyProperty="chatSessionId"
+            keyColumn="chat_session_id">
+        INSERT INTO chat_session (
+            member_id,
+            started_at,
+            session_status,
+            created_at,
+            updated_at
+        ) VALUES (
+                     #{memberId},
+                     #{startedAt},
+                     #{sessionStatus},
+                     NOW(),
+                     NOW()
+                 )
+    </insert>
+
+    <!-- SELECT by ID -->
+    <select id="findById"
+            parameterType="long"
+            resultMap="ChatSessionResultMap">
+        SELECT
+        <include refid="chatSessionColumns"/>
+        FROM chat_session cs
+        WHERE cs.chat_session_id = #{id}
+    </select>
+
+    <!-- SELECT all by memberId -->
+    <select id="findAllByMemberId"
+            parameterType="long"
+            resultMap="ChatSessionResultMap">
+        SELECT
+        <include refid="chatSessionColumns"/>
+        FROM chat_session cs
+        WHERE cs.member_id = #{memberId}
+        ORDER BY cs.created_at DESC
+    </select>
+
+    <!-- SELECT active sessions by memberId -->
+    <select id="findActiveSessionsByMemberId"
+            parameterType="long"
+            resultMap="ChatSessionResultMap">
+        SELECT
+        <include refid="chatSessionColumns"/>
+        FROM chat_session cs
+        WHERE cs.member_id = #{memberId}
+        AND cs.session_status = 'ACTIVE'
+        ORDER BY cs.created_at DESC
+    </select>
+
+    <!-- UPDATE status -->
+    <update id="updateStatus"
+            parameterType="com.yachaerang.backend.api.chat.entity.ChatSession">
+        UPDATE chat_session
+        SET session_status = #{sessionStatus},
+            updated_at      = NOW()
+        WHERE chat_session_id = #{chatSessionId}
+    </update>
+
+    <!-- DELETE by ID -->
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM chat_session
+        WHERE chat_session_id = #{id}
+    </delete>
+
+    <!-- DELETE all by memberId -->
+    <delete id="deleteAllByMemberId" parameterType="long">
+        DELETE FROM chat_session
+        WHERE member_id = #{memberId}
+    </delete>
+
+    <!-- SELECT with messages (JOIN) -->
+    <select id="findByIdWithMessages"
+            parameterType="long"
+            resultMap="ChatSessionWithMessagesResultMap">
+        SELECT
+            cs.chat_session_id,
+            cs.member_id,
+            cs.started_at,
+            cs.session_status,
+            cs.created_at,
+            cs.updated_at,
+
+            -- 아래 컬럼들은 ChatMessageMapper.ChatMessageResultMap과 맞춰서 사용
+            cm.chat_message_id,
+            cm.chat_session_id,
+            cm.sender_role,
+            cm.sender_id,
+            cm.sent_at,
+            cm.content,
+            cm.created_at AS msg_created_at,
+            cm.updated_at AS msg_updated_at
+        FROM chat_session cs
+                 LEFT JOIN chat_message cm
+                           ON cs.chat_session_id = cm.chat_session_id
+        WHERE cs.chat_session_id = #{id}
+        ORDER BY cm.created_at ASC
+    </select>
+
+</mapper>
