@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @Sql(value = "classpath:H2_schema.sql", executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(scripts = {"/sql/product-test-data.sql", "/sql/favorite-test-data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(scripts = {"/sql/cleanup.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-
 class FavoriteMapperTest {
 
     @Autowired private FavoriteMapper favoriteMapper;

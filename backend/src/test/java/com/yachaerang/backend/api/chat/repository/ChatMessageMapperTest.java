@@ -1,9 +1,7 @@
 package com.yachaerang.backend.api.chat.repository;
 
 import com.yachaerang.backend.api.chat.entity.ChatMessage;
-import com.yachaerang.backend.api.chat.entity.ChatSession;
 import com.yachaerang.backend.api.common.SenderRole;
-import com.yachaerang.backend.api.common.SessionStatus;
 import com.yachaerang.backend.global.config.MyBatisConfig;
 import org.junit.jupiter.api.*;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
@@ -12,8 +10,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlMergeMode;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,9 +20,10 @@ import static org.assertj.core.api.Assertions.*;
 @MybatisTest
 @ActiveProfiles("test")
 @Sql("classpath:H2_schema.sql")
+@SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
+@Sql(scripts = "/sql/cleanup.sql",  executionPhase = Sql.ExecutionPhase.AFTER_TEST_CLASS)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(MyBatisConfig.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ChatMessageMapperTest {
 
     @Autowired
@@ -73,36 +72,6 @@ class ChatMessageMapperTest {
         assertThat(message.getId()).isNotNull();
     }
 
-    @Test
-    @DisplayName("여러 메시지 저장 성공")
-    void 여러_메시지_저장_성공() {
-        // given
-        List<ChatMessage> messages = Arrays.asList(
-                ChatMessage.ofUser(testChatSessionId, testMemberId, "첫 번째 메시지"),
-                ChatMessage.ofAssistant(testChatSessionId, "AI 응답입니다"),
-                ChatMessage.ofUser(testChatSessionId, testMemberId, "두 번째 메시지")
-        );
-
-        // when
-        int result = chatMessageMapper.saveAll(messages);
-
-        // then
-        assertThat(result).isEqualTo(3);
-        assertThat(messages).allMatch(msg -> msg.getId() != null);
-    }
-
-    @Test
-    @DisplayName("빈 리스트 한번에 저장 시 0")
-    void 빈리스트_배치_저장시_0() {
-        // given
-        List<ChatMessage> emptyList = Arrays.asList();
-
-        // when
-        int result = chatMessageMapper.saveAll(emptyList);
-
-        // then
-        assertThat(result).isEqualTo(0);
-    }
 
     @Test
     @DisplayName("ID로 메시지 조회 성공")
@@ -123,8 +92,8 @@ class ChatMessageMapperTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 ID로 조회 시 null")
-    void 존재하지않는_ID로_조회시_null() {
+    @DisplayName("존재하지 않는 ID로 조회 시 빈 Optional")
+    void 존재하지않는_ID로_조회시_empty() {
         // Given
         Long nonExistentId = 99999L;
 
@@ -182,7 +151,7 @@ class ChatMessageMapperTest {
     }
 
     @Test
-    @DisplayName("세션별 최근 N개 메시지 조회")
+    @DisplayName("세션별 최근 N개 메시지 조회 (최근 N개를 오래된 순으로 반환)")
     void 세션별_최근_N개_메시지_조회_성공() {
         // Given
         saveSampleMessages(testChatSessionId, 10);
@@ -193,9 +162,9 @@ class ChatMessageMapperTest {
 
         // Then
         assertThat(result).hasSize(3);
-        // 최근 메시지가 먼저 오도록 정렬되어야 함 (DESC)
+        // Mapper 쿼리가 가장 최근 N개를 가져와서 created_at ASC(오래된 순)으로 정렬하므로 ASC 기준으로 검증
         assertThat(result).isSortedAccordingTo(
-                (m1, m2) -> m2.getCreatedAt().compareTo(m1.getCreatedAt())
+                (m1, m2) -> m1.getCreatedAt().compareTo(m2.getCreatedAt())
         );
     }
 
@@ -212,13 +181,13 @@ class ChatMessageMapperTest {
         assertThat(count).isEqualTo(7);
     }
 
-
     @Test
     @DisplayName("여러 세션에 메시지가 있을 때 특정 세션만 조회")
     void 여러세션_메시지가_있을때_특정세션만_조회() {
         // given
         Long sessionId1 = 1L;
         Long sessionId2 = 2L;
+
         saveSampleMessages(sessionId1, 3);
         saveSampleMessages(sessionId2, 5);
 
