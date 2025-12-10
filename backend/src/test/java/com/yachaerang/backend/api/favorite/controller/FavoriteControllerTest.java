@@ -3,8 +3,6 @@ package com.yachaerang.backend.api.favorite.controller;
 import com.yachaerang.backend.api.favorite.dto.request.FavoriteRequestDto;
 import com.yachaerang.backend.api.favorite.dto.response.FavoriteResponseDto;
 import com.yachaerang.backend.api.favorite.service.FavoriteService;
-import com.yachaerang.backend.global.exception.GeneralException;
-import com.yachaerang.backend.global.response.ErrorCode;
 import com.yachaerang.backend.global.response.ResponseWrappingAdvice;
 import com.yachaerang.backend.global.util.RestDocsSupport;
 import org.springframework.context.annotation.Import;

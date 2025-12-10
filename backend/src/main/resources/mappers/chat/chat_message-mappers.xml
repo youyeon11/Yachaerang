@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yachaerang.backend.api.chat.repository.ChatMessageMapper">
+    <resultMap id="ChatMessageResultMap"
+               type="com.yachaerang.backend.api.chat.entity.ChatMessage">
+        <id property="id" column="chat_message_id"/>
+        <result property="chatSessionId" column="chat_session_id"/>
+        <result property="senderRole"   column="sender_role"
+                javaType="com.yachaerang.backend.api.common.SenderRole"
+                typeHandler="com.yachaerang.backend.global.util.SenderRoleHandler"/>
+        <result property="senderId"     column="sender_id"/>
+        <result property="sentAt"       column="sent_at"/>
+        <result property="content"      column="content"/>
+        <result property="createdAt"    column="created_at"/>
+        <result property="updatedAt"    column="updated_at"/>
+    </resultMap>
+
+    <!-- save -->
+    <insert id="save"
+            parameterType="com.yachaerang.backend.api.chat.entity.ChatMessage"
+            useGeneratedKeys="true"
+            keyProperty="id"
+            keyColumn="chat_message_id">
+        INSERT INTO chat_message (
+            chat_session_id,
+            sender_role,
+            sender_id,
+            sent_at,
+            content,
+            created_at,
+            updated_at
+        ) VALUES (
+                     #{chatSessionId},
+                     #{senderRole},
+                     #{senderId},
+                     #{sentAt},
+                     #{content},
+                     CURRENT_TIMESTAMP(),
+                     CURRENT_TIMESTAMP()
+                 )
+    </insert>
+
+    <!-- findById -->
+    <select id="findById" parameterType="long" resultMap="ChatMessageResultMap">
+        SELECT
+            cm.chat_message_id,
+            cm.chat_session_id,
+            cm.sender_role,
+            cm.sender_id,
+            cm.sent_at,
+            cm.content,
+            cm.created_at,
+            cm.updated_at
+        FROM chat_message cm
+        WHERE cm.chat_message_id = #{id}
+    </select>
+
+    <!-- SELECT by sessionId -->
+    <select id="findAllByChatSessionIdOrderByCreatedAtAsc" resultMap="ChatMessageResultMap">
+        SELECT
+        cm.chat_message_id,
+        cm.chat_session_id,
+        cm.sender_role,
+        cm.sender_id,
+        cm.sent_at,
+        cm.content,
+        cm.created_at,
+        cm.updated_at
+        FROM chat_message cm
+        WHERE cm.chat_session_id = #{chatSessionId}
+        ORDER BY cm.created_at ASC
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- findRecentMessagesByChatSessionId -->
+    <select id="findRecentMessagesByChatSessionId"
+            resultMap="ChatMessageResultMap">
+        SELECT *
+        FROM (
+                 SELECT
+                     cm.chat_message_id,
+                     cm.chat_session_id,
+                     cm.sender_role,
+                     cm.sender_id,
+                     cm.sent_at,
+                     cm.content,
+                     cm.created_at,
+                     cm.updated_at
+                 FROM chat_message cm
+                 WHERE cm.chat_session_id = #{chatSessionId}
+                 ORDER BY cm.created_at DESC
+                     LIMIT #{limit}
+             ) AS recent
+        ORDER BY recent.created_at ASC
+    </select>
+
+    <!-- COUNT by sessionId -->
+    <select id="countByChatSessionId" parameterType="long" resultType="int">
+        SELECT COUNT(*)
+        FROM chat_message
+        WHERE chat_session_id = #{chatSessionId}
+    </select>
+</mapper>

@@ -56,6 +56,16 @@ public enum ErrorCode implements BaseCode{
     FAVORITE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAVORITE_002", "관심 대시보드 해제에 실패했습니다."),
     FAVORITE_DUPLICATED(HttpStatus.BAD_REQUEST, "FAVORITE_003", "이미 등록된 관심사입니다."),
 
+    // chat
+    SESSION_FAILED(HttpStatus.BAD_REQUEST, "CHAT_001", "채팅의 세션을 생성하는 데에 실패하였습니다."),
+    SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT_002", "채팅을 찾을 수 없습니다."),
+    SESSION_ACCESS_DENIED(HttpStatus.UNAUTHORIZED, "CHAT_003", "채팅 세션을 읽을 권한이 없습니다."),
+    SESSION_ALREADY_ENDED(HttpStatus.BAD_REQUEST, "CHAT_004", "채팅이 이미 종료되었습니다."),
+
+    // AI
+    INVALID_MESSAGE(HttpStatus.BAD_REQUEST, "AI_001", "메시지 형식이 잘못되었습니다."),
+    AI_MODEL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI_002", "AI 모델을 불러오는 데에 오류가 생겼습니다."),
+
     // 500
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500ERROR", "서버에서 장애가 일어났습니다."),
     ;
