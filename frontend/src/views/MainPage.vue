@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>상세검색페이지입니다.</h1>
+    <h1>메인페이지입니단</h1>
   </div>
 </template>
 
