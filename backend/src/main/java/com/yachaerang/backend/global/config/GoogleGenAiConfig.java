@@ -2,17 +2,11 @@ package com.yachaerang.backend.global.config;
 
 import com.google.genai.Client;
 import com.google.genai.types.HttpOptions;
-import com.yachaerang.backend.global.util.LogUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.google.genai.GoogleGenAiChatModel;
 import org.springframework.ai.google.genai.GoogleGenAiChatOptions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
-
-import java.util.Arrays;
 
 @Configuration
 public class GoogleGenAiConfig {
