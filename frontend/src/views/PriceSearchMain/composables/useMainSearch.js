@@ -1,4 +1,4 @@
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 export function useMainSearch() {
@@ -28,17 +28,28 @@ export function useMainSearch() {
     { id: 8, name: '시금치', price: 1200 },
   ]);
 
+  const watchList = ref([
+    '양파(10kg(그물망 프)) - 중품',
+    '당근(1kg) - 상품',
+    '배추(3kg) - 중품',
+    '파(1kg) - 고급',
+    '감자(20kg) - 대',
+  ]);
+
   const popularItems = computed(() => (activeTab.value === 'top' ? topItems.value : bottomItems.value));
 
   function goToDetail() {
     router.push('/price');
   }
 
-  function editWatchList() {}
+  function editWatchList() {
+    router.push('/mypage/items');
+  }
 
   return {
     activeTab,
     popularItems,
+    watchList,
     goToDetail,
     editWatchList,
   };

@@ -1,22 +1,28 @@
 <template>
-  <div class="page-container">
-    <header class="page-header">
-      <div class="page-header-left">
-        <h1 class="page-title">농사 도우미</h1>
-        <p class="page-subtitle">야치야치야치</p>
-      </div>
-
-      <!-- 필요할 때만 사용하는 오른쪽 영역 (검색, 버튼 등) -->
-      <!-- 비어있으면 이 div 자체를 빼도 됩니다 -->
-      <div class="page-header-right">
-        <!-- 예: 검색박스, 액션 버튼 등 -->
-      </div>
-    </header>
-
-    <!-- 여기부터 각 페이지 고유 내용 -->
+  <div class="ai-chat">
+    <WelcomeScreen v-if="messages.length === 0" />
+    <ChatMessage v-else v-for="msg in messages" :key="msg.id" :message="msg" />
+    <ChatInputBar :messages="messages" @send="sendMessage" @reset="resetChat" />
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { useChat } from './composables/useChat';
 
-<style lang="scss" scoped></style>
+import WelcomeScreen from './components/WelcomeScreen.vue';
+import ChatMessage from './components/ChatMessage.vue';
+import ChatInputBar from './components/ChatInputBar.vue';
+
+const { messages, sendMessage, resetChat } = useChat();
+</script>
+
+<style scoped>
+.ai-chat {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-bottom: 80px;
+  box-sizing: border-box;
+  position: relative;
+}
+</style>
