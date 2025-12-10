@@ -6,43 +6,43 @@ const router = createRouter({
     {
       path: '/',
       name: 'main',
-      component: () => import('@/views/MainPage.vue'),
+      component: () => import('@/views/main/MainPage.vue'),
     },
     {
       path: '/login',
       name: 'login',
-      component: () => import('@/views/LoginView.vue'),
+      component: () => import('@/views/auth/LoginView.vue'),
     },
     {
       path: '/signup',
       name: 'signup',
-      component: () => import('@/views/SignupView.vue'),
+      component: () => import('@/views/auth/SignupView.vue'),
     },
 
     {
       path: '/searchMainpage',
       name: 'searchMainpage',
-      component: () => import('@/views/PriceSearchMain.vue'),
+      component: () => import('@/views/PriceSearchMain/PriceSearchMain.vue'),
     },
     {
       path: '/search',
       name: 'search',
-      component: () => import('@/views/PriceSearchDetail.vue'),
+      component: () => import('@/views/PriceSearchDetail/PriceSearchDetail.vue'),
     },
     {
       path: '/articles',
       name: 'articles',
-      component: () => import('@/views/Article.vue'),
+      component: () => import('@/views/article/Article.vue'),
     },
     {
       path: '/articles/:id',
       name: 'article-detail',
-      component: () => import('@/views/ArticleDetail.vue'),
+      component: () => import('@/views/article/ArticleDetail.vue'),
     },
     {
       path: '/ai-chat',
       name: 'ai-chat',
-      component: () => import('@/views/AIChat.vue'),
+      component: () => import('@/views/ai/AIChat.vue'),
     },
     {
       path: '/mypage',

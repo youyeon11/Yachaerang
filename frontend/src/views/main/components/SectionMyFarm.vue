@@ -1,20 +1,16 @@
 <template>
-  <section class="section dashboard" ref="target" :class="{ show: isVisible }">
+  <section class="section myfarm" ref="target" :class="{ show: isVisible }">
     <div class="content">
       <div class="text-area">
-        <h3>야채랑 통계보드</h3>
-        <h2>
-          원하는 가격에<br />
-          농산물을 판매해보세요
-        </h2>
+        <h3>나의 농장</h3>
+        <h2>편리하게 나의 농장을 관리하세요</h2>
         <p>
-          농산물의 시세를<br />
-          야채랑 통계보드로 한눈에 확인하세요
+          내가 직접 만드는 온라인 농장<br />
+          간단하게 관리하세요
         </p>
 
-        <button class="btn btn-red" @click="$router.push('/searchMainpage')">통계보드 바로가기</button>
+        <button class="btn btn-yellow" @click="$router.push('/mypage/farm')">나의농장 바로가기</button>
       </div>
-
       <div class="img-area"></div>
     </div>
   </section>
@@ -22,7 +18,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useSectionObserver } from '@/composables/useSectionObserver';
+import { useSectionObserver } from '@/views/auth/composables/useSectionObserver';
 
 const target = ref(null);
 const { isVisible, observe } = useSectionObserver();
@@ -34,8 +30,8 @@ onMounted(() => {
 
 <style scoped>
 .img-area {
-  width: 640px;
-  height: 360px;
+  width: 650px;
+  height: 380px;
 }
 .text-area {
   display: flex;
@@ -43,8 +39,7 @@ onMounted(() => {
   align-items: flex-end; /* 오른쪽 정렬 */
   text-align: right; /* 글자 정렬 오른쪽 */
 }
-
 .text-area h3 {
-  color: #e53935;
+  color: #fecc21;
 }
 </style>

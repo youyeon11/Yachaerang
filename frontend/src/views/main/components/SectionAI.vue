@@ -19,7 +19,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useSectionObserver } from '@/composables/useSectionObserver';
+import { useSectionObserver } from '@/views/auth/composables/useSectionObserver';
 
 const target = ref(null);
 const { isVisible, observe } = useSectionObserver();
