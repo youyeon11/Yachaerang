@@ -109,11 +109,16 @@ function send() {
 }
 .label {
   opacity: 0;
+  width: 0;
+  overflow: hidden;
+  padding: 0;
   transform: translateX(-6px);
   transition: 0.25s ease;
 }
 .reset-btn:hover .label {
   opacity: 1;
+  width: auto;
+  padding-left: 4px;
   transform: translateX(0);
 }
 </style>

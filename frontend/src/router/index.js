@@ -22,7 +22,7 @@ const router = createRouter({
     {
       path: '/searchMainpage',
       name: 'searchMainpage',
-      component: () => import('@/views/PriceSearchMain/PriceSearchMain.vue'),
+      component: () => import('@/views/priceSearchMain/PriceSearchMain.vue'),
     },
     {
       path: '/search',
