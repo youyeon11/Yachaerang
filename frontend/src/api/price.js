@@ -30,3 +30,4 @@ export function fetchYearlyPricesApi(productCode, params) {
 export function fetchYearlyPriceDetailApi(productCode, params) {
   return apiClient.get(`/api/v1/yearly-prices/${productCode}/detail`, { params });
 }
+
