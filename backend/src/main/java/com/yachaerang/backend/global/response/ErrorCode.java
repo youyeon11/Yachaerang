@@ -66,6 +66,9 @@ public enum ErrorCode implements BaseCode{
     INVALID_MESSAGE(HttpStatus.BAD_REQUEST, "AI_001", "메시지 형식이 잘못되었습니다."),
     AI_MODEL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI_002", "AI 모델을 불러오는 데에 오류가 생겼습니다."),
 
+    // json
+    FAILED_JSON_PARSING(HttpStatus.INTERNAL_SERVER_ERROR, "JSON_001", "json 파싱에 실패했습니다."),
+
     // 500
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500ERROR", "서버에서 장애가 일어났습니다."),
     ;
