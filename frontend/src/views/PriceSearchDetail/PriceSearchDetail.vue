@@ -64,13 +64,13 @@
 </template>
 
 <script setup>
-import ItemSelector from '@/views/PriceSearchDetail/components/ItemSelector.vue';
-import PeriodSelector from '@/views/PriceSearchDetail/components/PeriodSelector.vue';
-import DayPicker from '@/views/PriceSearchDetail/components/DateRangePicker/DayPicker.vue';
-import WeekPicker from '@/views/PriceSearchDetail/components/DateRangePicker/WeekPicker.vue';
-import MonthPicker from '@/views/PriceSearchDetail/components/DateRangePicker/MonthPicker.vue';
-import YearPicker from '@/views/PriceSearchDetail/components/DateRangePicker/YearPicker.vue';
-import PriceResultTable from '@/views/PriceSearchDetail/components/PriceResultTable.vue';
+import ItemSelector from '@/views/priceSearchDetail/components/ItemSelector.vue';
+import PeriodSelector from '@/views/priceSearchDetail/components/PeriodSelector.vue';
+import DayPicker from '@/views/priceSearchDetail/components/DateRangePicker/DayPicker.vue';
+import WeekPicker from '@/views/priceSearchDetail/components/DateRangePicker/WeekPicker.vue';
+import MonthPicker from '@/views/priceSearchDetail/components/DateRangePicker/MonthPicker.vue';
+import YearPicker from '@/views/priceSearchDetail/components/DateRangePicker/YearPicker.vue';
+import PriceResultTable from '@/views/priceSearchDetail/components/PriceResultTable.vue';
 import { usePriceSearch } from '@/views/priceSearchDetail/composables/usePriceSearch';
 
 const {
