@@ -70,13 +70,28 @@ public class FarmEvaluationService {
                 .getResult().getOutput().getText();
 
         try {
+
+            // JSON 코드 블록 제거
+            String cleanedResponse = response
+                    .replaceAll("```json\\s*", "")
+                    .replaceAll("```\\s*", "")
+                    .trim();
+
             FarmResponseDto.EvaluateDto responseDto = objectMapper.readValue(
-                        response, FarmResponseDto.EvaluateDto.class);
+                    cleanedResponse, FarmResponseDto.EvaluateDto.class);
+            // 유효성 검증
+            if (!isValidGrade(responseDto.getGrade())) {
+                throw new IllegalArgumentException("Invalid grade: " + responseDto.getGrade());
+            }
             return CompletableFuture.completedFuture(responseDto);
 
         } catch (Exception e) {
             LogUtil.error("JSON 파싱 오류: {} JSON 원본 응답 : {}", e.getMessage(), response);
             return CompletableFuture.failedFuture(GeneralException.of(ErrorCode.FAILED_JSON_PARSING));
         }
+    }
+
+    private boolean isValidGrade(String grade) {
+        return grade != null && grade.matches("[ABCD]");
     }
 }
