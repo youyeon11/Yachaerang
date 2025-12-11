@@ -1,35 +1,16 @@
 <template>
-  <div class="date-range">
-    <div class="month-picker-wrapper" ref="wrapperRef">
+  <div class="date-range" ref="wrapperRef">
+    <!-- 시작 월 -->
+    <div class="month-picker-wrapper">
       <div class="date-input clickable" @click="toggleMonthStartPicker">
         <span class="date-icon">📅</span>
-        <input
-          :value="formatMonthDisplay(startModel)"
-          class="date-field"
-          placeholder="시작 월"
-          readonly
-        />
+        <input :value="formatMonthDisplay(startModel)" class="date-field" placeholder="시작 월" readonly />
       </div>
-      <div
-        v-if="showMonthStartPicker"
-        class="month-picker-popup"
-      >
+      <div v-if="showMonthStartPicker" class="month-picker-popup">
         <div class="month-picker-header">
-          <button
-            type="button"
-            class="month-nav-btn"
-            @click="monthStartYear--"
-          >
-            ‹
-          </button>
+          <button type="button" class="month-nav-btn" @click="monthStartYear--">‹</button>
           <span class="month-picker-year">{{ monthStartYear }}년</span>
-          <button
-            type="button"
-            class="month-nav-btn"
-            @click="monthStartYear++"
-          >
-            ›
-          </button>
+          <button type="button" class="month-nav-btn" @click="monthStartYear++">›</button>
         </div>
         <div class="month-grid">
           <button
@@ -52,36 +33,17 @@
 
     <span class="date-separator">~</span>
 
+    <!-- 종료 월 -->
     <div class="month-picker-wrapper">
       <div class="date-input clickable" @click="toggleMonthEndPicker">
         <span class="date-icon">📅</span>
-        <input
-          :value="formatMonthDisplay(endModel)"
-          class="date-field"
-          placeholder="종료 월"
-          readonly
-        />
+        <input :value="formatMonthDisplay(endModel)" class="date-field" placeholder="종료 월" readonly />
       </div>
-      <div
-        v-if="showMonthEndPicker"
-        class="month-picker-popup"
-      >
+      <div v-if="showMonthEndPicker" class="month-picker-popup">
         <div class="month-picker-header">
-          <button
-            type="button"
-            class="month-nav-btn"
-            @click="monthEndYear--"
-          >
-            ‹
-          </button>
+          <button type="button" class="month-nav-btn" @click="monthEndYear--">‹</button>
           <span class="month-picker-year">{{ monthEndYear }}년</span>
-          <button
-            type="button"
-            class="month-nav-btn"
-            @click="monthEndYear++"
-          >
-            ›
-          </button>
+          <button type="button" class="month-nav-btn" @click="monthEndYear++">›</button>
         </div>
         <div class="month-grid">
           <button
@@ -105,9 +67,7 @@
 </template>
 
 <script setup>
-import {
-  computed, onMounted, onUnmounted, ref,
-} from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const props = defineProps({
   startDate: {
@@ -187,7 +147,6 @@ function isMonthDisabled(year, month) {
   return target > maxDateForMonth;
 }
 
-// 시작 월 이전의 종료 월 비활성화
 function isMonthEndDisabled(year, month) {
   if (isMonthDisabled(year, month)) return true;
   if (startModel.value) {
@@ -221,5 +180,3 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
 });
 </script>
-
-
