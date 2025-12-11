@@ -72,4 +72,11 @@
         SET grade = #{grade}, comment = #{comment}
         WHERE farm_id = #{id}
     </update>
+
+    <!-- findFarmsWithMissingEvaluation -->
+    <select id="findFarmsWithMissingEvaluation" resultMap="farmResultMap">
+        SELECT *
+        FROM farm
+        WHERE grade is null OR comment is null
+    </select>
 </mapper>

@@ -3,7 +3,8 @@ package com.yachaerang.backend.api.farm.repository;
 import com.yachaerang.backend.api.farm.entity.Farm;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.security.core.parameters.P;
+
+import java.util.List;
 
 @Mapper
 public interface FarmMapper {
@@ -31,4 +32,9 @@ public interface FarmMapper {
             @Param("grade") String grade,
             @Param("comment") String comment
     );
+
+    /**
+     * grade와 comment가 채워지지 않은 것들을 조회하기
+     */
+    List<Farm> findFarmsWithMissingEvaluation();
 }

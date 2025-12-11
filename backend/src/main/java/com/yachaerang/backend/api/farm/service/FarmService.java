@@ -7,10 +7,13 @@ import com.yachaerang.backend.api.farm.repository.FarmMapper;
 import com.yachaerang.backend.global.auth.jwt.AuthenticatedMemberProvider;
 import com.yachaerang.backend.global.util.LogUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,12 +35,8 @@ public class FarmService {
 
         return evaluationFuture.thenApply(evaluationDto -> {
 
-            // 평가 결과 DB 반영
-            farmMapper.updateEvaluation(
-                    farm.getId(), evaluationDto.getGrade(), evaluationDto.getComment()
-            );
-            farm.setGrade(evaluationDto.getGrade());
-            farm.setComment(evaluationDto.getComment());
+            // 평가 결과 DB 업데이트
+            updateEvaluation(farm.getId(), evaluationDto.getGrade(), evaluationDto.getComment());
 
             return FarmResponseDto.InfoDto.builder()
                     .manpower(farm.getManpower())
@@ -45,8 +44,8 @@ public class FarmService {
                     .cultivatedArea(farm.getCultivatedArea())
                     .flatArea(farm.getFlatArea())
                     .mainCrop(farm.getMainCrop())
-                    .grade(farm.getGrade())
-                    .grade(farm.getComment())
+                    .grade(evaluationDto.getGrade())
+                    .comment(evaluationDto.getComment())
                     .build();
         }).exceptionally(e -> {
             LogUtil.error("비동기 작업 중 오류 : {}", e.getMessage());
@@ -152,6 +151,7 @@ public class FarmService {
     public Farm updateFarm(FarmRequestDto.InfoDto requestDto) {
         Long memberId = authenticatedMemberProvider.getCurrentMemberId();
 
+        // grade와 comment 초기화
         Farm farm = Farm.builder()
                 .manpower(requestDto.getManpower())
                 .location(requestDto.getLocation())
@@ -159,8 +159,46 @@ public class FarmService {
                 .flatArea(requestDto.getFlatArea())
                 .mainCrop(requestDto.getMainCrop())
                 .memberId(memberId)
+                .grade(null)
+                .comment(null)
                 .build();
         farmMapper.updateFarm(farm);
         return farm;
+    }
+
+    /**
+     * Grade와 comment만 수정 요청
+     */
+    @Transactional
+    public void updateEvaluation(Long farmId, String grade, String comment) {
+        farmMapper.updateEvaluation(farmId, grade, comment);
+    }
+
+    /**
+     * 비동기 작업으로 grade와 comment 미처리 DB 처리
+     */
+    @Async("asyncExecutor")
+    public void fillMissingFarmEvaluations() {
+        List<Farm> unevaluatedFarmList = farmMapper.findFarmsWithMissingEvaluation();
+
+        List<CompletableFuture<Void>> futureList = unevaluatedFarmList.stream()
+                .map(farm -> {
+                    FarmRequestDto.InfoDto requestDto = FarmRequestDto.InfoDto.builder()
+                            .manpower(farm.getManpower())
+                            .location(farm.getLocation())
+                            .cultivatedArea(farm.getCultivatedArea())
+                            .flatArea(farm.getFlatArea())
+                            .mainCrop(farm.getMainCrop())
+                            .build();
+                    return farmEvaluationService.generateGradeAndComment(requestDto)
+                            .thenAccept(evaluationDto -> {
+                                updateEvaluation(farm.getId(), evaluationDto.getGrade(), evaluationDto.getComment());
+                            }).exceptionally(e -> {
+                                LogUtil.error("Farm {} 평가 실패: {}", farm.getId(), e.getMessage());
+                                return null;
+                            });
+                }).collect(Collectors.toUnmodifiableList());
+        // 모든 작업 완료 대기
+        CompletableFuture.allOf(futureList.toArray(new CompletableFuture[0])).join();
     }
 }
