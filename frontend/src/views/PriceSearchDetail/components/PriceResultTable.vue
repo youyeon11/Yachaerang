@@ -9,9 +9,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in rows" :key="row.priceDate">
-          <td>{{ row.priceDate }}</td>
-          <td>{{ row.price != null ? row.price.toLocaleString() : '-' }}</td>
+        <tr v-for="row in rows" :key="row.dateLabel">
+          <td>{{ row.dateLabel }}</td>
+          <td>{{ row.priceLabel != null ? row.priceLabel.toLocaleString() : '-' }}</td>
         </tr>
       </tbody>
     </table>

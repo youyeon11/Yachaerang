@@ -193,6 +193,37 @@ export function usePriceSearch() {
     }
     return [];
   };
+  /* ================= 일자 변환 함수 ================= */
+  const normalizeResult = (rawList, type) => {
+    return rawList.map((item) => {
+      if (type === 'day') {
+        return {
+          dateLabel: item.priceDate || item.date || '',
+          priceLabel: item.price ?? item.avgPrice ?? null,
+        };
+      }
+
+      if (type === 'week') {
+        return {
+          dateLabel: `${item.startDate} ~ ${item.endDate}`,
+          priceLabel: item.avgPrice ?? null,
+        };
+      }
+
+      if (type === 'month') {
+        return {
+          dateLabel: `${item.priceYear}-${String(item.priceMonth).padStart(2, '0')}`,
+          priceLabel: item.avgPrice ?? null,
+        };
+      }
+
+      // year(연별)
+      return {
+        dateLabel: `${item.priceYear}`,
+        priceLabel: item.avgPrice ?? null,
+      };
+    });
+  };
 
   /* ================= 검색 ================= */
 
@@ -204,7 +235,6 @@ export function usePriceSearch() {
     });
 
     if (!productCode) {
-      console.warn('productCode 없음 (품종 미선택)');
       alert('품종을 먼저 선택해 주세요.');
       return;
     }
@@ -226,12 +256,10 @@ export function usePriceSearch() {
           startDate: startStr,
           endDate: endStr,
         };
-        console.log('최종 요청 (일별)', { productCode, params });
         const { data } = await fetchDailyPricesApi(productCode, params);
         console.log('raw 응답 data', data);
         const list = extractPriceList(data);
-        priceResult.value = list;
-        console.log('조회 결과 리스트', list);
+        priceResult.value = normalizeResult(list, 'day');
       } else if (periodType.value === 'week') {
         // 주간
         if (!weekStartDate.value || !weekEndDate.value) {
@@ -248,12 +276,9 @@ export function usePriceSearch() {
           startDate: startRange.start,
           endDate: endRange.end,
         };
-        console.log('최종 요청 (주간)', { productCode, params });
         const { data } = await fetchWeeklyPricesApi(productCode, params);
-        console.log('raw 응답 data', data);
         const list = extractPriceList(data);
-        priceResult.value = list;
-        console.log('조회 결과 리스트', list);
+        priceResult.value = normalizeResult(list, 'week');
       } else if (periodType.value === 'month') {
         // 월간
         if (!monthStartDate.value || !monthEndDate.value) {
@@ -277,7 +302,7 @@ export function usePriceSearch() {
         console.log('raw 응답 data', data);
         const list = extractPriceList(data);
         priceResult.value = list;
-        console.log('조회 결과 리스트', list);
+        priceResult.value = normalizeResult(list, 'month');
       } else if (periodType.value === 'year') {
         // 연간
         if (isYearDetail.value) {
@@ -323,7 +348,7 @@ export function usePriceSearch() {
           console.log('raw 응답 data', data);
           const list = extractPriceList(data);
           priceResult.value = list;
-          console.log('조회 결과 리스트', list);
+          priceResult.value = normalizeResult(list, 'year');
         }
       } else {
         alert('잘못된 기간 유형입니다.');
@@ -339,7 +364,6 @@ export function usePriceSearch() {
   };
 
   return {
-    // 상태
     selectedItem,
     selectedVariety,
     itemOptions,
@@ -361,7 +385,6 @@ export function usePriceSearch() {
     yearEnd,
     yearDetail,
 
-    // 메서드
     handlePeriodClick,
     resetFilters,
     handleSearch,

@@ -71,7 +71,11 @@ import WeekPicker from '@/views/priceSearchDetail/components/DateRangePicker/Wee
 import MonthPicker from '@/views/priceSearchDetail/components/DateRangePicker/MonthPicker.vue';
 import YearPicker from '@/views/priceSearchDetail/components/DateRangePicker/YearPicker.vue';
 import PriceResultTable from '@/views/priceSearchDetail/components/PriceResultTable.vue';
+
+import { toRefs } from 'vue';
 import { usePriceSearch } from '@/views/priceSearchDetail/composables/usePriceSearch';
+
+const search = usePriceSearch();
 
 const {
   selectedItem,
@@ -94,10 +98,9 @@ const {
   yearStart,
   yearEnd,
   yearDetail,
-  handlePeriodClick,
-  resetFilters,
-  handleSearch,
-} = usePriceSearch();
+} = toRefs(search);
+
+const { handlePeriodClick, resetFilters, handleSearch } = search;
 </script>
 
 <style>
