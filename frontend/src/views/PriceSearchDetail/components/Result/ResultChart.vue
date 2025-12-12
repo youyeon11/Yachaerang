@@ -28,7 +28,8 @@ const render = async () => {
   if (!canvas.value || !props.rows.length) return destroy();
 
   const labels = props.rows.map((r) => r.dateLabel);
-  const data = props.rows.map((r) => (r.priceLabel != null ? Number(r.priceLabel) : null));
+  const data = props.rows.map((r) => (typeof r.priceRaw === 'number' ? r.priceRaw : null));
+
   const numeric = data.filter((v) => typeof v === 'number' && !Number.isNaN(v));
 
   if (!numeric.length) return destroy();

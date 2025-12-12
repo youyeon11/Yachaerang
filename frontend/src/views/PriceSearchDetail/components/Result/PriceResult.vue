@@ -82,7 +82,13 @@ const formatPrice = (value) => {
   if (value == null || Number.isNaN(value)) return '-';
   return `${Number(value).toLocaleString()}원`;
 };
-
+const formattedRows = computed(() =>
+  (props.rows || []).map((row) => ({
+    ...row,
+    priceRaw: Number(row.priceLabel), // 👉 차트용 (숫자)
+    priceLabel: formatPrice(row.priceLabel), // 👉 테이블용 (문자열)
+  }))
+);
 const periodTextMap = {
   year: '연간',
   month: '월간',
