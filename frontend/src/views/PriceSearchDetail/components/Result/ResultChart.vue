@@ -50,11 +50,31 @@ const render = async () => {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          callbacks: {
+            label(context) {
+              const value = context.parsed.y;
+
+              if (value == null || Number.isNaN(value)) return null;
+
+              return `${Number(value).toLocaleString()}원`;
+            },
+          },
+        },
+      },
+
       scales: {
         y: {
           min: Math.max(0, min - pad),
           max: max + pad,
-          ticks: { callback: (v) => Number(v).toLocaleString() },
+          ticks: {
+            callback: (v) => Number(v).toLocaleString(),
+          },
         },
       },
     },

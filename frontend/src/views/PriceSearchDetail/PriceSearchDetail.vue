@@ -59,7 +59,15 @@
       </div>
     </section>
 
-    <PriceResult v-if="priceResult.length" :rows="priceResult" />
+    <PriceResult
+      v-if="priceResult.length"
+      :rows="priceResult"
+      :item-label="selectedItemLabel"
+      :variety-label="selectedVarietyLabel"
+      :period-type="periodType"
+      :start-date="startDate"
+      :end-date="endDate"
+    />
   </div>
 </template>
 
@@ -73,7 +81,7 @@ import MonthPicker from '@/views/priceSearchDetail/components/DateRangePicker/Mo
 import YearPicker from '@/views/priceSearchDetail/components/DateRangePicker/YearPicker.vue';
 import PriceResult from '@/views/priceSearchDetail/components/Result/PriceResult.vue';
 
-import { toRefs } from 'vue';
+import { toRefs, computed } from 'vue';
 import { usePriceSearch } from '@/views/priceSearchDetail/composables/usePriceSearch';
 
 const search = usePriceSearch();
@@ -102,6 +110,28 @@ const {
 } = toRefs(search);
 
 const { handlePeriodClick, resetFilters, handleSearch } = search;
+
+const selectedItemLabel = computed(() => itemOptions.value.find((i) => i.value === selectedItem.value)?.label ?? '');
+
+const selectedVarietyLabel = computed(
+  () => varietyOptions.value.find((v) => v.value === selectedVariety.value)?.label ?? ''
+);
+
+const startDate = computed(() => {
+  if (periodType.value === 'day') return dayStartDate.value?.toISOString().slice(0, 10);
+  if (periodType.value === 'week') return weekStartDate.value?.toISOString().slice(0, 10);
+  if (periodType.value === 'month') return monthStartDate.value?.toISOString().slice(0, 7);
+  if (periodType.value === 'year') return yearStart.value;
+  return '';
+});
+
+const endDate = computed(() => {
+  if (periodType.value === 'day') return dayEndDate.value?.toISOString().slice(0, 10);
+  if (periodType.value === 'week') return weekEndDate.value?.toISOString().slice(0, 10);
+  if (periodType.value === 'month') return monthEndDate.value?.toISOString().slice(0, 7);
+  if (periodType.value === 'year') return yearEnd.value;
+  return '';
+});
 </script>
 
 <style>

@@ -361,6 +361,7 @@ export function usePriceSearch() {
       }
       alert('가격 정보를 가져오는 중 오류가 발생했습니다.');
     }
+    console.log('최종 priceResult', priceResult.value);
   };
 
   return {
