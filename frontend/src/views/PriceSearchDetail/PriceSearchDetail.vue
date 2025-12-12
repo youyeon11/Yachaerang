@@ -59,18 +59,19 @@
       </div>
     </section>
 
-    <PriceResultTable v-if="priceResult.length" :rows="priceResult" />
+    <PriceResult v-if="priceResult.length" :rows="priceResult" />
   </div>
 </template>
 
 <script setup>
 import ItemSelector from '@/views/priceSearchDetail/components/ItemSelector.vue';
 import PeriodSelector from '@/views/priceSearchDetail/components/PeriodSelector.vue';
+
 import DayPicker from '@/views/priceSearchDetail/components/DateRangePicker/DayPicker.vue';
 import WeekPicker from '@/views/priceSearchDetail/components/DateRangePicker/WeekPicker.vue';
 import MonthPicker from '@/views/priceSearchDetail/components/DateRangePicker/MonthPicker.vue';
 import YearPicker from '@/views/priceSearchDetail/components/DateRangePicker/YearPicker.vue';
-import PriceResultTable from '@/views/priceSearchDetail/components/PriceResultTable.vue';
+import PriceResult from '@/views/priceSearchDetail/components/PriceResult.vue';
 
 import { toRefs } from 'vue';
 import { usePriceSearch } from '@/views/priceSearchDetail/composables/usePriceSearch';
