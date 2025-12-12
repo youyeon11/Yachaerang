@@ -85,7 +85,7 @@ const formatPrice = (value) => {
 const formattedRows = computed(() =>
   (props.rows || []).map((row) => ({
     ...row,
-    priceRaw: Number(row.priceLabel),
+    priceRaw: row.priceLabel == null || Number.isNaN(Number(row.priceLabel)) ? null : Number(row.priceLabel),
     priceLabel: formatPrice(row.priceLabel),
   }))
 );
