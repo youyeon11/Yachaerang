@@ -9,18 +9,9 @@
       @dayclick="onWeekStartClick"
     >
       <template #default="{ togglePopover }">
-        <div
-          class="date-input clickable"
-          :class="{ 'week-selected': !!startModel }"
-          @click="togglePopover"
-        >
+        <div class="date-input clickable" :class="{ 'week-selected': !!startModel }" @click="togglePopover">
           <span class="date-icon">📅</span>
-          <input
-            :value="formatWeekDisplay(startModel)"
-            class="date-field"
-            placeholder="시작 주"
-            readonly
-          />
+          <input :value="formatWeekDisplay(startModel)" class="date-field" placeholder="시작 주" readonly />
         </div>
       </template>
     </VDatePicker>
@@ -37,18 +28,9 @@
       @dayclick="onWeekEndClick"
     >
       <template #default="{ togglePopover }">
-        <div
-          class="date-input clickable"
-          :class="{ 'week-selected': !!endModel }"
-          @click="togglePopover"
-        >
+        <div class="date-input clickable" :class="{ 'week-selected': !!endModel }" @click="togglePopover">
           <span class="date-icon">📅</span>
-          <input
-            :value="formatWeekDisplay(endModel)"
-            class="date-field"
-            placeholder="종료 주"
-            readonly
-          />
+          <input :value="formatWeekDisplay(endModel)" class="date-field" placeholder="종료 주" readonly />
         </div>
       </template>
     </VDatePicker>
@@ -85,7 +67,6 @@ const endModel = computed({
   set: (val) => emit('update:endDate', val),
 });
 
-// ISO 주차 계산 (표시용)
 function getISOWeekYearAndNumber(date) {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const dayNum = d.getUTCDay() || 7;
@@ -96,7 +77,6 @@ function getISOWeekYearAndNumber(date) {
   return { year, week };
 }
 
-// 해당 날짜가 속한 주의 월요일
 function getMondayOfWeek(date) {
   const d = new Date(date);
   const dayOfWeek = d.getDay();
@@ -107,7 +87,6 @@ function getMondayOfWeek(date) {
   return monday;
 }
 
-// 주 범위 (월~일) - Date 범위 (v-calendar highlight용)
 function getWeekRange(date) {
   if (!date) return null;
   const monday = getMondayOfWeek(date);
@@ -161,7 +140,6 @@ function onWeekStartClick(day) {
   const monday = getMondayOfWeek(day.date);
   startModel.value = monday;
 
-  // 시작 주를 뒤로 옮기면 종료 주 초기화
   if (endModel.value && monday > getMondayOfWeek(endModel.value)) {
     endModel.value = null;
   }
@@ -170,9 +148,7 @@ function onWeekStartClick(day) {
 function onWeekEndClick(day) {
   const monday = getMondayOfWeek(day.date);
 
-  // 시작 주 이전은 선택 불가
   if (startModel.value && monday < getMondayOfWeek(startModel.value)) {
-    // eslint-disable-next-line no-alert
     alert('종료 주는 시작 주 이후여야 합니다.');
     return;
   }
@@ -180,5 +156,3 @@ function onWeekEndClick(day) {
   endModel.value = monday;
 }
 </script>
-
-
