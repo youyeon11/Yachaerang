@@ -7,6 +7,8 @@ import {
   fetchMonthlyPricesApi,
   fetchYearlyPricesApi,
   fetchYearlyPriceDetailApi,
+  fetchHighPriceRank,
+  fetchLowPriceRank,
 } from '@/api/price';
 
 export function usePriceSearch() {
@@ -257,7 +259,6 @@ export function usePriceSearch() {
           endDate: endStr,
         };
         const { data } = await fetchDailyPricesApi(productCode, params);
-        console.log('raw 응답 data', data);
         const list = extractPriceList(data);
         priceResult.value = normalizeResult(list, 'day');
       } else if (periodType.value === 'week') {
@@ -297,11 +298,8 @@ export function usePriceSearch() {
           endYear: endD.getFullYear(),
           endMonth: endD.getMonth() + 1,
         };
-        console.log('최종 요청 (월간)', { productCode, params });
         const { data } = await fetchMonthlyPricesApi(productCode, params);
-        console.log('raw 응답 data', data);
         const list = extractPriceList(data);
-        priceResult.value = list;
         priceResult.value = normalizeResult(list, 'month');
       } else if (periodType.value === 'year') {
         // 연간
@@ -317,12 +315,9 @@ export function usePriceSearch() {
             return;
           }
           const params = { year: y };
-          console.log('최종 요청 (연간-상세)', { productCode, params });
           const { data } = await fetchYearlyPriceDetailApi(productCode, params);
-          console.log('raw 응답 data', data);
           const list = extractPriceList(data);
           priceResult.value = list;
-          console.log('조회 결과 리스트', list);
         } else {
           // 연도 범위
           if (!yearStart.value || !yearEnd.value) {
@@ -343,9 +338,7 @@ export function usePriceSearch() {
             startYear: ys,
             endYear: ye,
           };
-          console.log('최종 요청 (연간-범위)', { productCode, params });
           const { data } = await fetchYearlyPricesApi(productCode, params);
-          console.log('raw 응답 data', data);
           const list = extractPriceList(data);
           priceResult.value = list;
           priceResult.value = normalizeResult(list, 'year');
@@ -389,5 +382,46 @@ export function usePriceSearch() {
     handlePeriodClick,
     resetFilters,
     handleSearch,
+  };
+}
+
+/* ================= 가격 랭킹 데이터 조회 ================= */
+export function usePriceRank() {
+  const topItems = ref([]);
+  const bottomItems = ref([]);
+  const isLoading = ref(false);
+  const loadError = ref(null);
+
+  async function loadRanks() {
+    isLoading.value = true;
+    loadError.value = null;
+
+    try {
+      const [{ data: highData }, { data: lowData }] = await Promise.all([fetchHighPriceRank(), fetchLowPriceRank()]);
+
+      topItems.value = Array.isArray(highData?.data) ? highData.data : [];
+
+      bottomItems.value = Array.isArray(lowData?.data) ? lowData.data : [];
+    } catch (e) {
+      console.error('가격 랭킹 조회 실패', e);
+
+      topItems.value = [];
+      bottomItems.value = [];
+      loadError.value = e;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  onMounted(() => {
+    loadRanks();
+  });
+
+  return {
+    topItems,
+    bottomItems,
+    isLoading,
+    loadError,
+    loadRanks,
   };
 }

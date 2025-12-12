@@ -51,7 +51,6 @@ const render = async () => {
           borderColor: '#e53935',
           borderWidth: 1,
           borderRadius: 4,
-          // ❌ pointStyle 없음 → 기본 박스
         },
         {
           type: 'line',
@@ -64,7 +63,6 @@ const render = async () => {
           pointHoverRadius: 4,
           pointBackgroundColor: '#e53935',
 
-          // ✅ 범례에서만 선으로 표시
           pointStyle: 'line',
         },
       ],
