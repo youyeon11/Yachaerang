@@ -85,8 +85,8 @@ const formatPrice = (value) => {
 const formattedRows = computed(() =>
   (props.rows || []).map((row) => ({
     ...row,
-    priceRaw: Number(row.priceLabel), // 👉 차트용 (숫자)
-    priceLabel: formatPrice(row.priceLabel), // 👉 테이블용 (문자열)
+    priceRaw: Number(row.priceLabel),
+    priceLabel: formatPrice(row.priceLabel),
   }))
 );
 const periodTextMap = {
