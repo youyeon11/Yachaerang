@@ -62,4 +62,21 @@
         FROM farm
         WHERE grade is null OR comment is null
     </select>
+
+
+    <!-- findByMemberIdForUpdate -->
+    <select id="findByMemberIdForUpdate" resultMap="farmResultMap">
+        SELECT farm_id,
+               member_id,
+               manpower,
+               location,
+               cultivated_area,
+               flat_area,
+               main_crop,
+               grade,
+               comment
+        FROM farm
+        WHERE member_id = #{memberId}
+            FOR UPDATE
+    </select>
 </mapper>
