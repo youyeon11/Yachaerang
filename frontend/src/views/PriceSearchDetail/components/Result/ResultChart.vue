@@ -29,7 +29,7 @@ const render = async () => {
 
   const labels = props.rows.map((r) => r.dateLabel);
   const data = props.rows.map((r) => (r.priceLabel != null ? Number(r.priceLabel) : null));
-  const numeric = data.filter((v) => typeof v === 'number');
+  const numeric = data.filter((v) => typeof v === 'number' && !Number.isNaN(v));
 
   if (!numeric.length) return destroy();
 
@@ -43,8 +43,30 @@ const render = async () => {
     data: {
       labels,
       datasets: [
-        { type: 'bar', data, backgroundColor: 'rgba(229,57,53,0.25)' },
-        { type: 'line', data, borderColor: '#e53935', tension: 0.4 },
+        {
+          type: 'bar',
+          label: '가격(원)',
+          data,
+          backgroundColor: 'rgba(229, 57, 53, 0.28)',
+          borderColor: '#e53935',
+          borderWidth: 1,
+          borderRadius: 4,
+          // ❌ pointStyle 없음 → 기본 박스
+        },
+        {
+          type: 'line',
+          label: '가격 추이',
+          data,
+          borderColor: '#e53935',
+          backgroundColor: 'transparent',
+          tension: 0, // 직선 꺾은선
+          pointRadius: 3,
+          pointHoverRadius: 4,
+          pointBackgroundColor: '#e53935',
+
+          // ✅ 범례에서만 선으로 표시
+          pointStyle: 'line',
+        },
       ],
     },
     options: {
@@ -53,15 +75,18 @@ const render = async () => {
 
       plugins: {
         legend: {
-          display: false,
+          display: true,
+          position: 'top',
+          labels: {
+            usePointStyle: true,
+            padding: 16,
+          },
         },
         tooltip: {
           callbacks: {
             label(context) {
               const value = context.parsed.y;
-
               if (value == null || Number.isNaN(value)) return null;
-
               return `${Number(value).toLocaleString()}원`;
             },
           },
@@ -85,3 +110,17 @@ watch(() => props.rows, render, { deep: true });
 onMounted(render);
 onBeforeUnmount(destroy);
 </script>
+
+<style scoped>
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 320px;
+}
+
+@media (max-width: 768px) {
+  .chart-wrapper {
+    height: 260px;
+  }
+}
+</style>
