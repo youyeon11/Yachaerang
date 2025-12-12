@@ -7,8 +7,6 @@ import {
   fetchMonthlyPricesApi,
   fetchYearlyPricesApi,
   fetchYearlyPriceDetailApi,
-  fetchHighPriceRank,
-  fetchLowPriceRank,
 } from '@/api/price';
 
 export function usePriceSearch() {
@@ -382,46 +380,5 @@ export function usePriceSearch() {
     handlePeriodClick,
     resetFilters,
     handleSearch,
-  };
-}
-
-/* ================= 가격 랭킹 데이터 조회 ================= */
-export function usePriceRank() {
-  const topItems = ref([]);
-  const bottomItems = ref([]);
-  const isLoading = ref(false);
-  const loadError = ref(null);
-
-  async function loadRanks() {
-    isLoading.value = true;
-    loadError.value = null;
-
-    try {
-      const [{ data: highData }, { data: lowData }] = await Promise.all([fetchHighPriceRank(), fetchLowPriceRank()]);
-
-      topItems.value = Array.isArray(highData?.data) ? highData.data : [];
-
-      bottomItems.value = Array.isArray(lowData?.data) ? lowData.data : [];
-    } catch (e) {
-      console.error('가격 랭킹 조회 실패', e);
-
-      topItems.value = [];
-      bottomItems.value = [];
-      loadError.value = e;
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  onMounted(() => {
-    loadRanks();
-  });
-
-  return {
-    topItems,
-    bottomItems,
-    isLoading,
-    loadError,
-    loadRanks,
   };
 }

@@ -6,7 +6,7 @@
         <p class="result-desc">{{ summaryText }}</p>
       </div>
 
-      <ViewModeToggle v-model="viewMode" />
+      <ViewModelToggle v-model="viewMode" />
     </div>
 
     <div v-if="hasStats" class="result-stats">
@@ -38,7 +38,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import ViewModeToggle from './ViewModelTogle.vue';
+import ViewModelToggle from './ViewModelTogle.vue';
 import ResultTable from './ResultTable.vue';
 import ResultChart from './ResultChart.vue';
 

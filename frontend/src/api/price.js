@@ -30,6 +30,12 @@ export function fetchYearlyPricesApi(productCode, params) {
 export function fetchYearlyPriceDetailApi(productCode, params) {
   return apiClient.get(`/api/v1/yearly-prices/${productCode}/detail`, { params });
 }
+// 가격 상위 랭킹
+export function fetchHighPriceRank() {
+  return apiClient.get('/api/v1/daily-prices/rank/high-price');
+}
 
-
-
+// 가격 하위 랭킹
+export function fetchLowPriceRank() {
+  return apiClient.get('/api/v1/daily-prices/rank/low-price');
+}
