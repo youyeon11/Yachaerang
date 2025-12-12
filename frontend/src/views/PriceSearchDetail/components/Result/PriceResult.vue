@@ -6,7 +6,7 @@
         <p class="result-desc">{{ summaryText }}</p>
       </div>
 
-      <ViewModelToggle v-model="viewMode" />
+      <ViewModelToggle v-if="!isEmptyResult" v-model="viewMode" />
     </div>
 
     <div v-if="hasStats" class="result-stats">
@@ -30,8 +30,10 @@
     </div>
 
     <div class="result-body">
-      <ResultTable v-if="viewMode === 'table'" :rows="rows" />
-      <ResultChart v-else :rows="rows" />
+      <div v-if="isEmptyResult" class="empty-result">조회 결과가 없습니다.</div>
+
+      <ResultTable v-else-if="viewMode === 'table'" :rows="formattedRows" />
+      <ResultChart v-else :rows="formattedRows" />
     </div>
   </section>
 </template>
@@ -99,6 +101,9 @@ const summaryText = computed(() => {
   }
 
   return `${item} ${variety} · ${period} ${range} 기준 데이터입니다.`;
+});
+const isEmptyResult = computed(() => {
+  return !props.rows || props.rows.length === 0;
 });
 </script>
 

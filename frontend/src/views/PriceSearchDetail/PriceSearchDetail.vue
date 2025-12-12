@@ -60,7 +60,6 @@
     </section>
 
     <PriceResult
-      v-if="priceResult.length"
       :rows="priceResult"
       :item-label="selectedItemLabel"
       :variety-label="selectedVarietyLabel"
