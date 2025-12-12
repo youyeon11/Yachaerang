@@ -39,13 +39,29 @@
     <!-- updateFarm -->
     <update id="updateFarm">
         UPDATE farm
-        SET
-            manpower = IFNULL(#{manpower}, ''),
-            location = IFNULL(#{location}, ''),
-            cultivated_area = IFNULL(#{cultivatedArea}, ''),
-            flat_area = IFNULL(#{flatArea}, ''),
-            main_crop = IFNULL(#{mainCrop}, '')
-        WHERE member_id = #{memberId}
+        <set>
+            <if test="manpower != null">
+                manpower = #{manpower},
+            </if>
+            <if test="location != null and location != ''">
+                location = #{location},
+            </if>
+            <if test="cultivatedArea != null">
+                cultivated_area = #{cultivatedArea},
+            </if>
+            <if test="flatArea != null">
+                flat_area = #{flatArea},
+            </if>
+            <if test="mainCrop != null and mainCrop != ''">
+                main_crop = #{mainCrop},
+            </if>
+            <if test="grade != null and grade != ''">
+                grade = #{grade},
+            </if>
+            <if test="comment != null and comment != ''">
+                comment = #{comment},
+            </if>
+        </set>
         WHERE member_id = #{memberId}
     </update>
 

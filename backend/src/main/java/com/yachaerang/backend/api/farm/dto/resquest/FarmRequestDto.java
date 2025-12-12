@@ -12,10 +12,10 @@ public class FarmRequestDto {
     @NoArgsConstructor
     @Builder
     public static class InfoDto {
-        private Optional<Integer> manpower = Optional.empty();
-        private Optional<String> location = Optional.empty();
-        private Optional<Double> cultivatedArea = Optional.empty();
-        private Optional<Double> flatArea = Optional.empty();
-        private Optional<String> mainCrop = Optional.empty();
+        private Integer manpower;
+        private String location;
+        private Double cultivatedArea;
+        private Double flatArea;
+        private String mainCrop;
     }
 }
