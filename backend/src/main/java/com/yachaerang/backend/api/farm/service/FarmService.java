@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -24,68 +23,47 @@ public class FarmService {
 
     private final FarmMapper farmMapper;
     private final FarmEvaluationService farmEvaluationService;
+    private final FarmAsyncService farmAsyncService;
     private final AuthenticatedMemberProvider authenticatedMemberProvider;
 
     /**
-     * 나의 농장 정보 저장하기(신규 저장)
-     */
-    public CompletableFuture<FarmResponseDto.InfoDto> saveFarmInfo(FarmRequestDto.InfoDto requestDto) {
-
-        Farm farm = saveFarm(requestDto);
-
-        // 비동기 작업 시작
-        CompletableFuture<FarmResponseDto.EvaluateDto> evaluationFuture = farmEvaluationService.generateGradeAndComment(requestDto);
-
-        return evaluationFuture.thenApply(evaluationDto -> {
-
-            // 평가 결과 DB 업데이트
-            updateEvaluation(farm.getId(), evaluationDto.getGrade(), evaluationDto.getComment());
-
-            return FarmResponseDto.InfoDto.builder()
-                    .manpower(farm.getManpower())
-                    .location(farm.getLocation())
-                    .cultivatedArea(farm.getCultivatedArea())
-                    .flatArea(farm.getFlatArea())
-                    .mainCrop(farm.getMainCrop())
-                    .grade(evaluationDto.getGrade())
-                    .comment(evaluationDto.getComment())
-                    .build();
-        }).exceptionally(e -> {
-            LogUtil.error("비동기 작업 중 오류 : {}", e.getMessage());
-            return FarmResponseDto.InfoDto.builder()
-                    .manpower(farm.getManpower())
-                    .location(farm.getLocation())
-                    .cultivatedArea(farm.getCultivatedArea())
-                    .mainCrop(farm.getMainCrop())
-                    .grade("N/A")
-                    .comment("평가 실패")
-                    .build();
-        });
-    }
-
-    /**
-     * 실제 DB에 저장하기 위한 메서드(트랜잭션 확보 및 비동기와 분리)
-     * @param requestDto
+     * 나의 농장 정보 저장
+     * @param requestDto : 비동기 파이프라인에 평가입력값들 전달
      * @return
      */
-    @Transactional
-    public Farm saveFarm(FarmRequestDto.InfoDto requestDto) {
-        Long memberId = authenticatedMemberProvider.getCurrentMemberId();
+    public CompletableFuture<FarmResponseDto.InfoDto> saveFarmInfo(FarmRequestDto.InfoDto requestDto) {
+        final Long memberId = authenticatedMemberProvider.getCurrentMemberId();
 
-        if (farmMapper.findByMemberId(memberId) != null) {
-            throw GeneralException.of(ErrorCode.FARM_ALREADY_EXISTS);
-        }
+        return farmEvaluationService.generateGradeAndComment(requestDto)
+                // 평가 생성 (외부 transaction)
+                .handle((evaluationDto, ex) -> {
+                    if (ex != null) {
+                        LogUtil.error("농장 평가 생성 실패: memberId={}, error={}", memberId, ex.getMessage());
+                        throw GeneralException.of(ErrorCode.AI_EVALUATION_FAILED);
+                    }
+                    return evaluationDto;
+                })
+                // DB transaction 필요 단계
+                .thenApply(evaluationDto -> {
+                    try {
+                        // 비동기 스레드 Context 의존 제거
+                        Farm farm = farmAsyncService.saveFarmWithEvaluation(
+                                memberId,
+                                requestDto,
+                                evaluationDto.getGrade(),
+                                evaluationDto.getComment()
+                        );
 
-        Farm farm = new Farm();
-        farm.setMemberId(memberId);
-        requestDto.getManpower().ifPresent(value -> farm.setManpower(value)); // value가 null이면 null 저장됨
-        requestDto.getLocation().ifPresent(value -> farm.setLocation(value));
-        requestDto.getCultivatedArea().ifPresent(value -> farm.setCultivatedArea(value));
-        requestDto.getFlatArea().ifPresent(value -> farm.setFlatArea(value));
-        requestDto.getMainCrop().ifPresent(value -> farm.setMainCrop(value));
+                        return FarmResponseDto.toInfoDto(farm);
 
-        farmMapper.save(farm);
-        return farm;
+                    } catch (GeneralException ge) {
+                        // 트랜잭션 확보 세션에서 에러 출력
+                        throw ge;
+                    } catch (Exception e) {
+                        LogUtil.error("농장 정보 저장 실패: memberId={}, error={}", memberId, e.getMessage());
+                        throw GeneralException.of(ErrorCode.FARM_SAVE_FAILED);
+                    }
+                });
     }
 
 
@@ -98,111 +76,146 @@ public class FarmService {
 
         Farm found = farmMapper.findByMemberId(memberId);
 
-        return FarmResponseDto.InfoDto.builder()
-                .id(found.getId())
-                .manpower(found.getManpower())
-                .location(found.getLocation())
-                .cultivatedArea(found.getCultivatedArea())
-                .flatArea(found.getFlatArea())
-                .mainCrop(found.getMainCrop())
-                .grade(found.getGrade())
-                .comment(found.getComment())
-                .build();
+        return FarmResponseDto.toInfoDto(found);
     }
 
     /**
      * 나의 농장 정보 수정하기
-     */
-    public CompletableFuture<FarmResponseDto.InfoDto> updateFarmInfo(FarmRequestDto.InfoDto requestDto) {
-        Farm farm = updateFarm(requestDto);
-
-        // 비동기 작업 시작
-        CompletableFuture<FarmResponseDto.EvaluateDto> evaluationFuture = farmEvaluationService.generateGradeAndComment(requestDto);
-
-        return evaluationFuture.thenApply(evaluateDto -> {
-
-            // DB 반영
-            farmMapper.updateEvaluation(farm.getId(), evaluateDto.getGrade(), evaluateDto.getComment());
-            farm.setGrade(evaluateDto.getGrade());
-            farm.setComment(evaluateDto.getComment());
-
-            return FarmResponseDto.InfoDto.builder()
-                    .manpower(farm.getManpower())
-                    .location(farm.getLocation())
-                    .cultivatedArea(farm.getCultivatedArea())
-                    .flatArea(farm.getFlatArea())
-                    .mainCrop(farm.getMainCrop())
-                    .grade(farm.getGrade())
-                    .comment(farm.getComment())
-                    .build();
-        }).exceptionally(e -> {
-            LogUtil.error("비동기 작업 중 오류 : {}", e.getMessage());
-            return FarmResponseDto.InfoDto.builder()
-                    .manpower(farm.getManpower())
-                    .location(farm.getLocation())
-                    .cultivatedArea(farm.getCultivatedArea())
-                    .mainCrop(farm.getMainCrop())
-                    .grade("N/A")
-                    .comment("평가 실패")
-                    .build();
-        });
-    }
-
-
-    /**
-     * 실제 DB에 저장하기 반영하기 위한 메서드(트랜잭션 확보 및 비동기와 분리)
-     * @param requestDto
+     * @param requestDto : 비동기 파이프라인에 평가입력값들 전달
      * @return
      */
-    @Transactional
-    public Farm updateFarm(FarmRequestDto.InfoDto requestDto) {
-        Long memberId = authenticatedMemberProvider.getCurrentMemberId();
+    public CompletableFuture<FarmResponseDto.InfoDto> updateFarmInfo(FarmRequestDto.InfoDto requestDto) {
+        final Long memberId = authenticatedMemberProvider.getCurrentMemberId();
 
-        // grade와 comment 초기화
-        Farm farm = new Farm();
-        farm.setMemberId(memberId);
-        requestDto.getManpower().ifPresent(value -> farm.setManpower(value)); // value가 null이면 null 저장됨
-        requestDto.getLocation().ifPresent(value -> farm.setLocation(value));
-        requestDto.getCultivatedArea().ifPresent(value -> farm.setCultivatedArea(value));
-        requestDto.getFlatArea().ifPresent(value -> farm.setFlatArea(value));
-        requestDto.getMainCrop().ifPresent(value -> farm.setMainCrop(value));
-        farmMapper.updateFarm(farm);
-        return farm;
-    }
+        Farm existingFarm = farmMapper.findByMemberId(memberId);
+        if (existingFarm == null) {
+            throw GeneralException.of(ErrorCode.FARM_NOT_FOUND);
+        }
 
-    /**
-     * Grade와 comment만 수정 요청
-     */
-    @Transactional
-    public void updateEvaluation(Long farmId, String grade, String comment) {
-        farmMapper.updateEvaluation(farmId, grade, comment);
+        return farmEvaluationService.generateGradeAndComment(requestDto)
+                // 비동기 평가 결과 요청
+                .handle((evaluationDto, ex) -> {
+                    if (ex != null) {
+                        LogUtil.error("농장 평가 생성 실패: memberId={}, error={}", memberId, ex.getMessage());
+                        throw GeneralException.of(ErrorCode.AI_EVALUATION_FAILED);
+                    }
+                    return evaluationDto;
+                })
+                // transaction 세션 확보
+                .thenApply(evaluationDto -> {
+                    try {
+                        Farm updatedFarm = farmAsyncService.updateFarmWithEvaluation(
+                                memberId,
+                                requestDto,
+                                evaluationDto.getGrade(),
+                                evaluationDto.getComment()
+                        );
+
+                        return FarmResponseDto.toInfoDto(updatedFarm);
+
+                    } catch (GeneralException ge) {
+                        throw ge;
+                    } catch (Exception e) {
+                        LogUtil.error("농장 정보 업데이트 실패: memberId={}, error={}", memberId, e.getMessage());
+                        throw GeneralException.of(ErrorCode.FARM_UPDATE_FAILED);
+                    }
+                });
     }
 
     /**
      * 비동기 작업으로 grade와 comment 미처리 DB 처리
+     * 평가 누락 농장 일괄 처리
      */
     @Async("asyncExecutor")
-    public void fillMissingFarmEvaluations() {
-        List<Farm> unevaluatedFarmList = farmMapper.findFarmsWithMissingEvaluation();
+    public CompletableFuture<Void> fillMissingFarmEvaluations() {
+        LogUtil.info("평가 누락 농장 일괄 처리 시작");
 
-        List<CompletableFuture<Void>> futureList = unevaluatedFarmList.stream()
-                .map(farm -> {
-                    FarmRequestDto.InfoDto requestDto = FarmRequestDto.InfoDto.builder()
-                            .manpower(Optional.of(farm.getManpower()))
-                            .location(Optional.of(farm.getLocation()))
-                            .cultivatedArea(Optional.of(farm.getCultivatedArea()))
-                            .flatArea(Optional.of(farm.getFlatArea()))
-                            .mainCrop(Optional.of(farm.getMainCrop()))
-                            .build();
-                    return farmEvaluationService.generateGradeAndComment(requestDto)
-                            .thenAccept(evaluationDto -> {
-                                updateEvaluation(farm.getId(), evaluationDto.getGrade(), evaluationDto.getComment());
-                            }).exceptionally(e -> {
-                                LogUtil.error("Farm {} 평가 실패: {}", farm.getId(), e.getMessage());
-                                return null;
-                            });
-                }).collect(Collectors.toUnmodifiableList());
-        // 모든 작업 완료 대기
-        CompletableFuture.allOf(futureList.toArray(new CompletableFuture[0])).join();
+        List<Farm> unevaluatedFarms = farmMapper.findFarmsWithMissingEvaluation();
+
+        if (unevaluatedFarms.isEmpty()) {
+            LogUtil.info("평가가 필요한 농장이 없습니다.");
+            return CompletableFuture.completedFuture(null);
+        }
+
+        LogUtil.info("처리 대상 농장 수: {}", unevaluatedFarms.size());
+
+        int batchSize = 10;
+
+        List<CompletableFuture<Void>> allFutures =
+                partitionList(unevaluatedFarms, batchSize).stream()
+                        .map(this::processBatch)
+                        .collect(Collectors.toList());
+
+        return CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0]))
+                .whenComplete((result, throwable) -> {
+                    if (throwable != null) {
+                        LogUtil.error("평가 누락 농장 일괄 처리 중 오류 발생", throwable);
+                    } else {
+                        LogUtil.info("평가 누락 농장 일괄 처리 완료");
+                    }
+                });
+    }
+
+
+    /**
+     * 배치 처리하기
+     * @param batch
+     * @return
+     */
+    private CompletableFuture<Void> processBatch(List<Farm> batch) {
+        List<CompletableFuture<Void>> futures = batch.stream()
+                .map(this::processSingleFarm)
+                .collect(Collectors.toList());
+
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+    }
+
+    /**
+     * 하나의 요소 처리하기
+     * @param farm
+     * @return
+     */
+    private CompletableFuture<Void> processSingleFarm(Farm farm) {
+        FarmRequestDto.InfoDto requestDto = FarmRequestDto.InfoDto.builder()
+                .manpower(farm.getManpower())
+                .location(farm.getLocation())
+                .cultivatedArea(farm.getCultivatedArea())
+                .flatArea(farm.getFlatArea())
+                .mainCrop(farm.getMainCrop())
+                .build();
+
+        return farmEvaluationService.generateGradeAndComment(requestDto)
+                .thenAccept(evaluationDto -> {
+                    try {
+                        farmAsyncService.updateEvaluationOnly(
+                                farm.getId(),
+                                evaluationDto.getGrade(),
+                                evaluationDto.getComment()
+                        );
+                        LogUtil.info("Farm {} 평가 완료", farm.getId());
+                    } catch (Exception e) {
+                        LogUtil.error("Farm {} 평가 업데이트 실패: {}", farm.getId(), e.getMessage());
+                    }
+                })
+                .exceptionally(e -> {
+                    LogUtil.error("Farm {} 평가 생성 실패: {}", farm.getId(), e.getMessage());
+                    return null;
+                });
+    }
+
+    /**
+     * 배치 사이즈로 나누기
+     * @param list
+     * @param batchSize
+     * @return
+     * @param <T>
+     */
+    private <T> List<List<T>> partitionList(List<T> list, int batchSize) {
+        return java.util.stream.IntStream.range(0, (list.size() + batchSize - 1) / batchSize)
+                .mapToObj(i -> list.subList(
+                        i * batchSize,
+                        Math.min((i + 1) * batchSize, list.size())
+                ))
+                .collect(Collectors.toList());
     }
 }

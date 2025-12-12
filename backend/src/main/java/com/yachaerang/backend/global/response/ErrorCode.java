@@ -59,6 +59,10 @@ public enum ErrorCode implements BaseCode{
 
     // farm
     FARM_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "FARM_001", "농장 정보가 이미 존재합니다. 수정으로 요청을 보내주세요."),
+    FARM_GRADE_INVALID(HttpStatus.INTERNAL_SERVER_ERROR, "FARM_002", "농장등급이 유효하지 않습니다."),
+    FARM_NOT_FOUND(HttpStatus.NOT_FOUND, "FARM_003", "기존의 농장 정보를 찾을 수 없습니다."),
+    FARM_SAVE_FAILED(HttpStatus.BAD_REQUEST, "FARM_004", "농장 정보 저장에 실패했습니다."),
+    FARM_UPDATE_FAILED(HttpStatus.BAD_REQUEST, "FARM_005", "농장 정보 수정에 실패하였습니다."),
 
     // chat
     SESSION_FAILED(HttpStatus.BAD_REQUEST, "CHAT_001", "채팅의 세션을 생성하는 데에 실패하였습니다."),
@@ -69,6 +73,7 @@ public enum ErrorCode implements BaseCode{
     // AI
     INVALID_MESSAGE(HttpStatus.BAD_REQUEST, "AI_001", "메시지 형식이 잘못되었습니다."),
     AI_MODEL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI_002", "AI 모델을 불러오는 데에 오류가 생겼습니다."),
+    AI_EVALUATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI_003", "모델로부터 평가를 불러오는 데에 실패하였습니다."),
 
     // json
     FAILED_JSON_PARSING(HttpStatus.INTERNAL_SERVER_ERROR, "JSON_001", "json 파싱에 실패했습니다."),
