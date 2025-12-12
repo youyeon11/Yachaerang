@@ -1,7 +1,7 @@
 <template>
   <div class="card">
-    <h3>{{ item.name }}</h3>
-    <small>1kg</small>
+    <h3>{{ item.itemName }}</h3>
+    <small>{{ item.unit }}</small>
     <p class="price">{{ (item.price ?? 0).toLocaleString() }}원</p>
   </div>
 </template>
@@ -12,7 +12,7 @@ defineProps({
     type: Object,
     required: true,
     validator: (value) => {
-      return value.name && typeof value.price === 'number';
+      return value.itemName && typeof value.price === 'number';
     },
   },
 });

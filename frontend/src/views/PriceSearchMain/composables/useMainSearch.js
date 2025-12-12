@@ -1,33 +1,24 @@
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import apiClient from '@/api/axios';
+
+export function fetchLowPriceRank() {
+  return apiClient.get('/api/v1/daily-prices/rank/low-prices');
+}
+export function fetchHighPriceRank() {
+  return apiClient.get('/api/v1/daily-prices/rank/high-prices');
+}
 
 export function useMainSearch() {
   const router = useRouter();
 
-  const activeTab = ref('top');
+  const activeTab = ref('top'); // top = 높은가격, bottom = 낮은가격
 
-  const topItems = ref([
-    { id: 1, name: '당근', price: 3013 },
-    { id: 2, name: '배추', price: 2980 },
-    { id: 3, name: '무', price: 2700 },
-    { id: 4, name: '파프리카', price: 6500 },
-    { id: 5, name: '양송이', price: 5200 },
-    { id: 6, name: '오이', price: 4100 },
-    { id: 7, name: '상추', price: 3600 },
-    { id: 8, name: '대파', price: 3400 },
-  ]);
+  // 🔥 낮은 가격 / 높은 가격 API 결과 저장할 ref
+  const topItems = ref([]); // 높은 가격 순
+  const bottomItems = ref([]); // 낮은 가격 순
 
-  const bottomItems = ref([
-    { id: 1, name: '감자', price: 500 },
-    { id: 2, name: '무청', price: 600 },
-    { id: 3, name: '깻잎', price: 700 },
-    { id: 4, name: '고추잎', price: 800 },
-    { id: 5, name: '미나리', price: 900 },
-    { id: 6, name: '부추', price: 1000 },
-    { id: 7, name: '열무', price: 1100 },
-    { id: 8, name: '시금치', price: 1200 },
-  ]);
-
+  // 내가 즐겨찾기한 감시 리스트
   const watchList = ref([
     '양파(10kg(그물망 프)) - 중품',
     '당근(1kg) - 상품',
@@ -36,7 +27,18 @@ export function useMainSearch() {
     '감자(20kg) - 대',
   ]);
 
+  // top / bottom 탭 전환 시 자동으로 노출되는 카드 리스트
   const popularItems = computed(() => (activeTab.value === 'top' ? topItems.value : bottomItems.value));
+
+  async function loadRanks() {
+    const { data: highData } = await fetchHighPriceRank();
+    const { data: lowData } = await fetchLowPriceRank();
+
+    topItems.value = highData.data;
+    bottomItems.value = lowData.data;
+  }
+
+  onMounted(loadRanks);
 
   function goToDetail() {
     router.push('/price');

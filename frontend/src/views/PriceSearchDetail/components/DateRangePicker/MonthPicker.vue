@@ -1,36 +1,19 @@
 <template>
-  <div class="date-range">
-    <div class="month-picker-wrapper" ref="wrapperRef">
-      <div class="date-input clickable" @click="toggleMonthStartPicker">
+  <div class="date-range" ref="wrapperRef">
+    <!-- 시작 월 -->
+    <div class="month-picker-wrapper">
+      <div class="date-input clickable" @click="toggleMonthPicker('start')">
         <span class="date-icon">📅</span>
-        <input
-          :value="formatMonthDisplay(startModel)"
-          class="date-field"
-          placeholder="시작 월"
-          readonly
-        />
+        <input :value="formatMonthDisplay(startModel)" class="date-field" placeholder="시작 월" readonly />
       </div>
-      <div
-        v-if="showMonthStartPicker"
-        class="month-picker-popup"
-      >
+
+      <div v-if="showMonthStartPicker" class="month-picker-popup">
         <div class="month-picker-header">
-          <button
-            type="button"
-            class="month-nav-btn"
-            @click="monthStartYear--"
-          >
-            ‹
-          </button>
+          <button type="button" class="month-nav-btn" @click="monthStartYear--">‹</button>
           <span class="month-picker-year">{{ monthStartYear }}년</span>
-          <button
-            type="button"
-            class="month-nav-btn"
-            @click="monthStartYear++"
-          >
-            ›
-          </button>
+          <button type="button" class="month-nav-btn" @click="monthStartYear++">›</button>
         </div>
+
         <div class="month-grid">
           <button
             v-for="m in 12"
@@ -42,7 +25,7 @@
               disabled: isMonthDisabled(monthStartYear, m),
             }"
             :disabled="isMonthDisabled(monthStartYear, m)"
-            @click="selectMonthStart(monthStartYear, m)"
+            @click="selectMonth('start', monthStartYear, m)"
           >
             {{ m }}월
           </button>
@@ -52,37 +35,20 @@
 
     <span class="date-separator">~</span>
 
+    <!-- 종료 월 -->
     <div class="month-picker-wrapper">
-      <div class="date-input clickable" @click="toggleMonthEndPicker">
+      <div class="date-input clickable" @click="toggleMonthPicker('end')">
         <span class="date-icon">📅</span>
-        <input
-          :value="formatMonthDisplay(endModel)"
-          class="date-field"
-          placeholder="종료 월"
-          readonly
-        />
+        <input :value="formatMonthDisplay(endModel)" class="date-field" placeholder="종료 월" readonly />
       </div>
-      <div
-        v-if="showMonthEndPicker"
-        class="month-picker-popup"
-      >
+
+      <div v-if="showMonthEndPicker" class="month-picker-popup">
         <div class="month-picker-header">
-          <button
-            type="button"
-            class="month-nav-btn"
-            @click="monthEndYear--"
-          >
-            ‹
-          </button>
+          <button type="button" class="month-nav-btn" @click="monthEndYear--">‹</button>
           <span class="month-picker-year">{{ monthEndYear }}년</span>
-          <button
-            type="button"
-            class="month-nav-btn"
-            @click="monthEndYear++"
-          >
-            ›
-          </button>
+          <button type="button" class="month-nav-btn" @click="monthEndYear++">›</button>
         </div>
+
         <div class="month-grid">
           <button
             v-for="m in 12"
@@ -94,7 +60,7 @@
               disabled: isMonthEndDisabled(monthEndYear, m),
             }"
             :disabled="isMonthEndDisabled(monthEndYear, m)"
-            @click="selectMonthEnd(monthEndYear, m)"
+            @click="selectMonth('end', monthEndYear, m)"
           >
             {{ m }}월
           </button>
@@ -105,9 +71,7 @@
 </template>
 
 <script setup>
-import {
-  computed, onMounted, onUnmounted, ref,
-} from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const props = defineProps({
   startDate: {
@@ -143,35 +107,37 @@ const monthEndYear = ref(new Date().getFullYear());
 
 const wrapperRef = ref(null);
 
-function toggleMonthStartPicker() {
-  showMonthStartPicker.value = !showMonthStartPicker.value;
-  showMonthEndPicker.value = false;
-  if (showMonthStartPicker.value && startModel.value) {
-    monthStartYear.value = new Date(startModel.value).getFullYear();
+function toggleMonthPicker(type) {
+  const isStart = type === 'start';
+
+  const targetPicker = isStart ? showMonthStartPicker : showMonthEndPicker;
+  const otherPicker = isStart ? showMonthEndPicker : showMonthStartPicker;
+
+  const model = isStart ? startModel : endModel;
+  const yearRef = isStart ? monthStartYear : monthEndYear;
+
+  targetPicker.value = !targetPicker.value;
+  otherPicker.value = false;
+
+  if (targetPicker.value && model.value) {
+    yearRef.value = new Date(model.value).getFullYear();
   }
 }
 
-function toggleMonthEndPicker() {
-  showMonthEndPicker.value = !showMonthEndPicker.value;
-  showMonthStartPicker.value = false;
-  if (showMonthEndPicker.value && endModel.value) {
-    monthEndYear.value = new Date(endModel.value).getFullYear();
+function selectMonth(type, year, month) {
+  const date = new Date(year, month - 1, 1);
+
+  if (type === 'start') {
+    startModel.value = date;
+    showMonthStartPicker.value = false;
+
+    if (endModel.value && endModel.value < startModel.value) {
+      endModel.value = null;
+    }
+  } else {
+    endModel.value = date;
+    showMonthEndPicker.value = false;
   }
-}
-
-function selectMonthStart(year, month) {
-  startModel.value = new Date(year, month - 1, 1);
-  showMonthStartPicker.value = false;
-
-  // 시작 월보다 이전인 종료 월은 초기화
-  if (endModel.value && endModel.value < startModel.value) {
-    endModel.value = null;
-  }
-}
-
-function selectMonthEnd(year, month) {
-  endModel.value = new Date(year, month - 1, 1);
-  showMonthEndPicker.value = false;
 }
 
 function isMonthSelected(selectedDate, year, month) {
@@ -180,37 +146,32 @@ function isMonthSelected(selectedDate, year, month) {
   return d.getFullYear() === year && d.getMonth() === month - 1;
 }
 
-// 미래 월 비활성화
 function isMonthDisabled(year, month) {
   const target = new Date(year, month - 1, 1);
-  const maxDateForMonth = new Date(props.yesterday.getFullYear(), props.yesterday.getMonth(), 1);
-  return target > maxDateForMonth;
+  const maxDate = new Date(props.yesterday.getFullYear(), props.yesterday.getMonth(), 1);
+  return target > maxDate;
 }
 
-// 시작 월 이전의 종료 월 비활성화
 function isMonthEndDisabled(year, month) {
   if (isMonthDisabled(year, month)) return true;
-  if (startModel.value) {
-    const target = new Date(year, month - 1, 1);
-    return target < startModel.value;
-  }
-  return false;
-}
+  if (!startModel.value) return false;
 
-function handleClickOutside(event) {
-  const target = event.target;
-  if (!(target instanceof Element)) return;
-  if (!wrapperRef.value) return;
-  if (!wrapperRef.value.contains(target)) {
-    showMonthStartPicker.value = false;
-    showMonthEndPicker.value = false;
-  }
+  const target = new Date(year, month - 1, 1);
+  return target < startModel.value;
 }
 
 function formatMonthDisplay(date) {
   if (!date) return '';
   const d = new Date(date);
   return `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
+}
+
+function handleClickOutside(event) {
+  if (!(event.target instanceof Element)) return;
+  if (!wrapperRef.value?.contains(event.target)) {
+    showMonthStartPicker.value = false;
+    showMonthEndPicker.value = false;
+  }
 }
 
 onMounted(() => {
@@ -221,5 +182,3 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
 });
 </script>
-
-

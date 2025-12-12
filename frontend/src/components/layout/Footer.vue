@@ -3,7 +3,7 @@
     <div class="footer-inner">
       <div class="footer-brand">
         <div class="brand-logo" @click="goToMain" style="cursor: pointer">
-          <img src="@/assets/logo.png" alt="Logo" @error="handleLogoError" />
+          <img src="@/assets/logo.svg" alt="Logo" @error="handleLogoError" />
         </div>
         <div class="brand-info">
           <strong class="brand-name">Yachaerang</strong>

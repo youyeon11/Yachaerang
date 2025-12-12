@@ -59,19 +59,31 @@
       </div>
     </section>
 
-    <PriceResultTable v-if="priceResult.length" :rows="priceResult" />
+    <PriceResult
+      :rows="priceResult"
+      :item-label="selectedItemLabel"
+      :variety-label="selectedVarietyLabel"
+      :period-type="periodType"
+      :start-date="startDate"
+      :end-date="endDate"
+    />
   </div>
 </template>
 
 <script setup>
-import ItemSelector from '@/views/PriceSearchDetail/components/ItemSelector.vue';
-import PeriodSelector from '@/views/PriceSearchDetail/components/PeriodSelector.vue';
-import DayPicker from '@/views/PriceSearchDetail/components/DateRangePicker/DayPicker.vue';
-import WeekPicker from '@/views/PriceSearchDetail/components/DateRangePicker/WeekPicker.vue';
-import MonthPicker from '@/views/PriceSearchDetail/components/DateRangePicker/MonthPicker.vue';
-import YearPicker from '@/views/PriceSearchDetail/components/DateRangePicker/YearPicker.vue';
-import PriceResultTable from '@/views/PriceSearchDetail/components/PriceResultTable.vue';
+import ItemSelector from '@/views/priceSearchDetail/components/ItemSelector.vue';
+import PeriodSelector from '@/views/priceSearchDetail/components/PeriodSelector.vue';
+
+import DayPicker from '@/views/priceSearchDetail/components/DateRangePicker/DayPicker.vue';
+import WeekPicker from '@/views/priceSearchDetail/components/DateRangePicker/WeekPicker.vue';
+import MonthPicker from '@/views/priceSearchDetail/components/DateRangePicker/MonthPicker.vue';
+import YearPicker from '@/views/priceSearchDetail/components/DateRangePicker/YearPicker.vue';
+import PriceResult from '@/views/priceSearchDetail/components/Result/PriceResult.vue';
+
+import { toRefs, computed } from 'vue';
 import { usePriceSearch } from '@/views/priceSearchDetail/composables/usePriceSearch';
+
+const search = usePriceSearch();
 
 const {
   selectedItem,
@@ -94,10 +106,31 @@ const {
   yearStart,
   yearEnd,
   yearDetail,
-  handlePeriodClick,
-  resetFilters,
-  handleSearch,
-} = usePriceSearch();
+} = toRefs(search);
+
+const { handlePeriodClick, resetFilters, handleSearch } = search;
+
+const selectedItemLabel = computed(() => itemOptions.value.find((i) => i.value === selectedItem.value)?.label ?? '');
+
+const selectedVarietyLabel = computed(
+  () => varietyOptions.value.find((v) => v.value === selectedVariety.value)?.label ?? ''
+);
+
+const startDate = computed(() => {
+  if (periodType.value === 'day') return dayStartDate.value?.toISOString().slice(0, 10);
+  if (periodType.value === 'week') return weekStartDate.value?.toISOString().slice(0, 10);
+  if (periodType.value === 'month') return monthStartDate.value?.toISOString().slice(0, 7);
+  if (periodType.value === 'year') return yearStart.value;
+  return '';
+});
+
+const endDate = computed(() => {
+  if (periodType.value === 'day') return dayEndDate.value?.toISOString().slice(0, 10);
+  if (periodType.value === 'week') return weekEndDate.value?.toISOString().slice(0, 10);
+  if (periodType.value === 'month') return monthEndDate.value?.toISOString().slice(0, 7);
+  if (periodType.value === 'year') return yearEnd.value;
+  return '';
+});
 </script>
 
 <style>
