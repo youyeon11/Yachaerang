@@ -31,38 +31,21 @@
     <!-- findByMemberId -->
     <select id="findByMemberId" parameterType="java.lang.Long"
             resultMap="farmResultMap">
-        SELECT
-            f.manpower      AS manpower,
-            f.location      AS location,
-            f.cultivated_area AS cultivated_area,
-            f.flat_area     AS flat_area,
-            f.main_crop     AS main_crop,
-            f.member_id     AS member_id
-        FROM farm f
-                 JOIN member m ON f.member_id = m.member_id
-        WHERE m.member_id = #{memberId}
+        SELECT *
+        FROM farm
+        WHERE member_id = #{memberId}
     </select>
 
     <!-- updateFarm -->
     <update id="updateFarm">
         UPDATE farm
-        <set>
-            <if test="manpower != null and manpower != ''">
-                manpower = #{manpower},
-            </if>
-            <if test="location != null and location != ''">
-                location = #{location},
-            </if>
-            <if test="cultivatedArea != null and cultivatedArea != ''">
-                cultivated_area = #{cultivatedArea},
-            </if>
-            <if test="flatArea != null and flatArea != ''">
-                flat_area = #{flatArea},
-            </if>
-            <if test="mainCrop != null and mainCrop != ''">
-                main_crop = #{mainCrop}
-            </if>
-        </set>
+        SET
+            manpower = IFNULL(#{manpower}, ''),
+            location = IFNULL(#{location}, ''),
+            cultivated_area = IFNULL(#{cultivatedArea}, ''),
+            flat_area = IFNULL(#{flatArea}, ''),
+            main_crop = IFNULL(#{mainCrop}, '')
+        WHERE member_id = #{memberId}
         WHERE member_id = #{memberId}
     </update>
 

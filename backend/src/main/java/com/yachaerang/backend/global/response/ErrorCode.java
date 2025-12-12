@@ -1,6 +1,7 @@
 package com.yachaerang.backend.global.response;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
@@ -55,6 +56,9 @@ public enum ErrorCode implements BaseCode{
     FAVORITE_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAVORITE_001", "관심 대시보드 등록에 실패했습니다."),
     FAVORITE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAVORITE_002", "관심 대시보드 해제에 실패했습니다."),
     FAVORITE_DUPLICATED(HttpStatus.BAD_REQUEST, "FAVORITE_003", "이미 등록된 관심사입니다."),
+
+    // farm
+    FARM_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "FARM_001", "농장 정보가 이미 존재합니다. 수정으로 요청을 보내주세요."),
 
     // chat
     SESSION_FAILED(HttpStatus.BAD_REQUEST, "CHAT_001", "채팅의 세션을 생성하는 데에 실패하였습니다."),

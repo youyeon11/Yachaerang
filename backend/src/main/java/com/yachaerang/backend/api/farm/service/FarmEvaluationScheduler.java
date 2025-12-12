@@ -13,7 +13,7 @@ public class FarmEvaluationScheduler {
 
     private final FarmService farmService;
 
-    @Scheduled(cron = "0 0 * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void fillMissing() {
         farmService.fillMissingFarmEvaluations();
     }

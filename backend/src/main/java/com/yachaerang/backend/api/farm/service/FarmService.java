@@ -5,6 +5,8 @@ import com.yachaerang.backend.api.farm.dto.resquest.FarmRequestDto;
 import com.yachaerang.backend.api.farm.entity.Farm;
 import com.yachaerang.backend.api.farm.repository.FarmMapper;
 import com.yachaerang.backend.global.auth.jwt.AuthenticatedMemberProvider;
+import com.yachaerang.backend.global.exception.GeneralException;
+import com.yachaerang.backend.global.response.ErrorCode;
 import com.yachaerang.backend.global.util.LogUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -69,14 +72,18 @@ public class FarmService {
     public Farm saveFarm(FarmRequestDto.InfoDto requestDto) {
         Long memberId = authenticatedMemberProvider.getCurrentMemberId();
 
-        Farm farm = Farm.builder()
-                .manpower(requestDto.getManpower())
-                .location(requestDto.getLocation())
-                .cultivatedArea(requestDto.getCultivatedArea())
-                .flatArea(requestDto.getFlatArea())
-                .mainCrop(requestDto.getMainCrop())
-                .memberId(memberId)
-                .build();
+        if (farmMapper.findByMemberId(memberId) != null) {
+            throw GeneralException.of(ErrorCode.FARM_ALREADY_EXISTS);
+        }
+
+        Farm farm = new Farm();
+        farm.setMemberId(memberId);
+        requestDto.getManpower().ifPresent(value -> farm.setManpower(value)); // value가 null이면 null 저장됨
+        requestDto.getLocation().ifPresent(value -> farm.setLocation(value));
+        requestDto.getCultivatedArea().ifPresent(value -> farm.setCultivatedArea(value));
+        requestDto.getFlatArea().ifPresent(value -> farm.setFlatArea(value));
+        requestDto.getMainCrop().ifPresent(value -> farm.setMainCrop(value));
+
         farmMapper.save(farm);
         return farm;
     }
@@ -152,16 +159,13 @@ public class FarmService {
         Long memberId = authenticatedMemberProvider.getCurrentMemberId();
 
         // grade와 comment 초기화
-        Farm farm = Farm.builder()
-                .manpower(requestDto.getManpower())
-                .location(requestDto.getLocation())
-                .cultivatedArea(requestDto.getCultivatedArea())
-                .flatArea(requestDto.getFlatArea())
-                .mainCrop(requestDto.getMainCrop())
-                .memberId(memberId)
-                .grade(null)
-                .comment(null)
-                .build();
+        Farm farm = new Farm();
+        farm.setMemberId(memberId);
+        requestDto.getManpower().ifPresent(value -> farm.setManpower(value)); // value가 null이면 null 저장됨
+        requestDto.getLocation().ifPresent(value -> farm.setLocation(value));
+        requestDto.getCultivatedArea().ifPresent(value -> farm.setCultivatedArea(value));
+        requestDto.getFlatArea().ifPresent(value -> farm.setFlatArea(value));
+        requestDto.getMainCrop().ifPresent(value -> farm.setMainCrop(value));
         farmMapper.updateFarm(farm);
         return farm;
     }
@@ -184,11 +188,11 @@ public class FarmService {
         List<CompletableFuture<Void>> futureList = unevaluatedFarmList.stream()
                 .map(farm -> {
                     FarmRequestDto.InfoDto requestDto = FarmRequestDto.InfoDto.builder()
-                            .manpower(farm.getManpower())
-                            .location(farm.getLocation())
-                            .cultivatedArea(farm.getCultivatedArea())
-                            .flatArea(farm.getFlatArea())
-                            .mainCrop(farm.getMainCrop())
+                            .manpower(Optional.of(farm.getManpower()))
+                            .location(Optional.of(farm.getLocation()))
+                            .cultivatedArea(Optional.of(farm.getCultivatedArea()))
+                            .flatArea(Optional.of(farm.getFlatArea()))
+                            .mainCrop(Optional.of(farm.getMainCrop()))
                             .build();
                     return farmEvaluationService.generateGradeAndComment(requestDto)
                             .thenAccept(evaluationDto -> {
