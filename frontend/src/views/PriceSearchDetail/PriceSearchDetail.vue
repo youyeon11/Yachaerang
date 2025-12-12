@@ -71,7 +71,7 @@ import DayPicker from '@/views/priceSearchDetail/components/DateRangePicker/DayP
 import WeekPicker from '@/views/priceSearchDetail/components/DateRangePicker/WeekPicker.vue';
 import MonthPicker from '@/views/priceSearchDetail/components/DateRangePicker/MonthPicker.vue';
 import YearPicker from '@/views/priceSearchDetail/components/DateRangePicker/YearPicker.vue';
-import PriceResult from '@/views/priceSearchDetail/components/PriceResult.vue';
+import PriceResult from '@/views/priceSearchDetail/components/Result/PriceResult.vue';
 
 import { toRefs } from 'vue';
 import { usePriceSearch } from '@/views/priceSearchDetail/composables/usePriceSearch';
