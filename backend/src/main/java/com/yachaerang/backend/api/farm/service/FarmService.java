@@ -9,13 +9,10 @@ import com.yachaerang.backend.global.exception.GeneralException;
 import com.yachaerang.backend.global.response.ErrorCode;
 import com.yachaerang.backend.global.util.LogUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -76,6 +73,10 @@ public class FarmService {
 
         Farm found = farmMapper.findByMemberId(memberId);
 
+        if (found == null) {
+            return null;
+        }
+
         return FarmResponseDto.toInfoDto(found);
     }
 
@@ -120,102 +121,5 @@ public class FarmService {
                         throw GeneralException.of(ErrorCode.FARM_UPDATE_FAILED);
                     }
                 });
-    }
-
-    /**
-     * 비동기 작업으로 grade와 comment 미처리 DB 처리
-     * 평가 누락 농장 일괄 처리
-     */
-    @Async("asyncExecutor")
-    public CompletableFuture<Void> fillMissingFarmEvaluations() {
-        LogUtil.info("평가 누락 농장 일괄 처리 시작");
-
-        List<Farm> unevaluatedFarms = farmMapper.findFarmsWithMissingEvaluation();
-
-        if (unevaluatedFarms.isEmpty()) {
-            LogUtil.info("평가가 필요한 농장이 없습니다.");
-            return CompletableFuture.completedFuture(null);
-        }
-
-        LogUtil.info("처리 대상 농장 수: {}", unevaluatedFarms.size());
-
-        int batchSize = 10;
-
-        List<CompletableFuture<Void>> allFutures =
-                partitionList(unevaluatedFarms, batchSize).stream()
-                        .map(this::processBatch)
-                        .collect(Collectors.toList());
-
-        return CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0]))
-                .whenComplete((result, throwable) -> {
-                    if (throwable != null) {
-                        LogUtil.error("평가 누락 농장 일괄 처리 중 오류 발생", throwable);
-                    } else {
-                        LogUtil.info("평가 누락 농장 일괄 처리 완료");
-                    }
-                });
-    }
-
-
-    /**
-     * 배치 처리하기
-     * @param batch
-     * @return
-     */
-    private CompletableFuture<Void> processBatch(List<Farm> batch) {
-        List<CompletableFuture<Void>> futures = batch.stream()
-                .map(this::processSingleFarm)
-                .collect(Collectors.toList());
-
-        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-    }
-
-    /**
-     * 하나의 요소 처리하기
-     * @param farm
-     * @return
-     */
-    private CompletableFuture<Void> processSingleFarm(Farm farm) {
-        FarmRequestDto.InfoDto requestDto = FarmRequestDto.InfoDto.builder()
-                .manpower(farm.getManpower())
-                .location(farm.getLocation())
-                .cultivatedArea(farm.getCultivatedArea())
-                .flatArea(farm.getFlatArea())
-                .mainCrop(farm.getMainCrop())
-                .build();
-
-        return farmEvaluationService.generateGradeAndComment(requestDto)
-                .thenAccept(evaluationDto -> {
-                    try {
-                        farmAsyncService.updateEvaluationOnly(
-                                farm.getId(),
-                                evaluationDto.getGrade(),
-                                evaluationDto.getComment()
-                        );
-                        LogUtil.info("Farm {} 평가 완료", farm.getId());
-                    } catch (Exception e) {
-                        LogUtil.error("Farm {} 평가 업데이트 실패: {}", farm.getId(), e.getMessage());
-                    }
-                })
-                .exceptionally(e -> {
-                    LogUtil.error("Farm {} 평가 생성 실패: {}", farm.getId(), e.getMessage());
-                    return null;
-                });
-    }
-
-    /**
-     * 배치 사이즈로 나누기
-     * @param list
-     * @param batchSize
-     * @return
-     * @param <T>
-     */
-    private <T> List<List<T>> partitionList(List<T> list, int batchSize) {
-        return java.util.stream.IntStream.range(0, (list.size() + batchSize - 1) / batchSize)
-                .mapToObj(i -> list.subList(
-                        i * batchSize,
-                        Math.min((i + 1) * batchSize, list.size())
-                ))
-                .collect(Collectors.toList());
     }
 }
