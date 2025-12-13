@@ -3,7 +3,9 @@ package com.yachaerang.backend.api.farm.controller;
 import com.yachaerang.backend.api.farm.dto.response.FarmResponseDto;
 import com.yachaerang.backend.api.farm.dto.resquest.FarmRequestDto;
 import com.yachaerang.backend.api.farm.service.FarmService;
-import com.yachaerang.backend.global.exception.GeneralException;
+import com.yachaerang.backend.global.response.ApiResponse;
+import com.yachaerang.backend.global.response.ErrorCode;
+import com.yachaerang.backend.global.response.SuccessCode;
 import com.yachaerang.backend.global.util.LogUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import java.util.concurrent.CompletableFuture;
 
 @RequestMapping("/api/v1/farms")
 @RestController
@@ -23,11 +24,11 @@ public class FarmController {
     private static final Long TIMEOUT_MILLIS = 30_000L;
 
     @PostMapping("")
-    public DeferredResult<ResponseEntity<FarmResponseDto.InfoDto>> save(
+    public DeferredResult<ResponseEntity<ApiResponse<?>>> save(
             @RequestHeader("Authorization") String token,
             @RequestBody FarmRequestDto.InfoDto requestDto
     ) {
-        DeferredResult<ResponseEntity<FarmResponseDto.InfoDto>> deferredResult =
+        DeferredResult<ResponseEntity<ApiResponse<?>>> deferredResult =
                 new DeferredResult<>(TIMEOUT_MILLIS);
 
         // timeout
@@ -35,10 +36,7 @@ public class FarmController {
             LogUtil.warn("농장 저장 요청 타임아웃");
             deferredResult.setResult(
                     ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT)
-                            .body(FarmResponseDto.InfoDto.builder()
-                                    .grade("N/A")
-                                    .comment("요청 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.")
-                                    .build())
+                            .body(ApiResponse.failure(ErrorCode.REQUEST_TIMEOUT))
             );
         });
 
@@ -47,10 +45,7 @@ public class FarmController {
             LogUtil.error("농장 저장 중 에러 발생: {}", throwable.getMessage());
             deferredResult.setResult(
                     ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body(FarmResponseDto.InfoDto.builder()
-                                    .grade("N/A")
-                                    .comment(throwable.getMessage())
-                                    .build())
+                            .body(ApiResponse.failure(ErrorCode.FARM_SAVE_FAILED))
             );
         });
 
@@ -59,17 +54,14 @@ public class FarmController {
                 .thenAccept(result -> {
                     deferredResult.setResult(
                             ResponseEntity.status(HttpStatus.CREATED)
-                                    .body(result)
+                                    .body(ApiResponse.success(SuccessCode.OK, result))
                     );
                 })
                 .exceptionally(ex -> {
                     LogUtil.error("농장 정보 저장 실패: {}", ex.getMessage());
                     deferredResult.setResult(
                             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                    .body(FarmResponseDto.InfoDto.builder()
-                                            .grade("N/A")
-                                            .comment(ex.getMessage())
-                                            .build())
+                                    .body(ApiResponse.failure(ErrorCode.FARM_SAVE_FAILED))
                     );
                     // thenAccept 이후의 CompletableFuture<Void>에 대한 예외 처리이므로 null 반환
                     return null;
@@ -84,22 +76,18 @@ public class FarmController {
     }
 
     @PatchMapping("")
-    public DeferredResult<ResponseEntity<FarmResponseDto.InfoDto>> update(
+    public DeferredResult<ResponseEntity<ApiResponse<?>>> update(
             @RequestHeader("Authorization") String token,
             @RequestBody FarmRequestDto.InfoDto requestDto
     ) {
-        DeferredResult<ResponseEntity<FarmResponseDto.InfoDto>> deferredResult =
-                new DeferredResult<>(TIMEOUT_MILLIS);
+        DeferredResult<ResponseEntity<ApiResponse<?>>> deferredResult = new DeferredResult<>(TIMEOUT_MILLIS);
 
         // timeout
         deferredResult.onTimeout(() -> {
             LogUtil.warn("농장 저장 요청 타임아웃");
             deferredResult.setResult(
                     ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT)
-                            .body(FarmResponseDto.InfoDto.builder()
-                                    .grade("N/A")
-                                    .comment("요청 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.")
-                                    .build())
+                            .body(ApiResponse.failure(ErrorCode.REQUEST_TIMEOUT))
             );
         });
 
@@ -108,10 +96,7 @@ public class FarmController {
             LogUtil.error("농장 저장 중 에러 발생: {}", throwable.getMessage());
             deferredResult.setResult(
                     ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body(FarmResponseDto.InfoDto.builder()
-                                    .grade("N/A")
-                                    .comment(throwable.getMessage())
-                                    .build())
+                            .body(ApiResponse.failure(ErrorCode.FARM_SAVE_FAILED))
             );
         });
 
@@ -120,17 +105,14 @@ public class FarmController {
                 .thenAccept(result -> {
                     deferredResult.setResult(
                             ResponseEntity.status(HttpStatus.CREATED)
-                                    .body(result)
+                                    .body(ApiResponse.success(SuccessCode.OK, result))
                     );
                 })
                 .exceptionally(ex -> {
                     LogUtil.error("농장 정보 저장 실패: {}", ex.getMessage());
                     deferredResult.setResult(
                             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                    .body(FarmResponseDto.InfoDto.builder()
-                                            .grade("N/A")
-                                            .comment(ex.getMessage())
-                                            .build())
+                                    .body(ApiResponse.failure(ErrorCode.FARM_SAVE_FAILED))
                     );
                     return null;
                 });

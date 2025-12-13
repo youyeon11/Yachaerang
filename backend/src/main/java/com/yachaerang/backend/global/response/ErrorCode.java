@@ -11,6 +11,7 @@ public enum ErrorCode implements BaseCode{
 
     // request
     UNMATCHED_REQUEST(HttpStatus.BAD_REQUEST, "METHODERROR", "요청 방식이 잘못됐습니다."),
+    REQUEST_TIMEOUT(HttpStatus.REQUEST_TIMEOUT, "TIMEOUT", "요청 시간이 초과되었스빈다."),
 
     // MyBatis
     ENUM_MAPPED_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "MYBATIS_001", "DB로부터 Java의 Eum을 매핑하는데에 실패했습니다."),
