@@ -1,11 +1,7 @@
 <template>
   <div class="ai-chat">
     <WelcomeScreen v-if="messages.length === 0" />
-    <ChatMessageList v-else :messages="messages" />
-
-    <div v-if="isLoading" class="loading-indicator">
-      야치가 답변을 만드는 중이에요...
-    </div>
+    <ChatMessageList v-else :messages="messages" :is-loading="isLoading" />
 
     <ChatInputBar
       :messages="messages"
@@ -47,17 +43,8 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding-bottom: 80px;
+  padding-bottom: 96px; /* 하단 인풋 영역 만큼 여유 */
   box-sizing: border-box;
   position: relative;
-}
-
-.loading-indicator {
-  margin: 12px auto 0;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: #f2f2f2;
-  color: #777;
-  font-size: 14px;
 }
 </style>
