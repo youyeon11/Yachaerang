@@ -8,25 +8,16 @@
 </template>
 
 <script setup>
-import { onMounted, onBeforeUnmount } from 'vue';
 import { useChat } from './composables/useChat';
+import { onMounted } from 'vue';
 
 import WelcomeScreen from './components/WelcomeScreen.vue';
 import ChatMessageList from './components/ChatMessageList.vue';
 import ChatInputBar from './components/ChatInputBar.vue';
 
-const { messages, sendMessage, resetChat, isLoading, endSessionOnUnload } = useChat();
-
-const handleBeforeUnload = () => {
-  endSessionOnUnload();
-};
-
+const { messages, sendMessage, resetChat, initSession, isLoading } = useChat();
 onMounted(() => {
-  window.addEventListener('beforeunload', handleBeforeUnload);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('beforeunload', handleBeforeUnload);
+  initSession();
 });
 </script>
 

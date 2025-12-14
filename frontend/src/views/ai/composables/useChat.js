@@ -1,7 +1,13 @@
-import { ref } from 'vue';
-import { startChatSessionApi, sendChatMessageApi, endChatSessionApi } from '@/api/chat';
+import { ref, computed } from 'vue';
+import { startChatSessionApi, sendChatMessageApi, endChatSessionApi, fetchChatHistoryApi } from '@/api/chat';
 
 const DEFAULT_ERROR_MESSAGE = '챗봇 서버와 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+const STORAGE_KEY = 'yachi_chat_session_id';
+const WELCOME_MESSAGE = {
+  id: 'welcome',
+  role: 'assistant',
+  content: '안녕하세요! 저는 AI 야치예요 🌱\n농사, 시세, 재배 관리 등 무엇이든 편하게 질문해주세요!',
+};
 
 let messageIdCounter = 0;
 let ensureSessionPromise = null;
@@ -11,6 +17,24 @@ export function useChat() {
   const messages = ref([]);
   const sessionId = ref(null);
   const isLoading = ref(false);
+  const isInitialized = ref(false);
+
+  const displayMessages = computed(() => {
+    return [WELCOME_MESSAGE, ...messages.value];
+  });
+
+  const saveSessionId = (id) => {
+    if (id) {
+      localStorage.setItem(STORAGE_KEY, String(id));
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  };
+
+  const loadSessionId = () => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? Number(stored) : null;
+  };
 
   const appendMessage = (role, content) => {
     messages.value.push({
@@ -18,6 +42,37 @@ export function useChat() {
       role,
       content,
     });
+  };
+
+  const initSession = async () => {
+    if (isInitialized.value) return;
+
+    const storedId = loadSessionId();
+
+    if (storedId) {
+      try {
+        const res = await fetchChatHistoryApi(storedId);
+        const history = res.data?.data ?? res.data ?? [];
+
+        if (Array.isArray(history) && history.length > 0) {
+          sessionId.value = storedId;
+          messages.value = history.map((msg, idx) => ({
+            id: msg.id ?? `${Date.now()}-${idx}`,
+            role: msg.role ?? (msg.isUser ? 'user' : 'assistant'),
+            content: msg.content ?? msg.message ?? '',
+          }));
+          isInitialized.value = true;
+          return;
+        }
+
+        sessionId.value = storedId;
+      } catch (error) {
+        console.warn('기존 세션 복원 실패:', error);
+        saveSessionId(null);
+      }
+    }
+
+    isInitialized.value = true;
   };
 
   const ensureSession = async () => {
@@ -33,6 +88,7 @@ export function useChat() {
       }
 
       sessionId.value = id;
+      saveSessionId(id);
       return id;
     })().finally(() => {
       ensureSessionPromise = null;
@@ -62,6 +118,7 @@ export function useChat() {
 
       if (typeof data?.chatSessionId === 'number') {
         sessionId.value = data.chatSessionId;
+        saveSessionId(data.chatSessionId);
       }
     } catch (error) {
       console.error(error);
@@ -75,6 +132,7 @@ export function useChat() {
 
   const resetChat = async () => {
     activeRequestToken++;
+
     if (sessionId.value) {
       try {
         await endChatSessionApi(sessionId.value);
@@ -85,34 +143,17 @@ export function useChat() {
 
     messages.value = [];
     sessionId.value = null;
-  };
-
-  const endSessionOnUnload = () => {
-    if (!sessionId.value) return;
-
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) return;
-
-    const url = `/api/v1/chat/${sessionId.value}/end`;
-
-    try {
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        keepalive: true,
-      }).catch(() => {});
-    } catch {}
+    saveSessionId(null);
   };
 
   return {
     messages,
+    displayMessages,
+    sessionId,
+    isLoading,
+    isInitialized,
+    initSession,
     sendMessage,
     resetChat,
-    isLoading,
-    sessionId,
-    endSessionOnUnload,
   };
 }
