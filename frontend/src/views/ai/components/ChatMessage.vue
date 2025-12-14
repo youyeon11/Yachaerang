@@ -12,6 +12,7 @@
 <script setup>
 import { computed } from 'vue';
 import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 const props = defineProps({
   message: {
@@ -20,7 +21,10 @@ const props = defineProps({
   },
 });
 
-const renderedContent = computed(() => marked.parse(props.message?.content ?? '', { breaks: true }));
+const renderedContent = computed(() => {
+  const rawHtml = marked.parse(props.message?.content ?? '', { breaks: true });
+  return DOMPurify.sanitize(rawHtml);
+});
 </script>
 
 <style scoped>

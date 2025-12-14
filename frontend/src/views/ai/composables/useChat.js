@@ -3,6 +3,8 @@ import { startChatSessionApi, sendChatMessageApi, endChatSessionApi } from '@/ap
 
 const DEFAULT_ERROR_MESSAGE = '챗봇 서버와 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
 
+let messageIdCounter = 0;
+
 export function useChat() {
   const messages = ref([]);
   const sessionId = ref(null);
@@ -10,7 +12,7 @@ export function useChat() {
 
   const appendMessage = (role, content) => {
     messages.value.push({
-      id: Date.now(),
+      id: `${Date.now()}-${++messageIdCounter}`,
       role,
       content,
     });
@@ -69,11 +71,32 @@ export function useChat() {
     sessionId.value = null;
   };
 
+  const endSessionOnUnload = () => {
+    if (!sessionId.value) return;
+
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) return;
+
+    const url = `/api/v1/chat/${sessionId.value}/end`;
+
+    try {
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        keepalive: true,
+      }).catch(() => {});
+    } catch {}
+  };
+
   return {
     messages,
     sendMessage,
     resetChat,
     isLoading,
     sessionId,
+    endSessionOnUnload,
   };
 }

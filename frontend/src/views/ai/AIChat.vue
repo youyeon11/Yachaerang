@@ -15,12 +15,10 @@ import WelcomeScreen from './components/WelcomeScreen.vue';
 import ChatMessageList from './components/ChatMessageList.vue';
 import ChatInputBar from './components/ChatInputBar.vue';
 
-const { messages, sendMessage, resetChat, isLoading, sessionId } = useChat();
+const { messages, sendMessage, resetChat, isLoading, endSessionOnUnload } = useChat();
 
 const handleBeforeUnload = () => {
-  if (sessionId.value) {
-    resetChat();
-  }
+  endSessionOnUnload();
 };
 
 onMounted(() => {
