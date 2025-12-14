@@ -2,12 +2,7 @@
   <div class="message" :class="message.role">
     <img v-if="message.role === 'assistant'" class="avatar" src="@/assets/yachi.png" />
 
-    <!-- 사용자 메시지는 그대로 텍스트, 챗봇 메시지는 마크다운 렌더링 -->
-    <div
-      v-if="message.role === 'assistant'"
-      class="bubble markdown-body"
-      v-html="renderedContent"
-    />
+    <div v-if="message.role === 'assistant'" class="bubble markdown-body" v-html="renderedContent" />
     <div v-else class="bubble">
       {{ message.content }}
     </div>
@@ -25,9 +20,7 @@ const props = defineProps({
   },
 });
 
-const renderedContent = computed(() =>
-  marked.parse(props.message?.content ?? '', { breaks: true })
-);
+const renderedContent = computed(() => marked.parse(props.message?.content ?? '', { breaks: true }));
 </script>
 
 <style scoped>
@@ -64,7 +57,6 @@ const renderedContent = computed(() =>
   background: #fde594;
 }
 
-/* 기본적인 마크다운 스타일 정리 */
 .markdown-body {
   max-width: 100%;
 }

@@ -3,12 +3,7 @@
     <WelcomeScreen v-if="messages.length === 0" />
     <ChatMessageList v-else :messages="messages" :is-loading="isLoading" />
 
-    <ChatInputBar
-      :messages="messages"
-      :is-loading="isLoading"
-      @send="sendMessage"
-      @reset="resetChat"
-    />
+    <ChatInputBar :messages="messages" :is-loading="isLoading" @send="sendMessage" @reset="resetChat" />
   </div>
 </template>
 
@@ -23,7 +18,6 @@ import ChatInputBar from './components/ChatInputBar.vue';
 const { messages, sendMessage, resetChat, isLoading, sessionId } = useChat();
 
 const handleBeforeUnload = () => {
-  // 세션이 살아있으면 종료 시도
   if (sessionId.value) {
     resetChat();
   }
@@ -42,8 +36,9 @@ onBeforeUnmount(() => {
 .ai-chat {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  padding-bottom: 96px; /* 하단 인풋 영역 만큼 여유 */
+  height: 100%;
+  min-height: 0;
+  padding-bottom: 96px;
   box-sizing: border-box;
   position: relative;
 }

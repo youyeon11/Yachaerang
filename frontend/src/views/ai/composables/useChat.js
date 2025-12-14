@@ -1,69 +1,62 @@
 import { ref } from 'vue';
-import {
-  startChatSessionApi,
-  sendChatMessageApi,
-  endChatSessionApi,
-} from '@/api/chat';
+import { startChatSessionApi, sendChatMessageApi, endChatSessionApi } from '@/api/chat';
+
+const DEFAULT_ERROR_MESSAGE = '챗봇 서버와 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
 
 export function useChat() {
   const messages = ref([]);
   const sessionId = ref(null);
   const isLoading = ref(false);
 
-  // 채팅 세션 시작 (POST /api/v1/chat)
-  async function startChat() {
-    const res = await startChatSessionApi();
-    sessionId.value = res.data?.data; // 예: 2
-  }
+  const appendMessage = (role, content) => {
+    messages.value.push({
+      id: Date.now(),
+      role,
+      content,
+    });
+  };
 
-  // 메시지 전송 (POST /api/v1/chat/{sessionId}/messages)
-  async function sendMessage(text) {
+  const ensureSession = async () => {
+    if (sessionId.value) return sessionId.value;
+
+    const res = await startChatSessionApi();
+    const id = res.data?.data;
+
+    if (typeof id !== 'number') {
+      throw new Error('챗봇 세션 ID를 가져오지 못했습니다.');
+    }
+
+    sessionId.value = id;
+    return id;
+  };
+
+  const sendMessage = async (text) => {
     const content = text?.trim();
     if (!content) return;
 
-    // 세션 없으면 먼저 생성
-    if (!sessionId.value) {
-      await startChat();
-    }
-
-    // 사용자 메시지 표시
-    messages.value.push({
-      id: Date.now(),
-      role: 'user',
-      content,
-    });
+    appendMessage('user', content);
 
     try {
       isLoading.value = true;
 
-      const res = await sendChatMessageApi(sessionId.value, content);
+      const currentSessionId = await ensureSession();
+      const res = await sendChatMessageApi(currentSessionId, content);
       const data = res.data?.data;
 
-      // 서버 응답 메시지 표시
-      messages.value.push({
-        id: Date.now() + 1,
-        role: 'assistant', // ChatMessage.vue에서 이 값으로 스타일 분기
-        content: data?.response ?? '응답을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
-      });
+      appendMessage('assistant', data?.response ?? '응답을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
 
-      // 백엔드가 세션 ID를 응답에 포함해 줄 수 있으므로 동기화
       if (typeof data?.chatSessionId === 'number') {
         sessionId.value = data.chatSessionId;
       }
     } catch (error) {
       console.error(error);
-      messages.value.push({
-        id: Date.now() + 2,
-        role: 'assistant',
-        content: '챗봇 서버와 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-      });
+      appendMessage('assistant', DEFAULT_ERROR_MESSAGE);
     } finally {
       isLoading.value = false;
     }
-  }
+  };
 
-  // 채팅 종료 (POST /api/v1/chat/{sessionId}/end) + 화면 리셋
-  async function resetChat() {
+  const resetChat = async () => {
     if (sessionId.value) {
       try {
         await endChatSessionApi(sessionId.value);
@@ -74,7 +67,7 @@ export function useChat() {
 
     messages.value = [];
     sessionId.value = null;
-  }
+  };
 
   return {
     messages,
