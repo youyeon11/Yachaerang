@@ -1,6 +1,6 @@
 <template>
   <div class="ai-chat">
-    <WelcomeScreen v-if="messages.length === 0" />
+    <WelcomeScreen v-if="messages.length === 0" @use-prompt="sendMessage" />
     <ChatMessageList v-else :messages="messages" :is-loading="isLoading" />
 
     <ChatInputBar :messages="messages" :is-loading="isLoading" @send="sendMessage" @reset="resetChat" />
