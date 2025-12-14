@@ -1,5 +1,9 @@
 import { ref } from 'vue';
-import axios from '@/api/axios';
+import {
+  startChatSessionApi,
+  sendChatMessageApi,
+  endChatSessionApi,
+} from '@/api/chat';
 
 export function useChat() {
   const messages = ref([]);
@@ -8,7 +12,7 @@ export function useChat() {
 
   // 채팅 세션 시작 (POST /api/v1/chat)
   async function startChat() {
-    const res = await axios.post('/api/v1/chat');
+    const res = await startChatSessionApi();
     sessionId.value = res.data?.data; // 예: 2
   }
 
@@ -32,10 +36,7 @@ export function useChat() {
     try {
       isLoading.value = true;
 
-      const res = await axios.post(`/api/v1/chat/${sessionId.value}/messages`, {
-        message: content,
-      });
-
+      const res = await sendChatMessageApi(sessionId.value, content);
       const data = res.data?.data;
 
       // 서버 응답 메시지 표시
@@ -65,7 +66,7 @@ export function useChat() {
   async function resetChat() {
     if (sessionId.value) {
       try {
-        await axios.post(`/api/v1/chat/${sessionId.value}/end`);
+        await endChatSessionApi(sessionId.value);
       } catch (error) {
         console.error('채팅 종료 중 오류', error);
       }

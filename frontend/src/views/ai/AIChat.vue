@@ -1,7 +1,7 @@
 <template>
   <div class="ai-chat">
     <WelcomeScreen v-if="messages.length === 0" />
-    <ChatMessage v-else v-for="msg in messages" :key="msg.id" :message="msg" />
+    <ChatMessageList v-else :messages="messages" />
 
     <div v-if="isLoading" class="loading-indicator">
       야치가 답변을 만드는 중이에요...
@@ -21,7 +21,7 @@ import { onMounted, onBeforeUnmount } from 'vue';
 import { useChat } from './composables/useChat';
 
 import WelcomeScreen from './components/WelcomeScreen.vue';
-import ChatMessage from './components/ChatMessage.vue';
+import ChatMessageList from './components/ChatMessageList.vue';
 import ChatInputBar from './components/ChatInputBar.vue';
 
 const { messages, sendMessage, resetChat, isLoading, sessionId } = useChat();
