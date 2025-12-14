@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yachaerang.backend.api.farm.repository.FarmMapper">
+    <resultMap id="farmResultMap"
+               type="com.yachaerang.backend.api.farm.entity.Farm">
+        <id property="id" column="farm_id"/>
+        <result property="manpower" column="manpower"/>
+        <result property="location" column="location"/>
+        <result property="cultivatedArea" column="cultivated_area"/>
+        <result property="flatArea" column="flat_area"/>
+        <result property="mainCrop" column="main_crop"/>
+        <result property="grade" column="grade"/>
+        <result property="comment" column="comment"/>
+        <result property="memberId" column="member_id"/>
+    </resultMap>
+
+    <!-- save -->
+    <insert id="save"
+            parameterType="com.yachaerang.backend.api.farm.entity.Farm"
+            useGeneratedKeys="true"
+            keyProperty="id"
+            keyColumn="farm_id">
+        INSERT INTO farm (
+            manpower, location, cultivated_area, flat_area, main_crop, member_id
+        ) VALUES (
+                  #{manpower}, #{location}, #{cultivatedArea}, #{flatArea}, #{mainCrop}, #{memberId}
+                         )
+    </insert>
+
+    <!-- findByMemberId -->
+    <select id="findByMemberId" parameterType="java.lang.Long"
+            resultMap="farmResultMap">
+        SELECT *
+        FROM farm
+        WHERE member_id = #{memberId}
+    </select>
+
+    <!-- updateFarm -->
+    <update id="updateFarm">
+        UPDATE farm
+        <set>
+            <if test="manpower != null">
+                manpower = #{manpower},
+            </if>
+            <if test="location != null and location != ''">
+                location = #{location},
+            </if>
+            <if test="cultivatedArea != null">
+                cultivated_area = #{cultivatedArea},
+            </if>
+            <if test="flatArea != null">
+                flat_area = #{flatArea},
+            </if>
+            <if test="mainCrop != null and mainCrop != ''">
+                main_crop = #{mainCrop},
+            </if>
+            <if test="grade != null and grade != ''">
+                grade = #{grade},
+            </if>
+            <if test="comment != null and comment != ''">
+                comment = #{comment},
+            </if>
+        </set>
+        WHERE member_id = #{memberId}
+    </update>
+
+    <!-- updateEvaluation -->
+    <update id="updateEvaluation">
+        UPDATE farm
+        SET grade = #{grade}, comment = #{comment}
+        WHERE farm_id = #{id}
+    </update>
+
+    <!-- findFarmsWithMissingEvaluation -->
+    <select id="findFarmsWithMissingEvaluation" resultMap="farmResultMap">
+        SELECT *
+        FROM farm
+        WHERE grade is null OR comment is null
+    </select>
+
+
+    <!-- findByMemberIdForUpdate -->
+    <select id="findByMemberIdForUpdate" resultMap="farmResultMap">
+        SELECT farm_id,
+               member_id,
+               manpower,
+               location,
+               cultivated_area,
+               flat_area,
+               main_crop,
+               grade,
+               comment
+        FROM farm
+        WHERE member_id = #{memberId}
+            FOR UPDATE
+    </select>
+</mapper>

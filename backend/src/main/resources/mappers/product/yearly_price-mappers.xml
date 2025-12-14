@@ -60,6 +60,6 @@
         WHERE
             product_code = #{productCode}
           AND
-            price_year = #{startYear}
+            price_year = #{year}
     </select>
 </mapper>
