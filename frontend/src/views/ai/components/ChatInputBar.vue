@@ -2,18 +2,24 @@
   <div class="input-wrapper">
     <button v-if="messages.length > 0" class="reset-btn" @click="emit('reset')">
       <span class="icon">↺</span>
-      <span class="label">새 채팅</span>
+      <span class="label">대화 종료</span>
     </button>
 
     <input
       v-model="text"
       class="input-box"
       type="text"
-      placeholder="궁금한 점을 야치에게 질문해주세요!"
+      :placeholder="
+        isLoading ? '야치가 답변을 만드는 중이에요...' : '궁금한 점을 야치에게 질문해주세요!'
+      "
+      :disabled="isLoading"
       @keyup.enter="send"
     />
 
-    <button class="send-btn" @click="send">➤</button>
+    <button class="send-btn" :disabled="isLoading" @click="send">
+      <span v-if="!isLoading">➤</span>
+      <span v-else class="spinner"></span>
+    </button>
   </div>
 </template>
 
@@ -22,6 +28,10 @@ import { ref } from 'vue';
 
 const props = defineProps({
   messages: Array,
+  isLoading: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['send', 'reset']);
@@ -78,6 +88,11 @@ function send() {
   align-items: center;
 }
 
+.send-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
 .reset-btn {
   position: relative;
   height: 36px;
@@ -120,5 +135,23 @@ function send() {
   width: auto;
   padding-left: 4px;
   transform: translateX(0);
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-top-color: #ffffff;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
