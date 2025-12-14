@@ -1,5 +1,5 @@
 <template>
-  <div ref="messagesEl" class="messages">
+  <div ref="messagesEl" class="messages" @scroll="checkIsAtBottom">
     <ChatMessage v-for="msg in messages" :key="msg.id" :message="msg" />
 
     <div v-if="isLoading" class="loading-bubble">야치가 답변을 만드는 중이에요...</div>
@@ -26,26 +26,43 @@ const props = defineProps({
 const messagesEl = ref(null);
 const bottomAnchor = ref(null);
 
-const scrollToBottom = async () => {
-  await nextTick();
+const isUserAtBottom = ref(true);
 
-  const anchor = bottomAnchor.value;
-  if (!anchor || typeof anchor.scrollIntoView !== 'function') return;
+const forceScroll = ref(false);
 
-  anchor.scrollIntoView({ behavior: 'smooth', block: 'end' });
+const checkIsAtBottom = () => {
+  const el = messagesEl.value;
+  if (!el) return;
+
+  const threshold = 80;
+  const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+
+  isUserAtBottom.value = distanceFromBottom < threshold;
 };
 
-onMounted(() => {
-  scrollToBottom();
-});
+const scrollToBottom = async (force = false) => {
+  await nextTick();
+
+  if (!force && !isUserAtBottom.value) return;
+
+  bottomAnchor.value?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'end',
+  });
+};
 
 watch(
   () => [props.messages.length, props.isLoading],
   () => {
-    scrollToBottom();
+    scrollToBottom(forceScroll.value);
+    forceScroll.value = false;
   },
   { flush: 'post' }
 );
+
+onMounted(() => {
+  scrollToBottom(true);
+});
 </script>
 
 <style scoped>
