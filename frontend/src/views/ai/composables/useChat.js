@@ -36,6 +36,20 @@ export function useChat() {
     return stored ? Number(stored) : null;
   };
 
+  const normalizeRole = (rawRole, isUserFlag) => {
+    if (rawRole != null) {
+      const lower = String(rawRole).toLowerCase();
+      if (lower === 'user' || lower === 'assistant') {
+        return lower;
+      }
+    }
+
+    if (isUserFlag === true) return 'user';
+    if (isUserFlag === false) return 'assistant';
+
+    return 'assistant';
+  };
+
   const appendMessage = (role, content) => {
     messages.value.push({
       id: `${Date.now()}-${++messageIdCounter}`,
@@ -58,7 +72,7 @@ export function useChat() {
           sessionId.value = storedId;
           messages.value = history.map((msg, idx) => ({
             id: msg.id ?? `${Date.now()}-${idx}`,
-            role: msg.role ?? (msg.isUser ? 'user' : 'assistant'),
+            role: normalizeRole(msg.role, msg.isUser),
             content: msg.content ?? msg.message ?? '',
           }));
           isInitialized.value = true;

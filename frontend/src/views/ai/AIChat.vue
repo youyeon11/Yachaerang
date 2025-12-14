@@ -1,9 +1,10 @@
 <template>
   <div class="ai-chat">
-    <WelcomeScreen v-if="messages.length === 0" @use-prompt="sendMessage" />
-    <ChatMessageList v-else :messages="messages" :is-loading="isLoading" />
+    <WelcomeScreen v-if="isInitialized && displayMessages.length === 1" @use-prompt="sendMessage" />
 
-    <ChatInputBar :messages="messages" :is-loading="isLoading" @send="sendMessage" @reset="resetChat" />
+    <ChatMessageList v-else :messages="displayMessages" :is-loading="isLoading" />
+
+    <ChatInputBar :messages="displayMessages" :is-loading="isLoading" @send="sendMessage" @reset="resetChat" />
   </div>
 </template>
 
@@ -15,7 +16,8 @@ import WelcomeScreen from './components/WelcomeScreen.vue';
 import ChatMessageList from './components/ChatMessageList.vue';
 import ChatInputBar from './components/ChatInputBar.vue';
 
-const { messages, sendMessage, resetChat, initSession, isLoading } = useChat();
+const { displayMessages, sendMessage, resetChat, initSession, isLoading, isInitialized } = useChat();
+
 onMounted(() => {
   initSession();
 });
