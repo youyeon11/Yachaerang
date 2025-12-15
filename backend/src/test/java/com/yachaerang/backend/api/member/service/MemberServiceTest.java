@@ -7,9 +7,8 @@ import com.yachaerang.backend.api.member.dto.response.MemberResponseDto;
 import com.yachaerang.backend.api.member.entity.Member;
 import com.yachaerang.backend.api.member.repository.MemberMapper;
 import com.yachaerang.backend.global.auth.jwt.AuthenticatedMemberProvider;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import com.yachaerang.backend.infrastructure.s3.service.S3FileService;
+import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import com.yachaerang.backend.global.exception.GeneralException;
@@ -17,6 +16,11 @@ import com.yachaerang.backend.global.response.ErrorCode;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -35,6 +39,9 @@ class MemberServiceTest {
 
     @Mock
     AuthenticatedMemberProvider authenticatedMemberProvider;
+
+    @Mock
+    S3FileService s3FileService;
 
     @InjectMocks
     MemberService memberService;
@@ -61,8 +68,14 @@ class MemberServiceTest {
         mypageRequestDto = MemberRequestDto.MyPageDto.builder()
                 .name("test2")
                 .nickname("test2")
-                .imageUrl("update.png")
                 .build();
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
     }
 
     @Test
@@ -108,10 +121,9 @@ class MemberServiceTest {
                 .email("test@example.com")
                 .name(mypageRequestDto.getName())
                 .nickname(mypageRequestDto.getNickname())
-                .imageUrl(mypageRequestDto.getImageUrl())
                 .build();
         given(authenticatedMemberProvider.getCurrentMemberId()).willReturn(1L);
-        given(memberMapper.updateProfile(anyLong(), anyString(), anyString(), anyString())).willReturn(1);
+        given(memberMapper.updateProfile(anyLong(), anyString(), anyString())).willReturn(1);
         given(memberMapper.findById(1L)).willReturn(updateMember);
 
         // when
@@ -122,10 +134,9 @@ class MemberServiceTest {
         assertThat(result.getEmail()).isEqualTo("test@example.com");
         assertThat(result.getName()).isEqualTo("test2");
         assertThat(result.getNickname()).isEqualTo("test2");
-        assertThat(result.getImageUrl()).isEqualTo("update.png");
 
         verify(authenticatedMemberProvider, times(1)).getCurrentMemberId();
-        verify(memberMapper, times(1)).updateProfile(1L, "test2", "test2", "update.png");
+        verify(memberMapper, times(1)).updateProfile(1L, "test2", "test2");
         verify(memberMapper, times(1)).findById(1L);
     }
 
@@ -154,8 +165,7 @@ class MemberServiceTest {
         given(memberMapper.updateProfile(
                 memberId,
                 mypageRequestDto.getName(),
-                mypageRequestDto.getNickname(),
-                mypageRequestDto.getImageUrl()
+                mypageRequestDto.getNickname()
         )).willReturn(0); // 업데이트 실패
 
         // when & then
@@ -177,7 +187,6 @@ class MemberServiceTest {
         MemberRequestDto.MyPageDto request = MemberRequestDto.MyPageDto.builder()
                 .name("새이름")
                 .nickname(null)
-                .imageUrl(null)
                 .build();
 
         Member updatedMember = Member.builder()
@@ -189,7 +198,7 @@ class MemberServiceTest {
                 .build();
 
         given(authenticatedMemberProvider.getCurrentMemberId()).willReturn(memberId);
-        given(memberMapper.updateProfile(memberId, "새이름", null, null)).willReturn(1);
+        given(memberMapper.updateProfile(memberId, "새이름", null)).willReturn(1);
         given(memberMapper.findById(memberId)).willReturn(updatedMember);
 
         // when
@@ -200,7 +209,7 @@ class MemberServiceTest {
         assertThat(result.getNickname()).isEqualTo(member.getNickname());
         assertThat(result.getImageUrl()).isEqualTo(member.getImageUrl());
 
-        then(memberMapper).should().updateProfile(memberId, "새이름", null, null);
+        then(memberMapper).should().updateProfile(memberId, "새이름", null);
     }
 
     @Test
@@ -219,7 +228,79 @@ class MemberServiceTest {
                     assertThat(ge.getErrorCode()).isEqualTo(ErrorCode.EMPTY_MYPAGE_REQUEST);
                 });
 
-        then(memberMapper).should(never()).updateProfile(any(), any(), any(), any());
+        then(memberMapper).should(never()).updateProfile(any(), any(), any());
         then(memberMapper).should(never()).findById(any());
+    }
+
+    @Test
+    @DisplayName("프로필 사진 업로드 성공 및 기존 S3사진 삭제")
+    void 프로필_사진_업로드_성공_및_기존S3사진_삭제() {
+        // given
+        Long memberId = 1L;
+        MultipartFile file = mock(MultipartFile.class); // mock
+        given(file.getOriginalFilename()).willReturn("test.png");
+
+        given(authenticatedMemberProvider.getCurrentMemberId()).willReturn(memberId);
+        given(memberMapper.findImageUrl(memberId)).willReturn("https://s3.old/image.png");
+        given(s3FileService.upload(eq(file), anyString())).willReturn("https://s3.new/image.png");
+        given(memberMapper.updateProfileImage("https://s3.new/image.png", memberId)).willReturn(1);
+
+        // 동기화 활성화 시작
+        TransactionSynchronizationManager.initSynchronization();
+
+        // when
+        memberService.uploadProfileImage(file);
+
+        // then
+        verify(authenticatedMemberProvider, times(1)).getCurrentMemberId();
+        // DB 호출 검증
+        verify(memberMapper, times(1)).findImageUrl(memberId);
+        verify(s3FileService, times(1)).upload(eq(file), anyString());
+        verify(memberMapper, times(1)).updateProfileImage("https://s3.new/image.png", memberId);
+
+        // commit 이전
+        verify(s3FileService, never()).deleteByUrl(anyString());
+
+        // afterCommit 호출
+        List<TransactionSynchronization> syncs = TransactionSynchronizationManager.getSynchronizations();
+        assertThat(syncs).isNotEmpty();
+
+        syncs.forEach(TransactionSynchronization::afterCommit);
+
+        // commit 이후
+        verify(s3FileService, times(1)).deleteByUrl("https://s3.old/image.png");
+        TransactionSynchronizationManager.clearSynchronization();
+    }
+
+    @Test
+    @DisplayName("프로필 사진 업로드 성공 및 기존 S3사진 삭제 안 함")
+    void 프로필_사진_업로드_성공_및_기존S3사진_삭제안함() {
+        // given
+        Long memberId = 1L;
+
+        MultipartFile file = mock(MultipartFile.class);
+        given(file.getOriginalFilename()).willReturn("test.png");
+
+        given(authenticatedMemberProvider.getCurrentMemberId()).willReturn(memberId);
+        given(memberMapper.findImageUrl(memberId)).willReturn(null); // 기존 이미지 없음
+        given(s3FileService.upload(eq(file), anyString())).willReturn("https://s3.new/image.png");
+        given(memberMapper.updateProfileImage("https://s3.new/image.png", memberId)).willReturn(1);
+
+        TransactionSynchronizationManager.initSynchronization();
+
+        // when
+        memberService.uploadProfileImage(file);
+
+        // then
+        verify(s3FileService, times(1)).upload(eq(file), anyString());
+        verify(memberMapper, times(1)).updateProfileImage("https://s3.new/image.png", memberId);
+
+        // 불필요
+        List<TransactionSynchronization> syncs = TransactionSynchronizationManager.getSynchronizations();
+        syncs.forEach(TransactionSynchronization::afterCommit);
+
+        verify(s3FileService, never()).deleteByUrl(anyString());
+
+        TransactionSynchronizationManager.clearSynchronization();
     }
 }

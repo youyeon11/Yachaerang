@@ -59,3 +59,18 @@ logging:
   config: classpath:logback-spring.xml
   level:
     root: info
+
+cloud:
+  aws:
+    region:
+      static: ${AWS_REGION}
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+    stack:
+      auto: false
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+
+external:
+  default-image: ${DEFAULT_IMAGE}
