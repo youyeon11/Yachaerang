@@ -2,9 +2,12 @@
   <aside class="mypage-sidebar">
     <div class="profile-box">
       <div class="profile-avatar">
-        <!-- 실제로는 img로 바꾸면 됨 -->
-        <!-- <img :src="user.profileImage" alt="프로필" /> -->
-        <span class="avatar-icon">👤</span>
+        <img
+          v-if="profileImageUrl"
+          :src="profileImageUrl"
+          alt="프로필"
+        />
+        <span v-else class="avatar-icon">👤</span>
       </div>
 
       <div class="profile-info">
@@ -46,6 +49,7 @@ const route = useRoute();
 
 const email = ref('');
 const nickname = ref('');
+const profileImageUrl = ref('');
 
 onMounted(async () => {
   try {
@@ -53,6 +57,7 @@ onMounted(async () => {
     if (data.success) {
       email.value = data.data.email;
       nickname.value = data.data.nickname;
+      profileImageUrl.value = data.data.imageUrl || '';
     }
   } catch (e) {
     console.error('프로필 조회 실패', e);

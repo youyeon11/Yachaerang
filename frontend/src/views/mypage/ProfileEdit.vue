@@ -10,7 +10,14 @@
         <tr>
           <th>프로필 이미지</th>
           <td class="profile-img-cell">
-            <div class="avatar-circle">👤</div>
+            <div class="avatar-circle">
+              <img
+                v-if="form.imageUrl"
+                :src="form.imageUrl"
+                alt="프로필 이미지"
+              />
+              <span v-else>👤</span>
+            </div>
           </td>
           <td class="align-right">
             <button class="btn-small">업로드</button>
@@ -56,6 +63,7 @@ const form = reactive({
   email: '',
   name: '',
   nickname: '',
+  imageUrl: '',
 });
 
 onMounted(async () => {
@@ -65,6 +73,7 @@ onMounted(async () => {
       form.email = data.data.email;
       form.name = data.data.name;
       form.nickname = data.data.nickname;
+      form.imageUrl = data.data.imageUrl || '';
     }
   } catch (e) {
     console.error(e);
