@@ -18,7 +18,7 @@
         </tr>
         <tr>
           <th>이메일</th>
-          <td colspan="2">yachaerang@gmail.com</td>
+          <td colspan="2">{{ form.email }}</td>
         </tr>
         <tr>
           <th>비밀번호</th>
@@ -46,22 +46,55 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { getMyProfile, updateProfile } from '@/api/member';
 
 const router = useRouter();
 
 const form = reactive({
-  name: '김가은',
-  nickname: '김야치',
+  email: '',
+  name: '',
+  nickname: '',
+});
+
+onMounted(async () => {
+  try {
+    const { data } = await getMyProfile();
+    if (data.success) {
+      form.email = data.data.email;
+      form.name = data.data.name;
+      form.nickname = data.data.nickname;
+    }
+  } catch (e) {
+    console.error(e);
+  }
 });
 
 const goPasswordChange = () => {
   router.push('/mypage/password');
 };
 
-const handleSubmit = () => {
-  // TODO: 프로필 수정 API
+const handleSubmit = async () => {
+  try {
+    const payload = {
+      name: form.name,
+      nickname: form.nickname,
+    };
+
+    const { data } = await updateProfile(payload);
+
+    if (!data.success) {
+      alert(data.message || '프로필 수정 실패');
+      return;
+    }
+
+    alert('프로필이 수정되었습니다.');
+    router.push('/mypage');
+  } catch (e) {
+    console.error(e);
+    alert('서버 오류가 발생했습니다.');
+  }
 };
 </script>
 
