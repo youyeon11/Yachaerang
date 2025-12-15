@@ -2,7 +2,7 @@
   <div class="login-container">
     <div class="login-box">
       <div class="logo-wrapper">
-        <img src="@/assets/logo.png" alt="야채랑 로고" class="logo" />
+        <img src="@/assets/logo.svg" alt="야채랑 로고" class="logo" />
       </div>
 
       <form class="login-form" @submit.prevent="handleLogin">

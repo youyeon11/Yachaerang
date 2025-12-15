@@ -36,7 +36,7 @@ CREATE TABLE farm (
     flat_area DOUBLE(15, 2) NULL,
     main_crop VARCHAR(100) NULL,
     grade VARCHAR(5) NULL,
-    comment VARCHAR(50) NULL,
+    comment VARCHAR(200) NULL,
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -163,13 +163,13 @@ CREATE TABLE daily_price (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_daily_product_product
+    CONSTRAINT fk_daily_price_product
         FOREIGN KEY (product_code)
             REFERENCES product(product_code)
             ON DELETE CASCADE,
 
-    UNIQUE KEY uk_daily_product_product_date (product_code, price_date),
-    INDEX idx_daily_product_price_date (price_date)
+    UNIQUE KEY uk_daily_price_product_date (product_code, price_date),
+    INDEX idx_daily_price_price_date (price_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 10. weekly_price table
@@ -188,19 +188,19 @@ CREATE TABLE weekly_price (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_weekly_product_product
+    CONSTRAINT fk_weekly_price_product
         FOREIGN KEY (product_code)
             REFERENCES product(product_code)
             ON DELETE CASCADE,
 
-    UNIQUE KEY uk_weekly_product_product_week (product_code, start_date),
-    INDEX idx_weekly_product_product_code (product_code),
-    INDEX idx_weekly_product_week_start (start_date)
+    UNIQUE KEY uk_weekly_price_product_week (product_code, start_date),
+    INDEX idx_weekly_price_product_code (product_code),
+    INDEX idx_weekly_price_week_start (start_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 11. monthly_price table
 CREATE TABLE monthly_price (
-    monthly_product_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    monthly_price_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     product_code VARCHAR(100) NOT NULL,
     price_year INT,
     price_month INT,
@@ -212,18 +212,18 @@ CREATE TABLE monthly_price (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_monthly_product_product
+    CONSTRAINT fk_monthly_price_product
         FOREIGN KEY (product_code)
             REFERENCES product(product_code)
             ON DELETE CASCADE,
 
-    UNIQUE KEY uk_monthly_product_product_month (product_code, price_year, price_month),
-    INDEX idx_monthly_product_month (price_year, price_month)
+    UNIQUE KEY uk_monthly_price_product_month (product_code, price_year, price_month),
+    INDEX idx_monthly_price_month (price_year, price_month)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 12. yearly_price table
 CREATE TABLE yearly_price (
-    yearly_product_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    yearly_price_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     product_code VARCHAR(100) NOT NULL,
     price_year INT,
     avg_price DECIMAL(15, 2),

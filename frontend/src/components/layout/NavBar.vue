@@ -1,7 +1,7 @@
 <template>
   <aside class="sidebar">
     <div class="logo-section" @click="goToMain" style="cursor: pointer">
-      <img src="@/assets/logo.png" alt="Logo" class="logo" @error="handleImageError" />
+      <img src="@/assets/logo.svg" alt="Logo" class="logo" @error="handleImageError" />
     </div>
 
     <nav class="nav-section">
@@ -169,7 +169,6 @@ const handleAvatarError = (e) => {
   box-sizing: border-box;
   overflow: hidden;
 }
-
 .logo-section {
   display: flex;
   justify-content: center;

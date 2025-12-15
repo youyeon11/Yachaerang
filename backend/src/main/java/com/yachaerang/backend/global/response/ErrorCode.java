@@ -1,6 +1,7 @@
 package com.yachaerang.backend.global.response;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
@@ -10,6 +11,7 @@ public enum ErrorCode implements BaseCode{
 
     // request
     UNMATCHED_REQUEST(HttpStatus.BAD_REQUEST, "METHODERROR", "요청 방식이 잘못됐습니다."),
+    REQUEST_TIMEOUT(HttpStatus.REQUEST_TIMEOUT, "TIMEOUT", "요청 시간이 초과되었스빈다."),
 
     // MyBatis
     ENUM_MAPPED_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "MYBATIS_001", "DB로부터 Java의 Eum을 매핑하는데에 실패했습니다."),
@@ -56,6 +58,13 @@ public enum ErrorCode implements BaseCode{
     FAVORITE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FAVORITE_002", "관심 대시보드 해제에 실패했습니다."),
     FAVORITE_DUPLICATED(HttpStatus.BAD_REQUEST, "FAVORITE_003", "이미 등록된 관심사입니다."),
 
+    // farm
+    FARM_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "FARM_001", "농장 정보가 이미 존재합니다. 수정으로 요청을 보내주세요."),
+    FARM_GRADE_INVALID(HttpStatus.INTERNAL_SERVER_ERROR, "FARM_002", "농장등급이 유효하지 않습니다."),
+    FARM_NOT_FOUND(HttpStatus.NOT_FOUND, "FARM_003", "기존의 농장 정보를 찾을 수 없습니다."),
+    FARM_SAVE_FAILED(HttpStatus.BAD_REQUEST, "FARM_004", "농장 정보 저장에 실패했습니다."),
+    FARM_UPDATE_FAILED(HttpStatus.BAD_REQUEST, "FARM_005", "농장 정보 수정에 실패하였습니다."),
+
     // chat
     SESSION_FAILED(HttpStatus.BAD_REQUEST, "CHAT_001", "채팅의 세션을 생성하는 데에 실패하였습니다."),
     SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT_002", "채팅을 찾을 수 없습니다."),
@@ -65,6 +74,10 @@ public enum ErrorCode implements BaseCode{
     // AI
     INVALID_MESSAGE(HttpStatus.BAD_REQUEST, "AI_001", "메시지 형식이 잘못되었습니다."),
     AI_MODEL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI_002", "AI 모델을 불러오는 데에 오류가 생겼습니다."),
+    AI_EVALUATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "AI_003", "모델로부터 평가를 불러오는 데에 실패하였습니다."),
+
+    // json
+    FAILED_JSON_PARSING(HttpStatus.INTERNAL_SERVER_ERROR, "JSON_001", "json 파싱에 실패했습니다."),
 
     // 500
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500ERROR", "서버에서 장애가 일어났습니다."),

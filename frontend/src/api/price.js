@@ -1,21 +1,17 @@
 import apiClient from './axios';
 
-// 품목 목록 조회
 export function fetchItemsApi() {
   return apiClient.get('/api/v1/products/item');
 }
 
-// 하위 품목(품종) 목록 조회
 export function fetchSubItemsApi(itemCode) {
   return apiClient.get(`/api/v1/products/${itemCode}/subItem`);
 }
 
-// 일별 가격
 export function fetchDailyPricesApi(productCode, params) {
   return apiClient.get(`/api/v1/daily-prices/${productCode}`, { params });
 }
 
-// 주별 가격
 export function fetchWeeklyPricesApi(productCode, params) {
   return apiClient.get(`/api/v1/weekly-prices/${productCode}`, { params });
 }
@@ -34,6 +30,12 @@ export function fetchYearlyPricesApi(productCode, params) {
 export function fetchYearlyPriceDetailApi(productCode, params) {
   return apiClient.get(`/api/v1/yearly-prices/${productCode}/detail`, { params });
 }
+// 가격 상위 랭킹
+export function fetchHighPriceRank() {
+  return apiClient.get('/api/v1/daily-prices/rank/high-prices');
+}
 
-
-
+// 가격 하위 랭킹
+export function fetchLowPriceRank() {
+  return apiClient.get('/api/v1/daily-prices/rank/low-prices');
+}

@@ -1,6 +1,6 @@
 <template>
   <div class="grid">
-    <PopularItemCard v-for="item in items" :key="item.id" :item="item" />
+    <PopularItemCard v-for="item in items" :key="item.itemCode" :item="item" />
   </div>
 </template>
 
