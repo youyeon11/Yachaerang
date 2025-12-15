@@ -14,6 +14,7 @@ import com.yachaerang.backend.global.response.ErrorCode;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,9 @@ public class AuthService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenUtil refreshTokenUtil;
+
+    @Value("${external.default-image}")
+    private String DEFAULT_IMAGE;
 
     // 회원 가입
     public void signup(TokenRequestDto.SignupDto signupDto) {
@@ -49,7 +53,7 @@ public class AuthService {
                 .nickname(signupDto.getNickname())
                 .memberStatus(MemberStatus.ACTIVE)
                 .role(Role.ROLE_USER)
-                .imageUrl("default.png")
+                .imageUrl(DEFAULT_IMAGE)
                 .build();
         memberMapper.save(member);
         log.info("{} : 회원 가입 완료", signupDto.getEmail());

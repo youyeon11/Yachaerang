@@ -4,7 +4,9 @@ import com.yachaerang.backend.api.member.dto.request.MemberRequestDto;
 import com.yachaerang.backend.api.member.dto.response.MemberResponseDto;
 import com.yachaerang.backend.api.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequestMapping("/api/v1/members")
 @RestController
@@ -32,5 +34,13 @@ public class MemberController {
             @RequestBody MemberRequestDto.MyPageDto myPageDto
             ) {
         return memberService.updateProfile(myPageDto);
+    }
+
+    @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void uploadImage(
+            @RequestHeader("Authorization") String token,
+            @RequestPart("file")MultipartFile file
+            ) {
+        memberService.uploadProfileImage(file);
     }
 }
