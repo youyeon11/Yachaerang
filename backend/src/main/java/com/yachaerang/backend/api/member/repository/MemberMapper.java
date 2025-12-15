@@ -21,8 +21,16 @@ public interface MemberMapper {
 
     int updateProfile(@Param("memberId") Long memberId,
                       @Param("name") String name,
-                      @Param("nickname") String nickname,
-                      @Param("imageUrl") String imageUrl);
+                      @Param("nickname") String nickname);
 
     int delete(Long id);
+
+    // 이미지 저장하기
+    int updateProfileImage(
+            @Param("imageUrl") String imageUrl,
+            @Param("memberId") Long memberId
+    );
+
+    // 이미지만 찾기
+    String findImageUrl(@Param("memberId") Long memberId);
 }
