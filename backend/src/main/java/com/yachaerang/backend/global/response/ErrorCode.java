@@ -21,6 +21,7 @@ public enum ErrorCode implements BaseCode{
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_001", "회원을 찾을 수 없습니다."),
     MEMBER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "MEMBER_002", "이미 존재하는 회원입니다."),
     EMPTY_MYPAGE_REQUEST(HttpStatus.BAD_REQUEST, "MEMBER_003", "유효한 변경사항 요청이 없습니다."),
+    MEMBER_PROFIE_IMAGE(HttpStatus.INTERNAL_SERVER_ERROR, "MEMBER_004", "회원 이미지를 DB에 저장 중 오류가 발생했습니다."),
 
     // login
     UNMATCHED_PASSWORD(HttpStatus.BAD_REQUEST, "LOGIN_001", "잘못된 비밀번호입니다."),
@@ -78,6 +79,11 @@ public enum ErrorCode implements BaseCode{
 
     // json
     FAILED_JSON_PARSING(HttpStatus.INTERNAL_SERVER_ERROR, "JSON_001", "json 파싱에 실패했습니다."),
+
+    // s3
+    S3_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "S3_001", "S3에 파일을 업로드 하는 데에 실패하였습니다."),
+    S3_KEY_FAILED(HttpStatus.BAD_REQUEST, "S3_002", "S3의 key가 유효하지 않습니다."),
+    S3_DELETE_FAILED(HttpStatus.BAD_REQUEST, "S3_003", "S3 파일 삭제 중 오류가 일어났습니다."),
 
     // 500
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500ERROR", "서버에서 장애가 일어났습니다."),
