@@ -75,7 +75,7 @@ public class AuthService {
         log.info("비밀번호 검증 시작...");
         if (!bCryptPasswordEncoder.matches(loginDto.getPassword(), member.getPassword())) {
             throw GeneralException.of(ErrorCode.UNMATCHED_PASSWORD);
-        };
+        }
 
         log.info("로그인에 성공");
         String accessToken = jwtTokenProvider.generateAccessToken(member);
