@@ -28,14 +28,14 @@
           <td>
             <input v-model="form.flatArea" type="number" class="input" />
           </td>
-          <td class="unit">km²</td>
+          <td class="unit">m²</td>
         </tr>
         <tr>
           <th>경작면적</th>
           <td>
             <input v-model="form.cultivatedArea" type="number" class="input" />
           </td>
-          <td class="unit">km²</td>
+          <td class="unit">m²</td>
         </tr>
       </tbody>
     </table>
