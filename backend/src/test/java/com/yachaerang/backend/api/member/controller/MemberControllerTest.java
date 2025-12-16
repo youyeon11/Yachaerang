@@ -15,20 +15,18 @@ import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.FieldDescriptor;
 
-import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -187,5 +185,38 @@ class MemberControllerTest extends RestDocsSupport {
                         responseFields(ENVELOPE_COMMON).and(DATA_NULL_DESCRIPTOR)
                 ));
         verify(memberService, times(1)).uploadProfileImage(any(MultipartFile.class));
+    }
+
+    @Test
+    @DisplayName("[POST] /api/v1/members/password")
+    void changePassword_Success() throws Exception {
+        // given
+        String oldPassword = "oldPassword";
+        String newPassword = "newPassword";
+        MemberRequestDto.PasswordDto requestDto = MemberRequestDto.PasswordDto.builder()
+                .oldPassword(oldPassword)
+                .newPassword(newPassword).build();
+        willDoNothing().given(memberService).changePassword(any(MemberRequestDto.PasswordDto.class));
+
+        // when & then
+        mockMvc.perform(post("/api/v1/members/password")
+                        .header("Authorization", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isOk())
+                .andDo(doc(
+                        "change-password",
+                        requestHeaders(
+                                headerWithName("Authorization").description("Access Token")
+                        ),
+                        pathParameters(),
+                        queryParameters(),
+                        requestFields(
+                                fieldWithPath("oldPassword").description("기존의 비밀번호"),
+                                fieldWithPath("newPassword").description("새로운 비밀번호")
+                        ),
+                        responseFields(ENVELOPE_COMMON).and(DATA_NULL_DESCRIPTOR)
+                ));
+        then(memberService).should().changePassword(any(MemberRequestDto.PasswordDto.class));
     }
 }

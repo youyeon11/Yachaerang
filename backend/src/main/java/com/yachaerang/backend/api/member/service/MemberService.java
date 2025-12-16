@@ -7,9 +7,11 @@ import com.yachaerang.backend.api.member.repository.MemberMapper;
 import com.yachaerang.backend.global.auth.jwt.AuthenticatedMemberProvider;
 import com.yachaerang.backend.global.exception.GeneralException;
 import com.yachaerang.backend.global.response.ErrorCode;
+import com.yachaerang.backend.global.util.LogUtil;
 import com.yachaerang.backend.infrastructure.s3.service.S3FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -26,6 +28,7 @@ public class MemberService {
     private final MemberMapper memberMapper;
     private final AuthenticatedMemberProvider authenticatedMemberProvider;
     private final S3FileService s3FileService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /*
     나의 정보 조회하기
@@ -103,7 +106,7 @@ public class MemberService {
         // member DB 업데이트하기
         int result = memberMapper.updateProfileImage(imageUrl, memberId);
         if (result != 1) {
-            throw GeneralException.of(ErrorCode.MEMBER_PROFIE_IMAGE);
+            throw GeneralException.of(ErrorCode.MEMBER_PROFILE_IMAGE);
         } else {
             // S3 이전 이미지 삭제
             if (oldImageUrl != null && !oldImageUrl.isBlank()) {
@@ -117,5 +120,30 @@ public class MemberService {
                 );
             }
         }
+    }
+
+
+    /*
+    비밀번호 변경
+     */
+    @Transactional
+    public void changePassword(MemberRequestDto.PasswordDto requestDto) {
+
+        Member member = authenticatedMemberProvider.getMemberByContextHolder();
+
+        // 비밀번호 검증
+        if (!bCryptPasswordEncoder.matches(requestDto.getOldPassword(), member.getPassword())) {
+            LogUtil.error("{} 회원의 비밀번호 검증에 실패하였습니다.", member.getEmail());
+            throw GeneralException.of(ErrorCode.UNMATCHED_PASSWORD);
+        }
+
+        // 비밀번호 업데이트
+        String encodedPassword = bCryptPasswordEncoder.encode(requestDto.getNewPassword());
+
+        if (memberMapper.updatePassword(member.getEmail(), encodedPassword) != 1) {
+            LogUtil.error("{} 회원의 비밀번호를 변경하는 데에 실패하였습니다.", member.getEmail());
+            throw GeneralException.of(ErrorCode.MEMBER_PASSWORD_FAILED);
+        }
+        LogUtil.info("{} 회원의 비밀번호 변경 성공", member.getEmail());
     }
 }

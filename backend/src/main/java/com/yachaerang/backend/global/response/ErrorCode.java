@@ -1,7 +1,6 @@
 package com.yachaerang.backend.global.response;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
@@ -21,10 +20,12 @@ public enum ErrorCode implements BaseCode{
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_001", "회원을 찾을 수 없습니다."),
     MEMBER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "MEMBER_002", "이미 존재하는 회원입니다."),
     EMPTY_MYPAGE_REQUEST(HttpStatus.BAD_REQUEST, "MEMBER_003", "유효한 변경사항 요청이 없습니다."),
-    MEMBER_PROFIE_IMAGE(HttpStatus.INTERNAL_SERVER_ERROR, "MEMBER_004", "회원 이미지를 DB에 저장 중 오류가 발생했습니다."),
+    MEMBER_PROFILE_IMAGE(HttpStatus.INTERNAL_SERVER_ERROR, "MEMBER_004", "회원 이미지를 DB에 저장 중 오류가 발생했습니다."),
+    MEMBER_PASSWORD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "MEMBER_005", "비밀번호 초기화 저장 중 오류가 발생했습니다."),
 
     // login
     UNMATCHED_PASSWORD(HttpStatus.BAD_REQUEST, "LOGIN_001", "잘못된 비밀번호입니다."),
+    FAILED_GENERATE_PASSWORD(HttpStatus.INTERNAL_SERVER_ERROR, "LOGIN_002", "새로운 비밀번호 생성에 실패했습니다."),
 
     // Cookie
     COOKIE_NOT_FOUND(HttpStatus.NOT_FOUND, "COOKIE_001", "쿠키를 찾을 수 없습니다."),
@@ -84,6 +85,11 @@ public enum ErrorCode implements BaseCode{
     S3_UPLOAD_FAILED(HttpStatus.BAD_REQUEST, "S3_001", "S3에 파일을 업로드 하는 데에 실패하였습니다."),
     S3_KEY_FAILED(HttpStatus.BAD_REQUEST, "S3_002", "S3의 key가 유효하지 않습니다."),
     S3_DELETE_FAILED(HttpStatus.BAD_REQUEST, "S3_003", "S3 파일 삭제 중 오류가 일어났습니다."),
+
+    // smtp
+    INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "MAIL_001", "인증코드가 만료되었거나 존재하지 않습니다."),
+    UNMATCHED_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "MAIL_002", "인증 코드가 일치하지 않습니다."),
+    MAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "MAIL_003", "메일 전송에 실패하였습니다."),
 
     // 500
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500ERROR", "서버에서 장애가 일어났습니다."),

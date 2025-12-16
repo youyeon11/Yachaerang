@@ -1,9 +1,4 @@
-server:
-  port: 8080
-
 spring:
-  application:
-    name: "backend"
   config:
     activate:
       on-profile: "local"
@@ -28,48 +23,9 @@ spring:
       port: 6379
       password: ${LOCAL_REDIS_PASSWORD}
 
-  jwt:
-    secret: ${JWT_SECRET_KEY}
-    access:
-      expiration: 86400      # 24시간 (24 * 60 * 60 초)
-    refresh:
-      expiration: 604800     # 7일 (7 * 24 * 60 * 60 초)
-
-  ai:
-    vertex:
-      ai:
-        enabled: false
-    google:
-      genai:
-        enabled: false
-    custom:
-      google:
-        genai:
-          api-key: ${GMS_KEY}
-          model: gemini-2.5-flash-lite
-mybatis:
-  configuration:
-    map-underscore-to-camel-case: true
-  type-handlers-package: com.yachaerang.backend.global.util
-
 logging:
   file:
     path: ./logs
   config: classpath:logback-spring.xml
   level:
     root: info
-
-cloud:
-  aws:
-    region:
-      static: ${AWS_REGION}
-    s3:
-      bucket: ${AWS_S3_BUCKET}
-    stack:
-      auto: false
-    credentials:
-      access-key: ${AWS_ACCESS_KEY}
-      secret-key: ${AWS_SECRET_KEY}
-
-external:
-  default-image: ${DEFAULT_IMAGE}

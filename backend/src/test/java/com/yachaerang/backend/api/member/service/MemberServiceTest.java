@@ -15,16 +15,16 @@ import com.yachaerang.backend.global.exception.GeneralException;
 import com.yachaerang.backend.global.response.ErrorCode;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Base64;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -42,6 +42,9 @@ class MemberServiceTest {
 
     @Mock
     S3FileService s3FileService;
+
+    @Mock
+    BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @InjectMocks
     MemberService memberService;
@@ -302,5 +305,40 @@ class MemberServiceTest {
         verify(s3FileService, never()).deleteByUrl(anyString());
 
         TransactionSynchronizationManager.clearSynchronization();
+    }
+
+    @Test
+    @DisplayName("비밀번호 변경 성공")
+    void 비밀번호_변경_성공() {
+        // given
+        String oldPassword = "OldPassword123";
+        String newPassword = "NewPassword123";
+        String encodedOldPassword = "$2a$10$encodedOldPassword";
+        String encodedNewPassword = "$2a$10$encodedNewPassword";
+
+        MemberRequestDto.PasswordDto requestDto = MemberRequestDto.PasswordDto
+                .builder()
+                .oldPassword(oldPassword)
+                .newPassword(newPassword)
+                .build();
+
+        Member testMember = Member.builder()
+                .email("test@example.com")
+                .password(encodedOldPassword)
+                .build();
+        given(authenticatedMemberProvider.getMemberByContextHolder()).willReturn(testMember);
+        given(bCryptPasswordEncoder.matches(oldPassword, encodedOldPassword)).willReturn(true);
+        given(bCryptPasswordEncoder.encode(newPassword)).willReturn(encodedNewPassword);
+        given(memberMapper.updatePassword(testMember.getEmail(), encodedNewPassword)).willReturn(1);
+
+        // when
+        assertThatCode(() -> memberService.changePassword(requestDto))
+                .doesNotThrowAnyException();
+
+        // then
+        then(authenticatedMemberProvider).should().getMemberByContextHolder();
+        then(bCryptPasswordEncoder).should().matches(oldPassword, encodedOldPassword);
+        then(bCryptPasswordEncoder).should().encode(newPassword);
+        then(memberMapper).should().updatePassword(testMember.getEmail(), encodedNewPassword);
     }
 }

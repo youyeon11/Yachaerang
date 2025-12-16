@@ -85,4 +85,11 @@
         FROM member
         WHERE member_id = #{memberId}
     </select>
+
+    <!-- updatePassword -->
+    <update id="updatePassword">
+        UPDATE member
+        SET password = #{password}
+        WHERE email = #{email}
+    </update>
 </mapper>
