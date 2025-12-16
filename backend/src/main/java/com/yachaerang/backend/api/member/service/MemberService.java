@@ -103,7 +103,7 @@ public class MemberService {
         // member DB 업데이트하기
         int result = memberMapper.updateProfileImage(imageUrl, memberId);
         if (result != 1) {
-            throw GeneralException.of(ErrorCode.MEMBER_PROFIE_IMAGE);
+            throw GeneralException.of(ErrorCode.MEMBER_PROFILE_IMAGE);
         } else {
             // S3 이전 이미지 삭제
             if (oldImageUrl != null && !oldImageUrl.isBlank()) {
