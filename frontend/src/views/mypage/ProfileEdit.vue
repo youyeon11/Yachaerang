@@ -11,16 +11,13 @@
           <th>프로필 이미지</th>
           <td class="profile-img-cell">
             <div class="avatar-circle">
-              <img
-                v-if="form.imageUrl"
-                :src="form.imageUrl"
-                alt="프로필 이미지"
-              />
+              <img v-if="form.imageUrl" :src="form.imageUrl" alt="프로필 이미지" />
               <span v-else>👤</span>
             </div>
+            <input ref="fileInput" type="file" accept="image/*" class="file-input" @change="handleFileChange" />
           </td>
           <td class="align-right">
-            <button class="btn-small">업로드</button>
+            <button class="btn-small" type="button" @click="triggerFileSelect">업로드</button>
           </td>
         </tr>
         <tr>
@@ -53,11 +50,12 @@
 </template>
 
 <script setup>
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { getMyProfile, updateProfile } from '@/api/member';
+import { getMyProfile, updateProfile, uploadProfileImage } from '@/api/member';
 
 const router = useRouter();
+const fileInput = ref(null);
 
 const form = reactive({
   email: '',
@@ -79,6 +77,31 @@ onMounted(async () => {
     console.error(e);
   }
 });
+
+const triggerFileSelect = () => {
+  if (fileInput.value) {
+    fileInput.value.click();
+  }
+};
+
+const handleFileChange = async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  try {
+    await uploadProfileImage(file);
+
+    const { data } = await getMyProfile();
+    if (data.success) {
+      form.imageUrl = data.data.imageUrl || '';
+    }
+  } catch (e) {
+    console.error(e);
+    alert('프로필 이미지를 업로드하는 데 실패했습니다.');
+  } finally {
+    event.target.value = '';
+  }
+};
 
 const goPasswordChange = () => {
   router.push('/mypage/password');
@@ -162,6 +185,17 @@ const handleSubmit = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.avatar-circle img {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.file-input {
+  display: none;
 }
 
 .align-right {
