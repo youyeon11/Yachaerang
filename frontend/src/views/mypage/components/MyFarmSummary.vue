@@ -21,11 +21,11 @@
         </tr>
         <tr>
           <th>평지면적</th>
-          <td>{{ farm.flatArea }} km²</td>
+          <td>{{ farm.flatArea }} m²</td>
         </tr>
         <tr>
           <th>경작면적</th>
-          <td>{{ farm.cultivatedArea }} km²</td>
+          <td>{{ farm.cultivatedArea }} m²</td>
         </tr>
       </tbody>
     </table>
