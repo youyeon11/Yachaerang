@@ -60,15 +60,12 @@ const handleSubmit = async (payload) => {
 
     if (isEdit.value) {
       const res = await updateFarm(payload);
-      console.log('[MyFarm] updateFarm response', res);
     } else {
       const res = await createFarm(payload);
-      console.log('[MyFarm] createFarm response', res);
     }
 
     const response = await getMyFarm();
     const farmData = unwrapFarmData(response);
-    console.log('[MyFarm] getMyFarm after save', farmData);
 
     if (hasFarm(farmData)) {
       farm.value = farmData;

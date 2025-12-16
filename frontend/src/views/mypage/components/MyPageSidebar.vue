@@ -2,11 +2,7 @@
   <aside class="mypage-sidebar">
     <div class="profile-box">
       <div class="profile-avatar">
-        <img
-          v-if="profileImageUrl"
-          :src="profileImageUrl"
-          alt="프로필"
-        />
+        <img v-if="profileImageUrl" :src="profileImageUrl" alt="프로필" />
         <span v-else class="avatar-icon">👤</span>
       </div>
 
@@ -72,9 +68,6 @@ const menuItems = [
 ];
 
 const isActive = (item) => {
-  if (item.path === '/mypage') {
-    return route.path.replace(/\/$/, '') === '/mypage';
-  }
   return route.path === item.path;
 };
 
