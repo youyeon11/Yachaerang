@@ -49,6 +49,8 @@ onMounted(async () => {
       mode.value = 'empty';
     }
   } catch (e) {
+    console.error('농장 정보 조회 실패', e);
+    errorMessage.value = '농장 정보를 불러오는데 실패했습니다. 새로고침 후 다시 시도해주세요.';
     mode.value = 'empty';
     farm.value = null;
   }
@@ -59,9 +61,9 @@ const handleSubmit = async (payload) => {
     errorMessage.value = '';
 
     if (isEdit.value) {
-      const res = await updateFarm(payload);
+      await updateFarm(payload);
     } else {
-      const res = await createFarm(payload);
+      await createFarm(payload);
     }
 
     const response = await getMyFarm();
