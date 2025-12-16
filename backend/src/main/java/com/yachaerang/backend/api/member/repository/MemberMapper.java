@@ -33,4 +33,7 @@ public interface MemberMapper {
 
     // 이미지만 찾기
     String findImageUrl(@Param("memberId") Long memberId);
+
+    // 비밀번호 변경
+    int updatePassword(@Param("email") String email, @Param("password") String password);
 }
