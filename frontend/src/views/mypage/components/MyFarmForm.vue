@@ -90,11 +90,11 @@ const showConfirm = ref(false);
 
 const handleSubmit = () => {
   const payload = {
-    manpower: form.manpower === '' ? null : Number(form.manpower),
-    location: form.location || null,
-    mainCrop: form.mainCrop || null,
-    flatArea: form.flatArea === '' ? null : Number(form.flatArea),
-    cultivatedArea: form.cultivatedArea === '' ? null : Number(form.cultivatedArea),
+    manpower: form.manpower === '' ? 0 : Number(form.manpower),
+    location: !form.location || form.location.trim() === '' ? '없음' : form.location,
+    mainCrop: !form.mainCrop || form.mainCrop.trim() === '' ? '없음' : form.mainCrop,
+    flatArea: form.flatArea === '' ? 0 : Number(form.flatArea),
+    cultivatedArea: form.cultivatedArea === '' ? 0 : Number(form.cultivatedArea),
   };
   emit('submitted', payload);
 };
