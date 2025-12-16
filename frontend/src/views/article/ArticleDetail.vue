@@ -14,9 +14,9 @@
         <div class="meta-left">
           <span>작성일자 : {{ article.date }}</span>
         </div>
-        <div class="meta-right">
+        <div class="meta-right" v-if="article.sourceUrl">
           <span>출처: </span>
-          <a :href="article.sourceUrl" target="_blank" class="source-link">{{ article.sourceUrl }}</a>
+          <a :href="article.sourceUrl" target="_blank" class="source-link">기사 원문 바로가기</a>
         </div>
       </div>
 
@@ -62,32 +62,53 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { fetchArticleDetail } from '@/api/article';
 
 const router = useRouter();
 const route = useRoute();
-const searchQuery = ref('');
 
-// 임시 데이터
 const article = ref({
-  id: 1,
-  title: "청년 여성 농촌살이, 2025 '시골언니 프로젝트' 시작",
-  date: '2025.12.01',
-  sourceUrl: 'https://www.ikpnews.net/news/articleView.html?idxno=67411',
-  image: 'https://via.placeholder.com/400x250',
-  content: [
-    '내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용',
-    '내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용',
-    '내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용내용',
-  ],
-  tags: ['농촌', '여성', '청년'],
+  id: null,
+  title: '',
+  date: '',
+  sourceUrl: '',
+  image: '',
+  content: [],
+  tags: [],
 });
 
+const loadArticleDetail = async () => {
+  try {
+    const articleId = route.params.id;
+    const response = await fetchArticleDetail(articleId);
+    const data = response.data?.data;
+
+    if (data) {
+      let rawContent = data.content || '';
+      rawContent = rawContent.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
+
+      const paragraphs = rawContent
+        .split('\n')
+        .map((p) => p.trim())
+        .filter((p) => p.length > 0);
+
+      article.value = {
+        id: data.articleId,
+        title: data.title,
+        date: data.createdAt,
+        sourceUrl: data.url,
+        image: data.imageUrl,
+        content: paragraphs,
+        tags: data.tagList || [],
+      };
+    }
+  } catch (error) {
+    console.error('농촌 기사 상세 조회 실패:', error);
+  }
+};
+
 onMounted(() => {
-  const articleId = route.params.id;
-  console.log('기사 ID:', articleId);
-  // TODO: API로 기사 상세 정보 가져오기
-  // const response = await axios.get(`/api/v1/articles/${articleId}`)
-  // article.value = response.data
+  loadArticleDetail();
 });
 
 const goToList = () => {
@@ -108,7 +129,6 @@ const goToList = () => {
   gap: 8px;
 }
 
-/* 기사 내용 */
 .article-content {
   padding-bottom: 40px;
   border-bottom: 1px solid #eee;
@@ -230,7 +250,6 @@ const goToList = () => {
   border-color: #ccc;
 }
 
-/* 작은 화면에서는 위아래로 쌓이게 */
 @media (max-width: 640px) {
   .page-header {
     flex-direction: column;

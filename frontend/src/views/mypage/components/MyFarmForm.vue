@@ -7,7 +7,7 @@
         <tr>
           <th>인력</th>
           <td>
-            <input v-model="form.people" type="number" class="input" />
+            <input v-model="form.manpower" type="number" class="input" />
           </td>
           <td class="unit">명</td>
         </tr>
@@ -28,20 +28,22 @@
           <td>
             <input v-model="form.flatArea" type="number" class="input" />
           </td>
-          <td class="unit">km²</td>
+          <td class="unit">m²</td>
         </tr>
         <tr>
           <th>경작면적</th>
           <td>
-            <input v-model="form.cultivationArea" type="number" class="input" />
+            <input v-model="form.cultivatedArea" type="number" class="input" />
           </td>
-          <td class="unit">km²</td>
+          <td class="unit">m²</td>
         </tr>
       </tbody>
     </table>
 
     <div class="farm-actions">
-      <button class="btn primary" @click="handleSubmit">등록하기</button>
+      <button class="btn primary" @click="handleSubmit">
+        {{ isEdit ? '수정하기' : '등록하기' }}
+      </button>
       <button class="btn secondary" @click="openConfirm">다음에 입력하기</button>
     </div>
   </div>
@@ -63,20 +65,37 @@
 <script setup>
 import { reactive, ref } from 'vue';
 
+const props = defineProps({
+  initialFarm: {
+    type: Object,
+    default: null,
+  },
+  isEdit: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 const emit = defineEmits(['submitted', 'cancel']);
 
 const form = reactive({
-  people: '',
-  location: '',
-  mainCrop: '',
-  flatArea: '',
-  cultivationArea: '',
+  manpower: props.initialFarm?.manpower ?? '',
+  location: props.initialFarm?.location ?? '',
+  mainCrop: props.initialFarm?.mainCrop ?? '',
+  flatArea: props.initialFarm?.flatArea ?? '',
+  cultivatedArea: props.initialFarm?.cultivatedArea ?? '',
 });
 
 const showConfirm = ref(false);
 
 const handleSubmit = () => {
-  const payload = { ...form };
+  const payload = {
+    manpower: form.manpower === '' ? 0 : Number(form.manpower),
+    location: !form.location || form.location.trim() === '' ? '없음' : form.location,
+    mainCrop: !form.mainCrop || form.mainCrop.trim() === '' ? '없음' : form.mainCrop,
+    flatArea: form.flatArea === '' ? 0 : Number(form.flatArea),
+    cultivatedArea: form.cultivatedArea === '' ? 0 : Number(form.cultivatedArea),
+  };
   emit('submitted', payload);
 };
 
