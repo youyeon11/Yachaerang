@@ -34,12 +34,18 @@ spring:
     port: 587
     username: ${GMAIL_EMAIL}
     password: ${GMAIL_PASSWORD}
+    protocol: smtp
+    default-encoding: UTF-8
     properties:
       mail:
         smtp:
+          auth: true
+          ssl:
+            protocols: TLSv1.2 TLSv1.3
           starttls:
             enable: true
-          auth: true
+            required: true
+        debug: true
 
 mybatis:
   configuration:
