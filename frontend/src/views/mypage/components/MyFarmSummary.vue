@@ -9,7 +9,7 @@
       <tbody>
         <tr>
           <th>인력</th>
-          <td>{{ farm.people }}명</td>
+          <td>{{ farm.manpower }}명</td>
         </tr>
         <tr>
           <th>농장위치</th>
@@ -21,24 +21,40 @@
         </tr>
         <tr>
           <th>평지면적</th>
-          <td>{{ farm.flatArea }} km²</td>
+          <td>{{ farm.flatArea }} m²</td>
         </tr>
         <tr>
           <th>경작면적</th>
-          <td>{{ farm.cultivationArea }} km²</td>
+          <td>{{ farm.cultivatedArea }} m²</td>
         </tr>
       </tbody>
     </table>
+
+    <section v-if="farm && (farm.grade || farm.comment)" class="farm-eval">
+      <div class="farm-eval-header">
+        <span class="farm-eval-title">농장 평가</span>
+        <span v-if="farm.grade" class="farm-grade-badge">{{ farm.grade }}</span>
+      </div>
+      <p v-if="farm.comment" class="farm-comment">
+        {{ farm.comment }}
+      </p>
+    </section>
+
+    <div class="farm-actions">
+      <button type="button" class="btn primary" @click="$emit('edit')">수정하기</button>
+    </div>
   </div>
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
   farm: {
     type: Object,
     required: true,
   },
 });
+
+defineEmits(['edit']);
 </script>
 
 <style scoped>
@@ -77,5 +93,63 @@ const props = defineProps({
   width: 140px;
   text-align: left;
   background: #fafafa;
+}
+
+.farm-eval {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.farm-eval-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.farm-eval-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.farm-grade-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.farm-comment {
+  margin: 0;
+  font-size: 13px;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.farm-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn {
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn.primary {
+  background: #fecc21;
 }
 </style>

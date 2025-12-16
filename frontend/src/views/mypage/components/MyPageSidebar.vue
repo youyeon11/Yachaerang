@@ -2,14 +2,13 @@
   <aside class="mypage-sidebar">
     <div class="profile-box">
       <div class="profile-avatar">
-        <!-- 실제로는 img로 바꾸면 됨 -->
-        <!-- <img :src="user.profileImage" alt="프로필" /> -->
-        <span class="avatar-icon">👤</span>
+        <img v-if="profileImageUrl" :src="profileImageUrl" alt="프로필" />
+        <span v-else class="avatar-icon">👤</span>
       </div>
 
       <div class="profile-info">
-        <p class="profile-name">{{ displayName }}</p>
-        <p class="profile-email">{{ displayEmail }}</p>
+        <p class="profile-name">{{ nickname }}</p>
+        <p class="profile-email">{{ email }}</p>
       </div>
     </div>
 
@@ -21,7 +20,7 @@
         :class="{ active: isActive(item) }"
         @click="go(item.path)"
       >
-        <span class="menu-icon">●</span>
+        <span class="menu-icon">-</span>
         <span class="menu-label">{{ item.label }}</span>
       </button>
     </nav>
@@ -35,29 +34,42 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useAuth, logout } from '@/stores/auth';
+import { getMyProfile } from '@/api/member';
+import { logout } from '@/stores/auth';
 import apiClient from '@/api/axios';
 
 const router = useRouter();
 const route = useRoute();
-const { user } = useAuth();
 
-const displayEmail = computed(() => user.value?.email || '');
+const email = ref('');
+const nickname = ref('');
+const profileImageUrl = ref('');
 
-const displayName = computed(() => {
-  if (user.value?.nickname) return user.value.nickname;
+onMounted(async () => {
+  try {
+    const { data } = await getMyProfile();
+    if (data.success) {
+      email.value = data.data.email;
+      nickname.value = data.data.nickname;
+      profileImageUrl.value = data.data.imageUrl || '';
+    }
+  } catch (e) {
+    console.error('프로필 조회 실패', e);
+  }
 });
 
 const menuItems = [
-  { id: 'farm', label: '나의 농장', path: '/mypage' },
+  { id: 'farm', label: '나의 농장', path: '/mypage/farm' },
   { id: 'profile', label: '프로필 수정', path: '/mypage/profile' },
   { id: 'password', label: '비밀번호 변경', path: '/mypage/password' },
   { id: 'items', label: '나의 품목 관리', path: '/mypage/items' },
 ];
 
-const isActive = (item) => route.path === item.path;
+const isActive = (item) => {
+  return route.path === item.path;
+};
 
 const go = (path) => {
   router.push(path);

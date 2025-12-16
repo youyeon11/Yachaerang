@@ -10,15 +10,19 @@
         <tr>
           <th>프로필 이미지</th>
           <td class="profile-img-cell">
-            <div class="avatar-circle">👤</div>
+            <div class="avatar-circle">
+              <img v-if="form.imageUrl" :src="form.imageUrl" alt="프로필 이미지" />
+              <span v-else>👤</span>
+            </div>
+            <input ref="fileInput" type="file" accept="image/*" class="file-input" @change="handleFileChange" />
           </td>
           <td class="align-right">
-            <button class="btn-small">업로드</button>
+            <button class="btn-small" type="button" @click="triggerFileSelect">업로드</button>
           </td>
         </tr>
         <tr>
           <th>이메일</th>
-          <td colspan="2">yachaerang@gmail.com</td>
+          <td colspan="2">{{ form.email }}</td>
         </tr>
         <tr>
           <th>비밀번호</th>
@@ -46,22 +50,83 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { reactive, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { getMyProfile, updateProfile, uploadProfileImage } from '@/api/member';
 
 const router = useRouter();
+const fileInput = ref(null);
 
 const form = reactive({
-  name: '김가은',
-  nickname: '김야치',
+  email: '',
+  name: '',
+  nickname: '',
+  imageUrl: '',
 });
+
+onMounted(async () => {
+  try {
+    const { data } = await getMyProfile();
+    if (data.success) {
+      form.email = data.data.email;
+      form.name = data.data.name;
+      form.nickname = data.data.nickname;
+      form.imageUrl = data.data.imageUrl || '';
+    }
+  } catch (e) {
+    console.error(e);
+  }
+});
+
+const triggerFileSelect = () => {
+  if (fileInput.value) {
+    fileInput.value.click();
+  }
+};
+
+const handleFileChange = async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  try {
+    await uploadProfileImage(file);
+
+    const { data } = await getMyProfile();
+    if (data.success) {
+      form.imageUrl = data.data.imageUrl || '';
+    }
+  } catch (e) {
+    console.error(e);
+    alert('프로필 이미지를 업로드하는 데 실패했습니다.');
+  } finally {
+    event.target.value = '';
+  }
+};
 
 const goPasswordChange = () => {
   router.push('/mypage/password');
 };
 
-const handleSubmit = () => {
-  // TODO: 프로필 수정 API
+const handleSubmit = async () => {
+  try {
+    const payload = {
+      name: form.name,
+      nickname: form.nickname,
+    };
+
+    const { data } = await updateProfile(payload);
+
+    if (!data.success) {
+      alert(data.message || '프로필 수정 실패');
+      return;
+    }
+
+    alert('프로필이 수정되었습니다.');
+    router.push('/mypage');
+  } catch (e) {
+    console.error(e);
+    alert('서버 오류가 발생했습니다.');
+  }
 };
 </script>
 
@@ -120,6 +185,17 @@ const handleSubmit = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.avatar-circle img {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.file-input {
+  display: none;
 }
 
 .align-right {
