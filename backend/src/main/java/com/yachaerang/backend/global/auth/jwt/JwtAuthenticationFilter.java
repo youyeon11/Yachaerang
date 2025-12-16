@@ -34,7 +34,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/v1/monthly-prices/**",
             "/api/v1/yearly-prices/**",
             "/api/v1/articles",
-            "/api/v1/articles/**"
+            "/api/v1/articles/**",
+            "/api/v1/mails"
     );
 
     private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
