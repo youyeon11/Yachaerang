@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,13 +19,13 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,61 +49,61 @@ class MailServiceTest {
     void setUp() {
         ReflectionTestUtils.setField(mailService, "username", TEST_USERNAME);
         given(stringRedisTemplate.opsForValue()).willReturn(valueOperations);
+        lenient().when(stringRedisTemplate.opsForValue()).thenReturn(valueOperations);
     }
 
     @Test
-    @DisplayName("이메일 발송 성공")
-    void 이메일_발송_성공() {
+    @DisplayName("신규 이메일 인증 요청")
+    void 신규_이메일_발송_성공() {
         // given
         MailRequestDto.MailRequest request = MailRequestDto.MailRequest.builder()
                 .mail(TEST_EMAIL)
                 .build();
+        given(memberMapper.findByEmail(TEST_EMAIL)).willReturn(null);
+        given(stringRedisTemplate.opsForValue()).willReturn(valueOperations);
         given(javaMailSender.createMimeMessage()).willReturn(mimeMessage);
-        given(valueOperations.get(VERIFICATION_CODE_PREFIX + TEST_EMAIL)).willReturn(TEST_CODE);
 
         // when
-        CompletableFuture<String> result = mailService.sendMail(request);
+        assertThatCode(() -> mailService.requestVerificationMail(request))
+                .doesNotThrowAnyException();
 
         // then
-        assertThat(result).isCompletedWithValue(TEST_CODE);
-        then(javaMailSender).should().send(any(MimeMessage.class));
+        then(memberMapper).should().findByEmail(TEST_EMAIL);
         then(valueOperations).should().set(
                 eq(VERIFICATION_CODE_PREFIX + TEST_EMAIL),
                 anyString(),
                 eq(5L),
                 eq(TimeUnit.MINUTES)
         );
+        then(javaMailSender).should().send(any(MimeMessage.class));
     }
 
     @Test
-    @DisplayName("인증 코드 Redis 저장 성공")
-    void 인증코드_Redis_저장_성공() {
+    @DisplayName("이미 존재하는 회원 이메일로 요청 시 예외")
+    void 이미_존재하는회원_이메일로_요청시_예외() {
         // given
-        MailRequestDto.MailRequest request = new MailRequestDto.MailRequest();
-        ReflectionTestUtils.setField(request, "mail", TEST_EMAIL);
+        MailRequestDto.MailRequest request = MailRequestDto.MailRequest.builder()
+                .mail(TEST_EMAIL)
+                .build();
+        Member existingMember = Member.builder()
+                .name(TEST_USERNAME)
+                .nickname(TEST_USERNAME)
+                .email(TEST_EMAIL)
+                .memberCode("test")
+                .build();
 
-        given(javaMailSender.createMimeMessage()).willReturn(mimeMessage);
+        given(memberMapper.findByEmail(TEST_EMAIL)).willReturn(existingMember);
 
-        ArgumentCaptor<String> codeCaptor = ArgumentCaptor.forClass(String.class);
+        // when & then
+        assertThatThrownBy(() -> mailService.requestVerificationMail(request))
+                .isInstanceOf(GeneralException.class)
+                .satisfies(ex -> {
+                    GeneralException ge = (GeneralException) ex;
+                    assertThat(ge.getErrorCode()).isEqualTo(ErrorCode.MEMBER_ALREADY_EXISTS);
+                });
 
-        // when
-        mailService.sendMail(request);
-
-        // then
-        then(valueOperations).should().set(
-                eq(VERIFICATION_CODE_PREFIX + TEST_EMAIL),
-                codeCaptor.capture(),
-                eq(5L),
-                eq(TimeUnit.MINUTES)
-        );
-
-        String capturedCode = codeCaptor.getValue();
-        assertThat(capturedCode)
-                .hasSize(6)
-                .containsOnlyDigits();
-
-        int code = Integer.parseInt(capturedCode);
-        assertThat(code).isBetween(100000, 999999);
+        // 메일 발송이 호출되지 않았는지 확인
+        then(javaMailSender).should(never()).send(any(MimeMessage.class));
     }
 
     @Test
@@ -232,21 +231,35 @@ class MailServiceTest {
     }
 
     @Test
-    @DisplayName("MimeMessage 생성 성공")
-    void MimeMessage_생성_성공() {
+    @DisplayName("존재하는 회원에게 비밀번호 재설정 메일 성공")
+    void 존재하는_회원에게_비밀번호_재설정_메일_성공() {
         // given
+        MailRequestDto.MailRequest request = MailRequestDto.MailRequest.builder()
+                .mail(TEST_EMAIL)
+                .build();
+        Member member = Member.builder()
+                .name(TEST_USERNAME)
+                .nickname(TEST_USERNAME)
+                .email(TEST_EMAIL)
+                .memberCode("test")
+                .build();
+
+        given(memberMapper.findByEmail(TEST_EMAIL)).willReturn(member);
+        given(stringRedisTemplate.opsForValue()).willReturn(valueOperations);
         given(javaMailSender.createMimeMessage()).willReturn(mimeMessage);
 
         // when
-        MimeMessage result = mailService.createMail(TEST_EMAIL);
+        assertThatCode(() -> mailService.requestPasswordResetVerificationMail(request))
+                .doesNotThrowAnyException();
 
         // then
-        assertThat(result).isNotNull();
+        then(memberMapper).should().findByEmail(TEST_EMAIL);
         then(valueOperations).should().set(
                 eq(VERIFICATION_CODE_PREFIX + TEST_EMAIL),
                 anyString(),
                 eq(5L),
                 eq(TimeUnit.MINUTES)
         );
+        then(javaMailSender).should().send(any(MimeMessage.class));
     }
 }

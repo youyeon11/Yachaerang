@@ -55,7 +55,6 @@ class MailControllerTest extends RestDocsSupport {
     private static final FieldDescriptor DATA_NULL_DESCRIPTOR =
             fieldWithPath("data").type(NULL).description("응답 데이터 (없음)");
 
-    private static final String BASE_URL = "/api/v1/mails";
     private static final String TEST_EMAIL = "test@example.com";
     private static final String TEST_CODE = "123456";
 
@@ -67,8 +66,7 @@ class MailControllerTest extends RestDocsSupport {
                 .builder()
                 .mail(TEST_EMAIL)
                 .build();
-        given(mailService.sendMail(any(MailRequestDto.MailRequest.class)))
-                .willReturn(CompletableFuture.completedFuture(TEST_CODE));
+        willDoNothing().given(mailService).requestVerificationMail(any(MailRequestDto.MailRequest.class));
 
         // when & then
         mockMvc.perform(post("/api/v1/mails")
@@ -105,7 +103,7 @@ class MailControllerTest extends RestDocsSupport {
                         .content(objectMapper.writeValueAsString(request))
                 ).andExpect(status().isOk())
                 .andDo(doc(
-                        "send-mail",
+                        "verify-code",
                         requestHeaders(),
                         pathParameters(),
                         queryParameters(),
@@ -128,8 +126,7 @@ class MailControllerTest extends RestDocsSupport {
                 .builder()
                 .mail(TEST_EMAIL)
                 .build();
-        given(mailService.sendMail(any(MailRequestDto.MailRequest.class)))
-                .willReturn(CompletableFuture.completedFuture(TEST_CODE));
+        willDoNothing().given(mailService).requestPasswordResetVerificationMail(any(MailRequestDto.MailRequest.class));
 
         // when & then
         mockMvc.perform(post("/api/v1/mails/password/send-code")
