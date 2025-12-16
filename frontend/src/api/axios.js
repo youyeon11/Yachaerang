@@ -3,20 +3,32 @@ import { logout } from '@/stores/auth';
 
 const apiClient = axios.create({
   baseURL: import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_BASE_URL : '',
-  headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+  headers: {
+    'Content-Type': 'application/json;charset=UTF-8',
+  },
+});
+
+const refreshClient = axios.create({
+  baseURL: apiClient.defaults.baseURL,
+  headers: {
+    'Content-Type': 'application/json;charset=UTF-8',
+  },
 });
 
 let isRefreshing = false;
 let refreshQueue = [];
 
-function processQueue(error, token) {
-  refreshQueue.forEach((p) => {
-    if (error) p.reject(error);
-    else p.resolve(token);
+function processQueue(error, newAccessToken) {
+  refreshQueue.forEach(({ resolve, reject }) => {
+    if (error) reject(error);
+    else resolve(newAccessToken);
   });
   refreshQueue = [];
 }
 
+/* =========================
+   Request Interceptor
+   ========================= */
 apiClient.interceptors.request.use(
   (config) => {
     const url = config.url || '';
@@ -38,12 +50,18 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+/* =========================
+   Response Interceptor
+   ========================= */
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const status = error.response?.status;
+    const url = originalRequest?.url || '';
+    const isReissueEndpoint = url.startsWith('/api/v1/auth/reissue');
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (status === 401 && !originalRequest._retry && !isReissueEndpoint) {
       originalRequest._retry = true;
 
       const refreshToken = localStorage.getItem('refreshToken');
@@ -66,24 +84,23 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const response = await apiClient.post(
+        const response = await refreshClient.post(
           '/api/v1/auth/reissue',
           {},
           {
             headers: {
-              Authorization: refreshToken,
+              Authorization: `Bearer ${refreshToken}`,
             },
           }
         );
 
-        const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.data;
+        const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data?.data || {};
 
         if (!newAccessToken) {
-          throw new Error('accessToken이 응답에 없습니다.');
+          throw new Error('reissue 응답에 accessToken이 없습니다.');
         }
 
         localStorage.setItem('accessToken', newAccessToken);
-
         if (newRefreshToken && newRefreshToken.trim() !== '') {
           localStorage.setItem('refreshToken', newRefreshToken);
         }
@@ -99,6 +116,10 @@ apiClient.interceptors.response.use(
         logout();
         return Promise.reject(refreshError);
       }
+    }
+
+    if (status === 401 && isReissueEndpoint) {
+      logout();
     }
 
     return Promise.reject(error);
