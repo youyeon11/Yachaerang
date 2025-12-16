@@ -49,25 +49,9 @@
             <span class="date">{{ article.date }}</span>
           </div>
         </div>
-        <button class="bookmark-btn" @click.stop="toggleBookmark(article.id)">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            :fill="article.bookmarked ? '#f5b041' : 'none'"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
-          </svg>
-        </button>
       </div>
     </div>
 
-    <!-- 페이지네이션 -->
     <div class="pagination">
       <button class="page-btn nav" :disabled="currentPage === 1" @click="goToPage(1)">처음</button>
       <button class="page-btn nav" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
@@ -115,51 +99,17 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { fetchArticles } from '@/api/article';
 
 const router = useRouter();
 const searchQuery = ref('');
 const currentPage = ref(1);
 const itemsPerPage = 5;
 
-// 임시 데이터
-const articles = ref([
-  {
-    id: 1,
-    title: '[환경] 두더지가 나타났다!!',
-    tags: ['농촌', '여성', '청년', '시골'],
-    date: '2025.11.25 01:02',
-    thumbnail: 'https://via.placeholder.com/120x80',
-    bookmarked: false,
-  },
-  {
-    id: 2,
-    title: '[환경] 두더지가 나타났다!!',
-    tags: ['농촌', '여성', '청년', '시골'],
-    date: '2025.11.25 01:02',
-    thumbnail: 'https://via.placeholder.com/120x80',
-    bookmarked: false,
-  },
-  {
-    id: 3,
-    title: '[환경] 두더지가 나타났다!!',
-    tags: ['농촌', '여성', '청년', '시골'],
-    date: '2025.11.25 01:02',
-    thumbnail: 'https://via.placeholder.com/120x80',
-    bookmarked: false,
-  },
-  {
-    id: 4,
-    title: '[환경] 두더지가 나타났다!!',
-    tags: ['농촌', '여성', '청년', '시골'],
-    date: '2025.11.25 01:02',
-    thumbnail: 'https://via.placeholder.com/120x80',
-    bookmarked: false,
-  },
-]);
-
-const totalPages = computed(() => Math.ceil(articles.value.length / itemsPerPage) || 5);
+const articles = ref([]);
+const totalPages = ref(1);
 
 const visiblePages = computed(() => {
   const pages = [];
@@ -169,6 +119,38 @@ const visiblePages = computed(() => {
     pages.push(i);
   }
   return pages;
+});
+
+const loadArticles = async (page = 1) => {
+  try {
+    const response = await fetchArticles({
+      page,
+      size: itemsPerPage,
+      // TODO: 검색 파라미터가 정의되면 여기에 추가 (예: keyword: searchQuery.value)
+    });
+
+    const data = response.data?.data;
+
+    if (data) {
+      currentPage.value = data.currentPage ?? page;
+      totalPages.value = data.totalPages ?? 1;
+
+      articles.value = (data.content || []).map((item) => ({
+        id: item.articleId,
+        title: item.title,
+        tags: item.tagList || [],
+        date: item.createdAt,
+        thumbnail: item.imageUrl,
+        bookmarked: false,
+      }));
+    }
+  } catch (error) {
+    console.error('농촌 기사 목록 조회 실패:', error);
+  }
+};
+
+onMounted(() => {
+  loadArticles();
 });
 
 const handleSearch = () => {
@@ -189,8 +171,7 @@ const toggleBookmark = (id) => {
 
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
-    // TODO: 해당 페이지 데이터 로드
+    loadArticles(page);
   }
 };
 </script>
