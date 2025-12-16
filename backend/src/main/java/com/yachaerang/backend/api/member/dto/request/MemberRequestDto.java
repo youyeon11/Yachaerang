@@ -13,4 +13,14 @@ public class MemberRequestDto {
         private String name;
         private String nickname;
     }
+
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PasswordDto {
+        private String oldPassword;
+        private String newPassword;
+    }
 }

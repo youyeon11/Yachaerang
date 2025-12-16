@@ -36,11 +36,25 @@ public class MemberController {
         return memberService.updateProfile(myPageDto);
     }
 
+    /*
+    프로필 이미지 업로드
+     */
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void uploadImage(
             @RequestHeader("Authorization") String token,
             @RequestPart("file")MultipartFile file
             ) {
         memberService.uploadProfileImage(file);
+    }
+
+    /*
+    비밀번호 수정
+     */
+    @PostMapping(value = "/password")
+    public void changePassword(
+            @RequestHeader("Authorization") String token,
+            @RequestBody MemberRequestDto.PasswordDto passwordDto
+    ) {
+        memberService.changePassword(passwordDto);
     }
 }
