@@ -18,8 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.util.Random;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -41,8 +39,9 @@ public class MailService {
     인증 코드 자동 생성 및 Redis 저장
      */
     private String createCode(String email) {
-        int code = new Random().nextInt(900000) + 100000;
+        int code = new java.security.SecureRandom().nextInt(900000) + 100000;
         String key = VERIFICATION_CODE_PREFIX + email;
+
         stringRedisTemplate.opsForValue().set(
                 key,
                 String.valueOf(code),
@@ -52,39 +51,47 @@ public class MailService {
         return String.valueOf(code);
     }
 
-    public MimeMessage createMail(String email) {
-        String code = createCode(email);
-        MimeMessage message = javaMailSender.createMimeMessage();
+    /*
+    메일을 전송 하기 위한 동기 작업
+     */
+    public void requestVerificationMail(MailRequestDto.MailRequest request) {
+        String email = request.getMail();
 
+        if (memberMapper.findByEmail(email) != null) {
+            throw GeneralException.of(ErrorCode.MEMBER_ALREADY_EXISTS);
+        }
+        String code = createCode(email);
+        sendVerificationMailAsync(email, code);
+        return;
+    }
+
+    public MimeMessage createMail(String email, String code) {
+        MimeMessage message = javaMailSender.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setFrom(username);
             helper.setTo(email);
             helper.setSubject("이메일 인증 번호");
-            String body = "<h2>000에 오신걸 환영합니다!</h2><h3>아래의 인증번호를 입력하세요.</h3><h1>" + code + "</h1><h3>감사합니다.</h3>";
+            String body =
+                    "<h2>야채랑에 오신걸 환영합니다!</h2>" +
+                            "<h3>아래의 인증번호를 입력하세요.</h3>" +
+                            "<h1>" + code + "</h1>" +
+                            "<h3>감사합니다.</h3>";
             helper.setText(body, true);
-            LogUtil.info("이메일 전송 성공");
+            return message;
         } catch (MessagingException e) {
-            LogUtil.error("이메일 전송 실패 : {}", e.getMessage());
+            LogUtil.error("메일 전송에 실패하였습니다.", e.getMessage());
+            throw GeneralException.of(ErrorCode.MAIL_SEND_FAILED);
         }
-        return message;
     }
 
     /*
-    이메일 전송
+    이메일 전송(비동기)
      */
     @Async("asyncExecutor")
-    public CompletableFuture<String> sendMail(MailRequestDto.MailRequest request) {
-        String email = request.getMail();
-        LogUtil.info("이메일 발송 시작: {}", email);
-        MimeMessage message = createMail(email);
+    public void sendVerificationMailAsync(String email, String code) {
+        MimeMessage message = createMail(email, code);
         javaMailSender.send(message);
-        LogUtil.info("이메일 발송 성공: {}", email);
-
-        String key = VERIFICATION_CODE_PREFIX + email;
-        String code = stringRedisTemplate.opsForValue().get(key);
-
-        return CompletableFuture.completedFuture(code);
     }
 
     /*
@@ -198,5 +205,21 @@ public class MailService {
             LogUtil.error("이메일 발송 실패", e.getMessage());
             throw GeneralException.of(ErrorCode.FAILED_GENERATE_PASSWORD);
         }
+    }
+
+    /**
+     * 비밀번호 초기화를 위한 검증
+     * @param request
+     */
+    public void requestPasswordResetVerificationMail(MailRequestDto.MailRequest request) {
+        String email = request.getMail();
+
+        Member member = memberMapper.findByEmail(email);
+        if (member == null) {
+            throw GeneralException.of(ErrorCode.MEMBER_NOT_FOUND);
+        }
+
+        String code = createCode(email);
+        sendVerificationMailAsync(email, code);
     }
 }

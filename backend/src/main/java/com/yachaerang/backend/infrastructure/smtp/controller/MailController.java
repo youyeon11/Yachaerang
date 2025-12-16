@@ -19,15 +19,15 @@ public class MailController {
     private final MailService mailService;
 
     /*
-    이메일 인증
+    이메일 인증(미가입자)
      */
     @PostMapping("")
     public void mailSend(@RequestBody MailRequestDto.MailRequest request) {
-        mailService.sendMail(request);
+        mailService.requestVerificationMail(request);
     }
 
     /*
-    코드 유효성 검증
+    코드 유효성 검증(미가입자)
      */
     @PostMapping("/verify-code")
     public ResponseEntity<ApiResponse<?>> verifyCode(@RequestBody MailRequestDto.VerificationRequest request) {
@@ -38,12 +38,12 @@ public class MailController {
     }
 
     /*
-    비밀번호 초기화를 위한 이메일 검증
+    비밀번호 초기화를 위한 이메일 검증(가입된 이메일만)
      */
     @PostMapping("/password/send-code")
     public void sendCodeForPassword(
             @RequestBody MailRequestDto.MailRequest request) {
-        mailService.sendMail(request);
+        mailService.requestPasswordResetVerificationMail(request);
     }
 
     /*
