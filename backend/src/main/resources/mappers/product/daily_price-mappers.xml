@@ -82,6 +82,7 @@
                                ON dp.product_code = p.product_code
              ) t
         WHERE t.price_date = #{priceDate}
+        AND t.price != 0
         ORDER BY t.price ASC
         LIMIT 9
     </select>
