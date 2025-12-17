@@ -8,6 +8,7 @@ import {
   fetchYearlyPricesApi,
   fetchYearlyPriceDetailApi,
 } from '@/api/price';
+import { addFavorite } from '@/api/favorite';
 
 export function usePriceSearch() {
   const selectedItem = ref('');
@@ -15,6 +16,7 @@ export function usePriceSearch() {
   const itemOptions = ref([]);
   const varietyOptions = ref([]);
   const priceResult = ref([]);
+  const suppressVarietyReset = ref(false);
 
   const periodType = ref('year');
   const periodTabs = [
@@ -117,7 +119,9 @@ export function usePriceSearch() {
   const fetchSubItems = async (itemCode) => {
     if (!itemCode) {
       varietyOptions.value = [];
-      selectedVariety.value = '';
+      if (!suppressVarietyReset.value) {
+        selectedVariety.value = '';
+      }
       return;
     }
     try {
@@ -129,11 +133,15 @@ export function usePriceSearch() {
         value: sub.productCode ?? sub.code ?? sub.id,
         label: sub.subItemName ?? sub.name ?? sub.productName ?? '',
       }));
-      selectedVariety.value = '';
+      if (!suppressVarietyReset.value) {
+        selectedVariety.value = '';
+      }
     } catch (error) {
       console.error('하위품목 목록 조회 실패:', error);
       varietyOptions.value = [];
-      selectedVariety.value = '';
+      if (!suppressVarietyReset.value) {
+        selectedVariety.value = '';
+      }
     }
   };
 
@@ -162,6 +170,154 @@ export function usePriceSearch() {
     yearDetail.value = '';
     isYearDetail.value = false;
     priceResult.value = [];
+  };
+
+  /* ================= 즐겨찾기 등록 ================= */
+
+  const mapPeriodTypeToFavorite = (type) => {
+    switch (type) {
+      case 'day':
+        return 'DAILY';
+      case 'week':
+        return 'WEEKLY';
+      case 'month':
+        return 'MONTHLY';
+      case 'year':
+        return 'YEARLY';
+      default:
+        return null;
+    }
+  };
+
+  const handleAddFavorite = async () => {
+    const productCode = selectedVariety.value;
+    const mappedPeriod = mapPeriodTypeToFavorite(periodType.value);
+
+    if (!productCode) {
+      alert('먼저 품종을 선택해 주세요.');
+      return;
+    }
+
+    if (!mappedPeriod) {
+      alert('등록할 기간 유형이 올바르지 않습니다.');
+      return;
+    }
+
+    try {
+      await addFavorite({
+        productCode,
+        periodType: mappedPeriod,
+      });
+      alert('관심 품목으로 등록되었습니다.');
+    } catch (error) {
+      console.error('즐겨찾기 등록 실패:', error);
+      if (error.response) {
+        console.error('응답 상태코드:', error.response.status);
+        console.error('응답 바디:', error.response.data);
+      }
+      alert('관심 품목 등록 중 오류가 발생했습니다.');
+    }
+  };
+
+  /* ================= 즐겨찾기에서 필터 세팅 ================= */
+
+  const mapFavoriteToPeriodType = (favoritePeriodType) => {
+    switch (favoritePeriodType) {
+      case 'DAILY':
+        return 'day';
+      case 'WEEKLY':
+        return 'week';
+      case 'MONTHLY':
+        return 'month';
+      case 'YEARLY':
+        return 'year';
+      default:
+        return null;
+    }
+  };
+
+  const findItemCodeByProductCode = async (targetProductCode) => {
+    if (!targetProductCode) return null;
+
+    // 품목 목록이 없다면 우선 로드
+    if (!itemOptions.value.length) {
+      await fetchItems();
+    }
+
+    for (const opt of itemOptions.value) {
+      await fetchSubItems(opt.value);
+      const found = varietyOptions.value.some((v) => v.value === targetProductCode);
+      if (found) {
+        return opt.value;
+      }
+    }
+
+    return null;
+  };
+
+  const initializeFromFavorite = async (productCode, favoritePeriodType) => {
+    if (!productCode || !favoritePeriodType) return;
+
+    const mappedPeriod = mapFavoriteToPeriodType(favoritePeriodType);
+    if (!mappedPeriod) return;
+
+    // 기간 타입 설정
+    periodType.value = mappedPeriod;
+
+    // 기간별 기본 날짜/연도 범위 세팅
+    if (mappedPeriod === 'day') {
+      // 일별: 어제 기준 1주일(7일)
+      const end = new Date(yesterday);
+      const start = new Date(end);
+      start.setDate(end.getDate() - 6);
+      dayStartDate.value = start;
+      dayEndDate.value = end;
+    } else if (mappedPeriod === 'week') {
+      // 주간: 마지막 완전한 주 기준 2주
+      const end = new Date(lastWeekSunday);
+      const start = new Date(end);
+      start.setDate(end.getDate() - 7);
+      weekStartDate.value = start;
+      weekEndDate.value = end;
+    } else if (mappedPeriod === 'month') {
+      // 월간: 어제가 속한 월 기준 최근 3개월
+      const end = new Date(yesterday);
+      const endYear = end.getFullYear();
+      const endMonthIndex = end.getMonth(); // 0-based
+      const start = new Date(endYear, endMonthIndex - 2, 1);
+      const endMonth = new Date(endYear, endMonthIndex, 1);
+      monthStartDate.value = start;
+      monthEndDate.value = endMonth;
+    } else if (mappedPeriod === 'year') {
+      // 연간: 가장 최신 연도 1개
+      isYearDetail.value = false;
+      const latestYear = maxYear;
+      yearStart.value = String(latestYear);
+      yearEnd.value = String(latestYear);
+    }
+
+    // 품목/품종 선택 세팅
+    suppressVarietyReset.value = true;
+    try {
+      const itemCode = await findItemCodeByProductCode(productCode);
+      if (itemCode) {
+        selectedItem.value = itemCode;
+        await fetchSubItems(itemCode);
+
+        // 즐겨찾기 productCode와 정확히 일치하는 품종이 있으면 그걸 선택
+        const exactMatch = varietyOptions.value.find((v) => v.value === productCode);
+        if (exactMatch) {
+          selectedVariety.value = exactMatch.value;
+        } else if (varietyOptions.value.length > 0) {
+          // 없으면 첫 번째 품종이라도 선택해서 "선택 안 된 것처럼" 보이지 않도록 처리
+          selectedVariety.value = varietyOptions.value[0].value;
+        } else {
+          selectedVariety.value = '';
+        }
+      }
+    } finally {
+      suppressVarietyReset.value = false;
+    }
   };
 
   const resetFilters = () => {
@@ -380,5 +536,7 @@ export function usePriceSearch() {
     handlePeriodClick,
     resetFilters,
     handleSearch,
+    handleAddFavorite,
+    initializeFromFavorite,
   };
 }

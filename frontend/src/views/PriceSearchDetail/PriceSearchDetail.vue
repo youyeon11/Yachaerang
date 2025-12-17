@@ -55,6 +55,7 @@
           <span class="reset-icon">⟳</span>
           <span>선택초기화</span>
         </button>
+        <button type="button" class="favorite-btn" @click="handleAddFavorite">관심 품목 등록</button>
         <button type="button" class="search-btn" @click="handleSearch">검색하기</button>
       </div>
     </section>
@@ -80,9 +81,11 @@ import MonthPicker from '@/views/priceSearchDetail/components/DateRangePicker/Mo
 import YearPicker from '@/views/priceSearchDetail/components/DateRangePicker/YearPicker.vue';
 import PriceResult from '@/views/priceSearchDetail/components/Result/PriceResult.vue';
 
-import { toRefs, computed } from 'vue';
+import { toRefs, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { usePriceSearch } from '@/views/priceSearchDetail/composables/usePriceSearch';
 
+const route = useRoute();
 const search = usePriceSearch();
 
 const {
@@ -108,7 +111,7 @@ const {
   yearDetail,
 } = toRefs(search);
 
-const { handlePeriodClick, resetFilters, handleSearch } = search;
+const { handlePeriodClick, resetFilters, handleSearch, handleAddFavorite, initializeFromFavorite } = search;
 
 const selectedItemLabel = computed(() => itemOptions.value.find((i) => i.value === selectedItem.value)?.label ?? '');
 
@@ -130,6 +133,16 @@ const endDate = computed(() => {
   if (periodType.value === 'month') return monthEndDate.value?.toISOString().slice(0, 7);
   if (periodType.value === 'year') return yearEnd.value;
   return '';
+});
+
+onMounted(async () => {
+  const productCode = route.query.productCode;
+  const favoritePeriodType = route.query.periodType;
+
+  if (productCode && favoritePeriodType && typeof initializeFromFavorite === 'function') {
+    await initializeFromFavorite(String(productCode), String(favoritePeriodType));
+    await handleSearch();
+  }
 });
 </script>
 
@@ -401,6 +414,21 @@ const endDate = computed(() => {
 
 .reset-icon {
   font-size: 13px;
+}
+
+.favorite-btn {
+  border: 1px solid #ffd54f;
+  border-radius: 999px;
+  padding: 9px 22px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: #ffecb3;
+  color: #8d6e00;
+}
+
+.favorite-btn:hover {
+  background-color: #ffe082;
 }
 
 .search-btn {
