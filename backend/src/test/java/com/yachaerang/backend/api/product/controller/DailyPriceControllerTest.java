@@ -71,19 +71,19 @@ class DailyPriceControllerTest extends RestDocsSupport {
     void setUp() {
         rankList1 = List.of(
                 DailyPriceResponseDto.RankDto.builder()
-                        .productName("수박")
+                        .productName("수박(1개) - 상품")
                         .productCode("WATERMELON")
                         .unit("개")
                         .price(20000L)
                         .build(),
                 DailyPriceResponseDto.RankDto.builder()
-                        .productName("포도")
+                        .productName("포도(1kg) - 중품")
                         .productCode("GRAPE")
                         .unit("kg")
                         .price(15000L)
                         .build(),
                 DailyPriceResponseDto.RankDto.builder()
-                        .productName("딸기")
+                        .productName("딸기(1kg) - 상품")
                         .productCode("STRAWBERRY")
                         .unit("kg")
                         .price(12000L)
@@ -91,19 +91,19 @@ class DailyPriceControllerTest extends RestDocsSupport {
             );
         rankList2 = List.of(
                 DailyPriceResponseDto.RankDto.builder()
-                        .productName("오렌지")
+                        .productName("오렌지(10개) - 중품")
                         .productCode("ORANGE")
                         .unit("개")
                         .price(3000L)
                         .build(),
                 DailyPriceResponseDto.RankDto.builder()
-                        .productName("자두")
+                        .productName("자두(1kg) - 상품")
                         .productCode("PLUM")
                         .unit("kg")
                         .price(4000L)
                         .build(),
                 DailyPriceResponseDto.RankDto.builder()
-                        .productName("사과")
+                        .productName("사과(1kg) - 상품")
                         .productCode("APPLE")
                         .unit("kg")
                         .price(5000L)
