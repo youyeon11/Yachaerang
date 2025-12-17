@@ -25,7 +25,6 @@ import static org.springframework.restdocs.payload.JsonFieldType.NULL;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Import(ResponseWrappingAdvice.class)
@@ -45,7 +44,6 @@ class AuthControllerTest extends RestDocsSupport {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // 공통 응답 필드
     // 공통 응답 필드
     private static final FieldDescriptor[] ENVELOPE_COMMON = new FieldDescriptor[]{
             fieldWithPath("httpStatus").type(STRING).description("HTTP 상태 코드"),

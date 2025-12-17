@@ -88,6 +88,13 @@ dependencies {
 
     // Spring AI
     implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
+
+    // S3
+    implementation platform("software.amazon.awssdk:bom:2.25.65")
+    implementation 'software.amazon.awssdk:s3'
+
+    // SMTP
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 def snippetsDir = layout.buildDirectory.dir("generated-snippets")

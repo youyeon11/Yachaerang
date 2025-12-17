@@ -75,19 +75,27 @@ log "Updating Nginx upstream config..."
 ERR_MSG="Nginx 설정 업데이트 실패"
 sed -i "s/app-${BEFORE_COMPOSE_COLOR}:8080/app-${AFTER_COMPOSE_COLOR}:8080/" "$NGINX_CONFIG"
 
-log "Reloading Nginx..."
-ERR_MSG="Nginx reload 실패"
-docker exec "$NGINX_ID" nginx -s reload
+log "Stop Nginx..."
+ERR_MSG="Nginx stop 실패"
+docker stop nginx || true
+
+ERR_MSG="Nginx Container 삭제 실패"
+log "Nginx container 삭제 중..."
+docker rm nginx || true
+
+ERR_MSG="Nginx 다시 시작 실패"
+log "Nginx container 다시 시작 중..."
+docker compose -f "$COMPOSE_FILE" up -d --no-deps nginx
 
 # 이전 컨테이너 종료
 log "Stopping old container (app-${BEFORE_COMPOSE_COLOR})..."
 ERR_MSG="이전 컨테이너 종료 실패"
 docker compose -f "$COMPOSE_FILE" stop "app-${BEFORE_COMPOSE_COLOR}" || true
 
-# 이미지 정리
-log "Cleaning up old images..."
-ERR_MSG="docker image 정리 실패"
-docker image prune -af || true
+# 컨테이너 정리
+log "Cleaning up old container..."
+ERR_MSG="docker container 정리 실패"
+docker compose -f "$COMPOSE_FILE" rm -f "app-${BEFORE_COMPOSE_COLOR}" || true
 
 log "Deployment completed successfully."
 log "===== Deployment script ended ====="

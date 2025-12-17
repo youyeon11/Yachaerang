@@ -4,6 +4,7 @@ import com.yachaerang.backend.api.farm.dto.response.FarmResponseDto;
 import com.yachaerang.backend.api.farm.dto.resquest.FarmRequestDto;
 import com.yachaerang.backend.api.farm.entity.Farm;
 import com.yachaerang.backend.api.farm.repository.FarmMapper;
+import com.yachaerang.backend.api.member.repository.MemberMapper;
 import com.yachaerang.backend.global.auth.jwt.AuthenticatedMemberProvider;
 import com.yachaerang.backend.global.exception.GeneralException;
 import com.yachaerang.backend.global.response.ErrorCode;
@@ -22,6 +23,7 @@ public class FarmService {
     private final FarmEvaluationService farmEvaluationService;
     private final FarmAsyncService farmAsyncService;
     private final AuthenticatedMemberProvider authenticatedMemberProvider;
+    private final MemberMapper memberMapper;
 
     /**
      * 나의 농장 정보 저장
@@ -43,6 +45,9 @@ public class FarmService {
                 // DB transaction 필요 단계
                 .thenApply(evaluationDto -> {
                     try {
+                        if (farmMapper.findByMemberId(memberId) != null) {
+                            throw GeneralException.of(ErrorCode.FARM_ALREADY_EXISTS);
+                        }
                         // 비동기 스레드 Context 의존 제거
                         Farm farm = farmAsyncService.saveFarmWithEvaluation(
                                 memberId,

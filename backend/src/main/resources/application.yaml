@@ -1,0 +1,68 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: "backend"
+  config:
+    activate:
+      on-profile:
+        - "dev"
+        - "local"
+
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+    access:
+      expiration: 86400      # 24시간 (24 * 60 * 60 초)
+    refresh:
+      expiration: 604800     # 7일 (7 * 24 * 60 * 60 초)
+
+  ai:
+    vertex:
+      ai:
+        enabled: false
+    google:
+      genai:
+        enabled: false
+    custom:
+      google:
+        genai:
+          api-key: ${GMS_KEY}
+          model: gemini-2.5-flash-lite
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_EMAIL}
+    password: ${GMAIL_PASSWORD}
+    protocol: smtp
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            protocols: TLSv1.2 TLSv1.3
+          starttls:
+            enable: true
+            required: true
+        debug: true
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  type-handlers-package: com.yachaerang.backend.global.util
+
+cloud:
+  aws:
+    region:
+      static: ${AWS_REGION}
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+    stack:
+      auto: false
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
+
+external:
+  default-image: ${DEFAULT_IMAGE_URL}

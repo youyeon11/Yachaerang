@@ -31,7 +31,8 @@ public class LoggingFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
 
-        if (request.getRequestURI().startsWith("/api/v1/farms")) {
+        if (request.getRequestURI().startsWith("/api/v1/farms") ||
+        request.getRequestURI().startsWith("/api/v1/mails") ) {
             return true;
         }
         return super.shouldNotFilter(request);

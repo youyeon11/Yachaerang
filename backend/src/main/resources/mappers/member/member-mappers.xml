@@ -68,10 +68,28 @@
             <if test="nickname != null and nickname != ''">
                 nickname = #{nickname},
             </if>
-            <if test="imageUrl != null and imageUrl != ''">
-                image_url = #{imageUrl},
-            </if>
         </set>
         WHERE member_id = #{memberId}
+    </update>
+
+    <!-- updateProfileImage -->
+    <update id="updateProfileImage">
+        UPDATE member
+        SET image_url = #{imageUrl}
+        WHERE member_id = #{memberId}
+    </update>
+
+    <!-- findImageUrl -->
+    <select id="findImageUrl" resultType="String">
+        SELECT image_url
+        FROM member
+        WHERE member_id = #{memberId}
+    </select>
+
+    <!-- updatePassword -->
+    <update id="updatePassword">
+        UPDATE member
+        SET password = #{password}
+        WHERE email = #{email}
     </update>
 </mapper>

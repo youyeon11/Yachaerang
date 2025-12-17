@@ -10,20 +10,23 @@ import com.yachaerang.backend.global.util.RestDocsSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.context.annotation.Import;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.FieldDescriptor;
 
-import static org.mockito.Mockito.mock;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 
 import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
+
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -59,6 +62,12 @@ class MemberControllerTest extends RestDocsSupport {
     private static final FieldDescriptor DATA_OBJECT_DESCRIPTOR =
             fieldWithPath("data").type(OBJECT).description("응답 데이터");
 
+    /**
+     * data 가 존재하지 않는 경우(null) 의 필드
+     */
+    private static final FieldDescriptor DATA_NULL_DESCRIPTOR =
+            fieldWithPath("data").type(NULL).description("응답 데이터 (없음)");
+
     private String accessToken;
     private MemberResponseDto.MyPageDto responseDto;
     private MemberRequestDto.MyPageDto requestDto;
@@ -77,7 +86,6 @@ class MemberControllerTest extends RestDocsSupport {
         requestDto = MemberRequestDto.MyPageDto.builder()
                 .name("test")
                 .nickname("test")
-                .imageUrl("default.png")
                 .build();
     }
 
@@ -143,5 +151,72 @@ class MemberControllerTest extends RestDocsSupport {
                                         fieldWithPath("nickname").type(STRING).description("nickname"),
                                         fieldWithPath("imageUrl").type(STRING).description("imageUrl")
                 )));
+    }
+
+    @Test
+    @DisplayName("[POST] /api/v1/members/image")
+    void uploadProfileImage() throws Exception {
+        // given
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "profile.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "test-image-content".getBytes()
+        );
+
+        willDoNothing().given(memberService).uploadProfileImage(any(MultipartFile.class));
+
+        // when & then
+        mockMvc.perform(multipart("/api/v1/members/image")
+                        .file(file)
+                        .header("Authorization", accessToken)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk())
+                .andDo(doc(
+                        "upload-profile-image",
+                        requestHeaders(
+                                headerWithName("Authorization").description("Access Token")
+                        ),
+                        requestParts(
+                                partWithName("file").description("업로드할 프로필 이미지 파일")
+                        ),
+                        pathParameters(),
+                        queryParameters(),
+                        responseFields(ENVELOPE_COMMON).and(DATA_NULL_DESCRIPTOR)
+                ));
+        verify(memberService, times(1)).uploadProfileImage(any(MultipartFile.class));
+    }
+
+    @Test
+    @DisplayName("[POST] /api/v1/members/password")
+    void changePassword_Success() throws Exception {
+        // given
+        String oldPassword = "oldPassword";
+        String newPassword = "newPassword";
+        MemberRequestDto.PasswordDto requestDto = MemberRequestDto.PasswordDto.builder()
+                .oldPassword(oldPassword)
+                .newPassword(newPassword).build();
+        willDoNothing().given(memberService).changePassword(any(MemberRequestDto.PasswordDto.class));
+
+        // when & then
+        mockMvc.perform(post("/api/v1/members/password")
+                        .header("Authorization", accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isOk())
+                .andDo(doc(
+                        "change-password",
+                        requestHeaders(
+                                headerWithName("Authorization").description("Access Token")
+                        ),
+                        pathParameters(),
+                        queryParameters(),
+                        requestFields(
+                                fieldWithPath("oldPassword").description("기존의 비밀번호"),
+                                fieldWithPath("newPassword").description("새로운 비밀번호")
+                        ),
+                        responseFields(ENVELOPE_COMMON).and(DATA_NULL_DESCRIPTOR)
+                ));
+        then(memberService).should().changePassword(any(MemberRequestDto.PasswordDto.class));
     }
 }

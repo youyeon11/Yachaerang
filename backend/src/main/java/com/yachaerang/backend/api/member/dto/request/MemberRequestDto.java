@@ -12,6 +12,15 @@ public class MemberRequestDto {
     public static class MyPageDto {
         private String name;
         private String nickname;
-        private String imageUrl;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PasswordDto {
+        private String oldPassword;
+        private String newPassword;
     }
 }
