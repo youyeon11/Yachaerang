@@ -1,7 +1,7 @@
 <template>
   <div class="box">
     <div class="header">
-      <h4>관심 품목</h4>
+      <h4>나의 품목</h4>
       <button class="edit-btn" @click="$emit('edit')">수정</button>
     </div>
 
