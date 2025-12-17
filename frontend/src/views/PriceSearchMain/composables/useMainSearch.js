@@ -122,7 +122,13 @@ export function useMainSearch() {
           mainLabel = codeFallback;
         }
 
-        return period ? `${mainLabel} (${period})` : mainLabel;
+        return {
+          favoriteId: fav.favoriteId,
+          productCode: fav.productCode,
+          periodType: fav.periodType,
+          displayName: mainLabel,
+          periodLabel: period,
+        };
       });
     } catch (error) {
       console.error('관심 품목 목록 조회 실패:', error);
@@ -135,19 +141,27 @@ export function useMainSearch() {
     loadFavorites();
   });
 
-  function goToDetail() {
-    router.push('/price');
-  }
-
   function editWatchList() {
     router.push('/mypage/items');
+  }
+
+  function goFavoriteDetail(fav) {
+    if (!fav || !fav.productCode || !fav.periodType) return;
+
+    router.push({
+      path: '/search',
+      query: {
+        productCode: fav.productCode,
+        periodType: fav.periodType,
+      },
+    });
   }
 
   return {
     activeTab,
     popularItems,
     watchList,
-    goToDetail,
     editWatchList,
+    goFavoriteDetail,
   };
 }

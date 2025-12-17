@@ -6,16 +6,26 @@
     </div>
 
     <div class="list">
-      <div class="item" v-for="(item, i) in items" :key="i">
-        {{ item }}
-      </div>
+      <button
+        v-for="item in items"
+        :key="item.favoriteId ?? item.productCode ?? item.displayName"
+        class="item"
+        type="button"
+        @click="$emit('select', item)"
+      >
+        <span class="item-main">{{ item.displayName ?? item }}</span>
+        <span v-if="item.periodLabel" class="item-period">{{ item.periodLabel }}</span>
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
 defineProps({
-  items: Array,
+  items: {
+    type: Array,
+    default: () => [],
+  },
 });
 </script>
 

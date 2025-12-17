@@ -7,7 +7,7 @@
     <div class="layout">
       <PopularItemGrid :items="popularItems" />
 
-      <WatchListBox :items="watchList" @edit="editWatchList" @click="$router.push('/mypage/items')" />
+      <WatchListBox :items="watchList" @edit="editWatchList" @select="goFavoriteDetail" />
     </div>
 
     <MoveToDetailButton @click="$router.push('/search')" />
@@ -23,7 +23,7 @@ import MoveToDetailButton from '@/views/PriceSearchMain/components/MoveToDetailB
 
 import { useMainSearch } from '@/views/PriceSearchMain/composables/useMainSearch';
 
-const { activeTab, popularItems, watchList, editWatchList } = useMainSearch();
+const { activeTab, popularItems, watchList, editWatchList, goFavoriteDetail } = useMainSearch();
 
 const sectionTitle = computed(() => {
   return activeTab.value === 'top' ? '어제 시세 기준 TOP 8' : '어제 시세 기준 BOTTOM 8';

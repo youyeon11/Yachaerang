@@ -107,7 +107,7 @@ export function usePriceSearch() {
       const body = res.data;
       const list = Array.isArray(body) ? body : Array.isArray(body?.data) ? body.data : [];
       itemOptions.value = list.map((item) => ({
-        value: item.itemCode ?? item.code ?? item.id,
+        value: String(item.itemCode ?? item.code ?? item.id),
         label: item.itemName ?? item.name ?? '',
       }));
     } catch (error) {
@@ -126,11 +126,10 @@ export function usePriceSearch() {
     }
     try {
       const res = await fetchSubItemsApi(itemCode);
-      console.log('하위품목 응답:', res.data);
       const body = res.data;
       const list = Array.isArray(body) ? body : Array.isArray(body?.data) ? body.data : [];
       varietyOptions.value = list.map((sub) => ({
-        value: sub.productCode ?? sub.code ?? sub.id,
+        value: String(sub.productCode ?? sub.code ?? sub.id),
         label: sub.subItemName ?? sub.name ?? sub.productName ?? '',
       }));
       if (!suppressVarietyReset.value) {
@@ -146,6 +145,7 @@ export function usePriceSearch() {
   };
 
   watch(selectedItem, (newItem) => {
+    if (suppressVarietyReset.value) return;
     fetchSubItems(newItem);
   });
 
@@ -239,6 +239,8 @@ export function usePriceSearch() {
   const findItemCodeByProductCode = async (targetProductCode) => {
     if (!targetProductCode) return null;
 
+    const normalizedTarget = String(targetProductCode);
+
     // 품목 목록이 없다면 우선 로드
     if (!itemOptions.value.length) {
       await fetchItems();
@@ -246,9 +248,9 @@ export function usePriceSearch() {
 
     for (const opt of itemOptions.value) {
       await fetchSubItems(opt.value);
-      const found = varietyOptions.value.some((v) => v.value === targetProductCode);
+      const found = varietyOptions.value.some((v) => String(v.value) === normalizedTarget);
       if (found) {
-        return opt.value;
+        return String(opt.value);
       }
     }
 
@@ -257,6 +259,8 @@ export function usePriceSearch() {
 
   const initializeFromFavorite = async (productCode, favoritePeriodType) => {
     if (!productCode || !favoritePeriodType) return;
+
+    const normalizedProductCode = String(productCode);
 
     const mappedPeriod = mapFavoriteToPeriodType(favoritePeriodType);
     if (!mappedPeriod) return;
@@ -299,15 +303,15 @@ export function usePriceSearch() {
     // 품목/품종 선택 세팅
     suppressVarietyReset.value = true;
     try {
-      const itemCode = await findItemCodeByProductCode(productCode);
+      const itemCode = await findItemCodeByProductCode(normalizedProductCode);
       if (itemCode) {
-        selectedItem.value = itemCode;
+        selectedItem.value = String(itemCode);
         await fetchSubItems(itemCode);
 
         // 즐겨찾기 productCode와 정확히 일치하는 품종이 있으면 그걸 선택
-        const exactMatch = varietyOptions.value.find((v) => v.value === productCode);
+        const exactMatch = varietyOptions.value.find((v) => String(v.value) === normalizedProductCode);
         if (exactMatch) {
-          selectedVariety.value = exactMatch.value;
+          selectedVariety.value = String(exactMatch.value);
         } else if (varietyOptions.value.length > 0) {
           // 없으면 첫 번째 품종이라도 선택해서 "선택 안 된 것처럼" 보이지 않도록 처리
           selectedVariety.value = varietyOptions.value[0].value;
