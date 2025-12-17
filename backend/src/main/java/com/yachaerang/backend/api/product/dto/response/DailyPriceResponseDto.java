@@ -22,8 +22,8 @@ public class DailyPriceResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class RankDto {
-        private String itemName;
-        private String itemCode;
+        private String productName;
+        private String productCode;
         private String unit;
         private Long price;
     }

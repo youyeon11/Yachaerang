@@ -205,7 +205,7 @@ class DailyPriceMapperTest {
 
         // then
         assertThat(result).isNotEmpty();
-        assertThat(result).hasSize(8);
+        assertThat(result).hasSize(9);
 
         // 오름차순 정렬 검증
         for (int i = 0; i < result.size() - 1; i++) {
@@ -229,18 +229,18 @@ class DailyPriceMapperTest {
     @Test
     @Sql(scripts = {"/sql/product-test-data.sql", "/sql/daily-price-test-data.sql"}, executionPhase =  Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    @DisplayName("결과가 8개로 제한된다")
+    @DisplayName("결과가 9개로 제한된다")
     void shouldLimitResultsToEight() {
         // when
         List<DailyPriceResponseDto.RankDto> result = dailyPriceMapper.getPricesAscending(LocalDate.of(2025,11,01));
 
         // then
-        assertThat(result).hasSize(8);
+        assertThat(result).hasSize(9);
 
         List<String> itemNames = result.stream()
-                .map(DailyPriceResponseDto.RankDto::getItemName)
+                .map(DailyPriceResponseDto.RankDto::getProductName)
                 .toList();
-        assertThat(itemNames).hasSize(8);
+        assertThat(itemNames).hasSize(9);
     }
     @Test
     @DisplayName("Descending과 Ascending의 첫 번째 항목은 서로 다르다")
@@ -253,7 +253,7 @@ class DailyPriceMapperTest {
         List<DailyPriceResponseDto.RankDto> ascending = dailyPriceMapper.getPricesAscending(targetDate);
 
         // then
-        assertThat(descending.get(0).getItemCode() + descending.get(0).getUnit())
-                .isNotEqualTo(ascending.get(0).getItemCode() + ascending.get(0).getUnit());
+        assertThat(descending.get(0).getProductCode() + descending.get(0).getUnit())
+                .isNotEqualTo(ascending.get(0).getProductCode() + ascending.get(0).getUnit());
     }
 }
