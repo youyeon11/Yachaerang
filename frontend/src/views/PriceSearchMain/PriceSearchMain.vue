@@ -26,7 +26,7 @@ import { useMainSearch } from '@/views/PriceSearchMain/composables/useMainSearch
 const { activeTab, popularItems, watchList, editWatchList, goFavoriteDetail, goRankDetail } = useMainSearch();
 
 const sectionTitle = computed(() => {
-  return activeTab.value === 'top' ? '어제 시세 기준 TOP 8' : '어제 시세 기준 BOTTOM 8';
+  return activeTab.value === 'top' ? '어제 시세 기준 TOP 9' : '어제 시세 기준 BOTTOM 9';
 });
 </script>
 

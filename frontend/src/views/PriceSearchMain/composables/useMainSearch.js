@@ -1,15 +1,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import apiClient from '@/api/axios';
 import { fetchFavorites } from '@/api/favorite';
-import { fetchItemsApi, fetchSubItemsApi } from '@/api/price';
-
-export function fetchLowPriceRank() {
-  return apiClient.get('/api/v1/daily-prices/rank/low-prices');
-}
-export function fetchHighPriceRank() {
-  return apiClient.get('/api/v1/daily-prices/rank/high-prices');
-}
+import { fetchItemsApi, fetchSubItemsApi, fetchHighPriceRank, fetchLowPriceRank } from '@/api/price';
 
 export function useMainSearch() {
   const router = useRouter();
@@ -25,6 +17,9 @@ export function useMainSearch() {
   async function loadRanks() {
     const { data: highData } = await fetchHighPriceRank();
     const { data: lowData } = await fetchLowPriceRank();
+
+    console.log('TOP 개수:', highData.data?.length);
+    console.log('BOTTOM 개수:', lowData.data?.length);
 
     topItems.value = highData.data;
     bottomItems.value = lowData.data;
