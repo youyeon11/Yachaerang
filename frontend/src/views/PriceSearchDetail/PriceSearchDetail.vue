@@ -73,18 +73,18 @@
 </template>
 
 <script setup>
-import ItemSelector from '@/views/priceSearchDetail/components/ItemSelector.vue';
-import PeriodSelector from '@/views/priceSearchDetail/components/PeriodSelector.vue';
+import ItemSelector from '@/views/PriceSearchDetail/components/ItemSelector.vue';
+import PeriodSelector from '@/views/PriceSearchDetail/components/PeriodSelector.vue';
 
-import DayPicker from '@/views/priceSearchDetail/components/DateRangePicker/DayPicker.vue';
-import WeekPicker from '@/views/priceSearchDetail/components/DateRangePicker/WeekPicker.vue';
-import MonthPicker from '@/views/priceSearchDetail/components/DateRangePicker/MonthPicker.vue';
-import YearPicker from '@/views/priceSearchDetail/components/DateRangePicker/YearPicker.vue';
-import PriceResult from '@/views/priceSearchDetail/components/Result/PriceResult.vue';
+import DayPicker from '@/views/PriceSearchDetail/components/DateRangePicker/DayPicker.vue';
+import WeekPicker from '@/views/PriceSearchDetail/components/DateRangePicker/WeekPicker.vue';
+import MonthPicker from '@/views/PriceSearchDetail/components/DateRangePicker/MonthPicker.vue';
+import YearPicker from '@/views/PriceSearchDetail/components/DateRangePicker/YearPicker.vue';
+import PriceResult from '@/views/PriceSearchDetail/components/Result/PriceResult.vue';
 
 import { toRefs, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { usePriceSearch } from '@/views/priceSearchDetail/composables/usePriceSearch';
+import { usePriceSearch } from '@/views/PriceSearchDetail/composables/usePriceSearch';
 
 const route = useRoute();
 const search = usePriceSearch();
@@ -113,7 +113,8 @@ const {
   hasSearched,
 } = toRefs(search);
 
-const { handlePeriodClick, resetFilters, handleSearch, handleAddFavorite, initializeFromFavorite } = search;
+const { handlePeriodClick, resetFilters, handleSearch, handleAddFavorite, initializeFromFavorite, initializeFromRank } =
+  search;
 
 const selectedItemLabel = computed(() => itemOptions.value.find((i) => i.value === selectedItem.value)?.label ?? '');
 
@@ -140,8 +141,12 @@ const endDate = computed(() => {
 onMounted(async () => {
   const productCode = route.query.productCode;
   const favoritePeriodType = route.query.periodType;
+  const source = route.query.source;
 
-  if (productCode && favoritePeriodType && typeof initializeFromFavorite === 'function') {
+  if (productCode && source === 'rank' && typeof initializeFromRank === 'function') {
+    await initializeFromRank(String(productCode));
+    await handleSearch();
+  } else if (productCode && favoritePeriodType && typeof initializeFromFavorite === 'function') {
     await initializeFromFavorite(String(productCode), String(favoritePeriodType));
     await handleSearch();
   }

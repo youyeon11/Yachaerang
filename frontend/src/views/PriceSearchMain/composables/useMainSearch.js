@@ -157,11 +157,30 @@ export function useMainSearch() {
     });
   }
 
+  const extractProductCodeFromRank = (item) => {
+    return item.productCode ?? item.itemCode ?? item.code ?? item.id ?? item.productId ?? null;
+  };
+
+  function goRankDetail(rankItem) {
+    const productCode = extractProductCodeFromRank(rankItem);
+    if (!productCode) return;
+
+    router.push({
+      path: '/search',
+      query: {
+        productCode,
+        periodType: 'DAILY',
+        source: 'rank',
+      },
+    });
+  }
+
   return {
     activeTab,
     popularItems,
     watchList,
     editWatchList,
     goFavoriteDetail,
+    goRankDetail,
   };
 }

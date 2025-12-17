@@ -1,15 +1,25 @@
 <template>
   <div class="grid">
-    <PopularItemCard v-for="item in items" :key="item.itemCode" :item="item" />
+    <PopularItemCard
+      v-for="item in items"
+      :key="item.itemCode ?? item.productCode ?? item.id"
+      :item="item"
+      @select="$emit('select', item)"
+    />
   </div>
 </template>
 
 <script setup>
-import PopularItemCard from './PopularItemCard.vue';
+import PopularItemCard from '@/views/PriceSearchMain/components/PopularItemCard.vue';
 
 defineProps({
-  items: Array,
+  items: {
+    type: Array,
+    default: () => [],
+  },
 });
+
+defineEmits(['select']);
 </script>
 
 <style scoped>

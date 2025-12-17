@@ -249,7 +249,6 @@ export function usePriceSearch() {
 
     const normalizedTarget = String(targetProductCode);
 
-    // 품목 목록이 없다면 우선 로드
     if (!itemOptions.value.length) {
       await fetchItems();
     }
@@ -295,13 +294,12 @@ export function usePriceSearch() {
       // 월간: 어제가 속한 월 기준 최근 3개월
       const end = new Date(yesterday);
       const endYear = end.getFullYear();
-      const endMonthIndex = end.getMonth(); // 0-based
+      const endMonthIndex = end.getMonth();
       const start = new Date(endYear, endMonthIndex - 2, 1);
       const endMonth = new Date(endYear, endMonthIndex, 1);
       monthStartDate.value = start;
       monthEndDate.value = endMonth;
     } else if (mappedPeriod === 'year') {
-      // 연간: 가장 최신 연도 1개
       isYearDetail.value = false;
       const latestYear = maxYear;
       yearStart.value = String(latestYear);
@@ -316,13 +314,44 @@ export function usePriceSearch() {
         selectedItem.value = String(itemCode);
         await fetchSubItems(itemCode);
 
-        // 즐겨찾기 productCode와 정확히 일치하는 품종이 있으면 그걸 선택
         const exactMatch = varietyOptions.value.find((v) => String(v.value) === normalizedProductCode);
         if (exactMatch) {
           selectedVariety.value = String(exactMatch.value);
         } else if (varietyOptions.value.length > 0) {
-          // 없으면 첫 번째 품종이라도 선택해서 "선택 안 된 것처럼" 보이지 않도록 처리
           selectedVariety.value = varietyOptions.value[0].value;
+        } else {
+          selectedVariety.value = '';
+        }
+      }
+    } finally {
+      suppressVarietyReset.value = false;
+    }
+  };
+
+  const initializeFromRank = async (productCode) => {
+    if (!productCode) return;
+
+    const normalizedProductCode = String(productCode);
+
+    periodType.value = 'day';
+    const end = new Date(yesterday);
+    const start = new Date(end);
+    start.setDate(end.getDate() - 13);
+    dayStartDate.value = start;
+    dayEndDate.value = end;
+
+    suppressVarietyReset.value = true;
+    try {
+      const itemCode = await findItemCodeByProductCode(normalizedProductCode);
+      if (itemCode) {
+        selectedItem.value = String(itemCode);
+        await fetchSubItems(itemCode);
+
+        const exactMatch = varietyOptions.value.find((v) => String(v.value) === normalizedProductCode);
+        if (exactMatch) {
+          selectedVariety.value = String(exactMatch.value);
+        } else if (varietyOptions.value.length > 0) {
+          selectedVariety.value = String(varietyOptions.value[0].value);
         } else {
           selectedVariety.value = '';
         }
@@ -555,5 +584,6 @@ export function usePriceSearch() {
     handleSearch,
     handleAddFavorite,
     initializeFromFavorite,
+    initializeFromRank,
   };
 }

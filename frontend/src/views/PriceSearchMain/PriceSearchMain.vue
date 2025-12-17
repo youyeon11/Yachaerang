@@ -5,7 +5,7 @@
     <h2 class="section-title">{{ sectionTitle }}</h2>
 
     <div class="layout">
-      <PopularItemGrid :items="popularItems" />
+      <PopularItemGrid :items="popularItems" @select="goRankDetail" />
 
       <WatchListBox :items="watchList" @edit="editWatchList" @select="goFavoriteDetail" />
     </div>
@@ -23,7 +23,7 @@ import MoveToDetailButton from '@/views/PriceSearchMain/components/MoveToDetailB
 
 import { useMainSearch } from '@/views/PriceSearchMain/composables/useMainSearch';
 
-const { activeTab, popularItems, watchList, editWatchList, goFavoriteDetail } = useMainSearch();
+const { activeTab, popularItems, watchList, editWatchList, goFavoriteDetail, goRankDetail } = useMainSearch();
 
 const sectionTitle = computed(() => {
   return activeTab.value === 'top' ? '어제 시세 기준 TOP 8' : '어제 시세 기준 BOTTOM 8';
