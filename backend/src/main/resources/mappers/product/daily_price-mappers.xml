@@ -18,8 +18,8 @@
     <!-- RankDto 매핑용 ResultMap -->
     <resultMap id="rankDtoResultMap"
                type="com.yachaerang.backend.api.product.dto.response.DailyPriceResponseDto$RankDto">
-        <result property="itemName" column="item_name" javaType="String"/>
-        <result property="itemCode" column="item_code" javaType="String"/>
+        <result property="productName" column="name" javaType="String"/>
+        <result property="productCode" column="product_code" javaType="String"/>
         <result property="unit" column="unit" javaType="String"/>
         <result property="price" column="price" javaType="java.lang.Long"/>
     </resultMap>
@@ -43,14 +43,14 @@
     <!-- getPricesDescending -->
     <select id="getPricesDescending" resultMap="rankDtoResultMap">
         SELECT
-            item_name,
-            item_code,
+            name,
+            product_code,
             unit,
             price
         FROM (
             SELECT
-                p.item_name AS item_name,
-                p.item_code as item_code,
+                p.name AS name,
+                p.product_code as product_code,
                 p.unit as unit,
                 dp.price as price,
                 dp.price_date as price_date
@@ -60,20 +60,20 @@
         ) t
         WHERE t.price_date = #{priceDate}
         ORDER BY t.price DESC
-        LIMIT 8
+        LIMIT 9
     </select>
 
     <!-- getPricesAscending-->
     <select id="getPricesAscending" resultMap="rankDtoResultMap">
         SELECT
-            item_name,
-            item_code,
+            name,
+            product_code,
             unit,
             price
         FROM (
                  SELECT
-                     p.item_name AS item_name,
-                     p.item_code as item_code,
+                     p.name AS name,
+                     p.product_code as product_code,
                      p.unit as unit,
                      dp.price as price,
                      dp.price_date as price_date
@@ -83,6 +83,6 @@
              ) t
         WHERE t.price_date = #{priceDate}
         ORDER BY t.price ASC
-        LIMIT 8
+        LIMIT 9
     </select>
 </mapper>
