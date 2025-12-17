@@ -276,7 +276,7 @@ export function usePriceSearch() {
       // 주간: 마지막 완전한 주 기준 2주
       const end = new Date(lastWeekSunday);
       const start = new Date(end);
-      start.setDate(end.getDate() - 7);
+      start.setDate(end.getDate() - 14);
       weekStartDate.value = start;
       weekEndDate.value = end;
     } else if (mappedPeriod === 'month') {

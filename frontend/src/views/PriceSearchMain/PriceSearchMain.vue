@@ -15,13 +15,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import SearchTabs from './components/SearchTab.vue';
-import PopularItemGrid from './components/PopularItemGrid.vue';
-import WatchListBox from './components/WatchListBox.vue';
-import MoveToDetailButton from './components/MoveToDetailButton.vue';
+import { computed } from 'vue';
+import SearchTabs from '@/views/PriceSearchMain/components/SearchTab.vue';
+import PopularItemGrid from '@/views/PriceSearchMain/components/PopularItemGrid.vue';
+import WatchListBox from '@/views/PriceSearchMain/components/WatchListBox.vue';
+import MoveToDetailButton from '@/views/PriceSearchMain/components/MoveToDetailButton.vue';
 
-import { useMainSearch } from './composables/useMainSearch';
+import { useMainSearch } from '@/views/PriceSearchMain/composables/useMainSearch';
 
 const { activeTab, popularItems, watchList, editWatchList } = useMainSearch();
 
