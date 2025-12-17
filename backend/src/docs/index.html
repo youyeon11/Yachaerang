@@ -2432,7 +2432,7 @@ Host: localhost:8080</code></pre>
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json;charset=UTF-8
-Content-Length: 550
+Content-Length: 549
 
 {
   "httpStatus" : "OK",
@@ -2443,17 +2443,17 @@ Content-Length: 550
     "id" : 1,
     "role" : "USER",
     "content" : "안녕하세요",
-    "sentAt" : "2025-12-16T23:59:32.831727"
+    "sentAt" : "2025-12-18T00:08:24.968702"
   }, {
     "id" : 2,
     "role" : "ASSISTANT",
     "content" : "안녕하세요! 무엇을 도와드릴까요?",
-    "sentAt" : "2025-12-17T00:00:32.831743"
+    "sentAt" : "2025-12-18T00:09:24.96872"
   }, {
     "id" : 3,
     "role" : "USER",
     "content" : "날씨 알려주세요",
-    "sentAt" : "2025-12-17T00:01:32.831748"
+    "sentAt" : "2025-12-18T00:10:24.968726"
   } ]
 }</code></pre>
 </div>
@@ -2490,17 +2490,17 @@ Content-Length: 550
     "id" : 1,
     "role" : "USER",
     "content" : "안녕하세요",
-    "sentAt" : "2025-12-16T23:59:32.831727"
+    "sentAt" : "2025-12-18T00:08:24.968702"
   }, {
     "id" : 2,
     "role" : "ASSISTANT",
     "content" : "안녕하세요! 무엇을 도와드릴까요?",
-    "sentAt" : "2025-12-17T00:00:32.831743"
+    "sentAt" : "2025-12-18T00:09:24.96872"
   }, {
     "id" : 3,
     "role" : "USER",
     "content" : "날씨 알려주세요",
-    "sentAt" : "2025-12-17T00:01:32.831748"
+    "sentAt" : "2025-12-18T00:10:24.968726"
   } ]
 }</code></pre>
 </div>
@@ -2875,7 +2875,7 @@ Host: localhost:8080</code></pre>
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json;charset=UTF-8
-Content-Length: 452
+Content-Length: 470
 
 {
   "httpStatus" : "OK",
@@ -2883,18 +2883,18 @@ Content-Length: 452
   "code" : "200",
   "message" : "요청이 성공적으로 처리되었습니다.",
   "data" : [ {
-    "itemName" : "수박",
-    "itemCode" : "WATERMELON",
+    "productName" : "수박",
+    "productCode" : "WATERMELON",
     "unit" : "개",
     "price" : 20000
   }, {
-    "itemName" : "포도",
-    "itemCode" : "GRAPE",
+    "productName" : "포도",
+    "productCode" : "GRAPE",
     "unit" : "kg",
     "price" : 15000
   }, {
-    "itemName" : "딸기",
-    "itemCode" : "STRAWBERRY",
+    "productName" : "딸기",
+    "productCode" : "STRAWBERRY",
     "unit" : "kg",
     "price" : 12000
   } ]
@@ -2929,18 +2929,18 @@ Content-Length: 452
   "code" : "200",
   "message" : "요청이 성공적으로 처리되었습니다.",
   "data" : [ {
-    "itemName" : "수박",
-    "itemCode" : "WATERMELON",
+    "productName" : "수박",
+    "productCode" : "WATERMELON",
     "unit" : "개",
     "price" : 20000
   }, {
-    "itemName" : "포도",
-    "itemCode" : "GRAPE",
+    "productName" : "포도",
+    "productCode" : "GRAPE",
     "unit" : "kg",
     "price" : 15000
   }, {
-    "itemName" : "딸기",
-    "itemCode" : "STRAWBERRY",
+    "productName" : "딸기",
+    "productCode" : "STRAWBERRY",
     "unit" : "kg",
     "price" : 12000
   } ]
@@ -2990,12 +2990,12 @@ Content-Length: 452
 <td class="tableblock halign-left valign-top"><p class="tableblock">응답 데이터</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[]itemName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[]productName</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">상품 이름</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[]itemCode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[]productCode</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">상품 코드</p></td>
 </tr>
@@ -3044,7 +3044,7 @@ Host: localhost:8080</code></pre>
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json;charset=UTF-8
-Content-Length: 442
+Content-Length: 460
 
 {
   "httpStatus" : "OK",
@@ -3052,18 +3052,18 @@ Content-Length: 442
   "code" : "200",
   "message" : "요청이 성공적으로 처리되었습니다.",
   "data" : [ {
-    "itemName" : "오렌지",
-    "itemCode" : "ORANGE",
+    "productName" : "오렌지",
+    "productCode" : "ORANGE",
     "unit" : "개",
     "price" : 3000
   }, {
-    "itemName" : "자두",
-    "itemCode" : "PLUM",
+    "productName" : "자두",
+    "productCode" : "PLUM",
     "unit" : "kg",
     "price" : 4000
   }, {
-    "itemName" : "사과",
-    "itemCode" : "APPLE",
+    "productName" : "사과",
+    "productCode" : "APPLE",
     "unit" : "kg",
     "price" : 5000
   } ]
@@ -3098,18 +3098,18 @@ Content-Length: 442
   "code" : "200",
   "message" : "요청이 성공적으로 처리되었습니다.",
   "data" : [ {
-    "itemName" : "오렌지",
-    "itemCode" : "ORANGE",
+    "productName" : "오렌지",
+    "productCode" : "ORANGE",
     "unit" : "개",
     "price" : 3000
   }, {
-    "itemName" : "자두",
-    "itemCode" : "PLUM",
+    "productName" : "자두",
+    "productCode" : "PLUM",
     "unit" : "kg",
     "price" : 4000
   }, {
-    "itemName" : "사과",
-    "itemCode" : "APPLE",
+    "productName" : "사과",
+    "productCode" : "APPLE",
     "unit" : "kg",
     "price" : 5000
   } ]
@@ -3159,12 +3159,12 @@ Content-Length: 442
 <td class="tableblock halign-left valign-top"><p class="tableblock">응답 데이터</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[]itemName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[]productName</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">상품 이름</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[]itemCode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data[]productCode</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">상품 코드</p></td>
 </tr>
