@@ -10,15 +10,10 @@ export function signupApi(payload) {
   return apiClient.post('/api/v1/auth/signup', payload);
 }
 
-// 이메일 중복 확인
-export function checkEmailDuplicateApi(email) {
-  return apiClient.get('/api/v1/auth/check-email', {
-    params: { email },
-  });
-}
-
-
-
-
-
-
+// 이메일 인증 코드 발송
+export const sendEmailCodeApi = (payload) => {
+  return apiClient.post('/api/v1/mails', payload);
+};
+export const verifyEmailCodeApi = (payload) => {
+  return apiClient.post('/api/v1/mails/verify-code', payload);
+};
