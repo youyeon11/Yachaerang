@@ -12,7 +12,6 @@
           <div class="name">{{ fav.displayName }}</div>
           <div class="meta">
             <span class="badge">{{ fav.periodLabel }}</span>
-            <span v-if="fav.productCode" class="code-pill">{{ fav.productCode }}</span>
           </div>
         </div>
         <button class="remove-btn" @click.stop="handleRemove(fav.favoriteId)">삭제</button>
@@ -238,14 +237,6 @@ onMounted(loadFavorites);
   border-radius: 999px;
   background-color: #eef2ff;
   color: #4338ca;
-  font-size: 11px;
-}
-
-.code-pill {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background-color: #f3f4f6;
-  color: #6b7280;
   font-size: 11px;
 }
 
