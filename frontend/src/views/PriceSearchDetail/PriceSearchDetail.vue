@@ -61,6 +61,7 @@
     </section>
 
     <PriceResult
+      v-if="hasSearched"
       :rows="priceResult"
       :item-label="selectedItemLabel"
       :variety-label="selectedVarietyLabel"
@@ -109,6 +110,7 @@ const {
   yearStart,
   yearEnd,
   yearDetail,
+  hasSearched,
 } = toRefs(search);
 
 const { handlePeriodClick, resetFilters, handleSearch, handleAddFavorite, initializeFromFavorite } = search;

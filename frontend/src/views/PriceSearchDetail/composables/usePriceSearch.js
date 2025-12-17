@@ -16,6 +16,7 @@ export function usePriceSearch() {
   const itemOptions = ref([]);
   const varietyOptions = ref([]);
   const priceResult = ref([]);
+  const hasSearched = ref(false);
   const suppressVarietyReset = ref(false);
 
   const periodType = ref('year');
@@ -146,7 +147,13 @@ export function usePriceSearch() {
 
   watch(selectedItem, (newItem) => {
     if (suppressVarietyReset.value) return;
+    hasSearched.value = false;
     fetchSubItems(newItem);
+  });
+
+  watch(selectedVariety, () => {
+    if (suppressVarietyReset.value) return;
+    hasSearched.value = false;
   });
 
   onMounted(() => {
@@ -170,6 +177,7 @@ export function usePriceSearch() {
     yearDetail.value = '';
     isYearDetail.value = false;
     priceResult.value = [];
+    hasSearched.value = false;
   };
 
   /* ================= 즐겨찾기 등록 ================= */
@@ -328,6 +336,7 @@ export function usePriceSearch() {
     selectedItem.value = '';
     selectedVariety.value = '';
     periodType.value = 'year';
+    hasSearched.value = false;
 
     dayStartDate.value = null;
     dayEndDate.value = null;
@@ -341,6 +350,7 @@ export function usePriceSearch() {
     isYearDetail.value = false;
     varietyOptions.value = [];
     priceResult.value = [];
+    hasSearched.value = false;
   };
 
   /* ================= 응답 파싱 ================= */
@@ -504,6 +514,8 @@ export function usePriceSearch() {
       } else {
         alert('잘못된 기간 유형입니다.');
       }
+
+      hasSearched.value = true;
     } catch (error) {
       console.error('가격 조회 실패', error);
       if (error.response) {
@@ -536,6 +548,7 @@ export function usePriceSearch() {
     yearStart,
     yearEnd,
     yearDetail,
+    hasSearched,
 
     handlePeriodClick,
     resetFilters,
