@@ -183,3 +183,20 @@ h3 {
     transform: scale(calc(100vw / 1280));
   }
 }
+
+/* -------------------------------------------------
+   Remove Button (Global)
+------------------------------------------------- */
+.remove-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.remove-btn:hover {
+  background-color: #fecaca;
+}
