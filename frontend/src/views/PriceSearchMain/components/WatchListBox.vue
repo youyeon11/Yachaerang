@@ -27,6 +27,8 @@ defineProps({
     default: () => [],
   },
 });
+
+defineEmits(['select', 'edit']);
 </script>
 
 <style scoped>

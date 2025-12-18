@@ -182,20 +182,14 @@ export function usePriceSearch() {
 
   /* ================= 즐겨찾기 등록 ================= */
 
-  const mapPeriodTypeToFavorite = (type) => {
-    switch (type) {
-      case 'day':
-        return 'DAILY';
-      case 'week':
-        return 'WEEKLY';
-      case 'month':
-        return 'MONTHLY';
-      case 'year':
-        return 'YEARLY';
-      default:
-        return null;
-    }
+  const periodTypeMap = {
+    day: 'DAILY',
+    week: 'WEEKLY',
+    month: 'MONTHLY',
+    year: 'YEARLY',
   };
+
+  const mapPeriodTypeToFavorite = (type) => periodTypeMap[type] ?? null;
 
   const handleAddFavorite = async () => {
     const productCode = selectedVariety.value;

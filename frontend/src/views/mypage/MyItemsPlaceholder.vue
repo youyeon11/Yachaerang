@@ -24,9 +24,10 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchFavorites, removeFavorite } from '@/api/favorite';
-import { fetchItemsApi, fetchSubItemsApi } from '@/api/price';
+import { useProductNameStore } from '@/stores/productNameStore';
 
 const router = useRouter();
+const productNameStore = useProductNameStore();
 
 const favorites = ref([]);
 const loading = ref(false);
@@ -46,74 +47,21 @@ const mapPeriodLabel = (periodType) => {
   }
 };
 
-const buildProductNameMap = async (favoritesList) => {
-  const productCodes = new Set(
-    favoritesList.map((f) => f.productCode).filter((code) => typeof code === 'string' && code.trim() !== '')
-  );
-  const nameMap = {};
-
-  if (productCodes.size === 0) return nameMap;
-
-  try {
-    const itemsRes = await fetchItemsApi();
-    const body = itemsRes.data;
-    const items = Array.isArray(body) ? body : Array.isArray(body?.data) ? body.data : [];
-
-    await Promise.all(
-      items.map(async (item) => {
-        const itemCode = item.itemCode ?? item.code ?? item.id;
-        const itemName = item.itemName ?? item.name ?? '';
-        if (!itemCode) return;
-
-        try {
-          const subRes = await fetchSubItemsApi(itemCode);
-          const subBody = subRes.data;
-          const subs = Array.isArray(subBody) ? subBody : Array.isArray(subBody?.data) ? subBody.data : [];
-
-          subs.forEach((sub) => {
-            const productCode = sub.productCode ?? sub.code ?? sub.id;
-            if (!productCodes.has(productCode)) return;
-
-            const varietyName = sub.subItemName ?? sub.name ?? sub.productName ?? '';
-            nameMap[productCode] = { itemName, varietyName };
-          });
-        } catch (e) {
-          console.error('하위 품목 조회 실패:', e);
-        }
-      })
-    );
-  } catch (e) {
-    console.error('품목/품종 전체 조회 실패:', e);
-  }
-
-  return nameMap;
-};
-
 const loadFavorites = async () => {
   loading.value = true;
   try {
     const { data } = await fetchFavorites();
     const list = Array.isArray(data?.data) ? data.data : [];
 
-    const nameMap = await buildProductNameMap(list);
+    const nameMap = await productNameStore.loadProductNames(list);
 
     favorites.value = list.map((fav) => {
       const fromMap = nameMap[fav.productCode] || {};
 
-      const itemName =
-        fav.itemName ||
-        fav.item?.itemName ||
-        fav.item?.name ||
-        fromMap.itemName ||
-        '';
+      const itemName = fav.itemName || fav.item?.itemName || fav.item?.name || fromMap.itemName || '';
 
       const varietyName =
-        fav.subItemName ||
-        fav.productName ||
-        fav.varietyName ||
-        fav.product?.productName ||
-        fromMap.varietyName ||
-        '';
+        fav.subItemName || fav.productName || fav.varietyName || fav.product?.productName || fromMap.varietyName || '';
 
       const codeFallback = fav.productCode ?? '';
 
@@ -238,19 +186,5 @@ onMounted(loadFavorites);
   background-color: #eef2ff;
   color: #4338ca;
   font-size: 11px;
-}
-
-.remove-btn {
-  border: none;
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 12px;
-  cursor: pointer;
-  background-color: #fee2e2;
-  color: #b91c1c;
-}
-
-.remove-btn:hover {
-  background-color: #fecaca;
 }
 </style>
