@@ -42,15 +42,21 @@ export function useSignupForm() {
       return;
     }
 
-    const { data } = await verifyEmailCodeApi({
-      mail: email.value,
-      code: emailCode.value,
-    });
+    try {
+      const { data } = await verifyEmailCodeApi({
+        mail: email.value,
+        code: emailCode.value,
+      });
 
-    if (data?.data === true) {
-      emailVerified.value = true;
-    } else {
-      alert('인증번호가 올바르지 않습니다.');
+      if (data?.data === true) {
+        emailVerified.value = true;
+        alert('이메일 인증이 완료되었습니다.');
+      } else {
+        alert('인증번호가 올바르지 않습니다.');
+      }
+    } catch (error) {
+      console.error('이메일 인증 중 오류:', error);
+      alert(error.response?.data?.message || '이메일 인증 중 오류가 발생했습니다.');
     }
   };
 
