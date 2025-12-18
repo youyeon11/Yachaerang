@@ -100,20 +100,10 @@ const loadFavorites = async () => {
     favorites.value = list.map((fav) => {
       const fromMap = nameMap[fav.productCode] || {};
 
-      const itemName =
-        fav.itemName ||
-        fav.item?.itemName ||
-        fav.item?.name ||
-        fromMap.itemName ||
-        '';
+      const itemName = fav.itemName || fav.item?.itemName || fav.item?.name || fromMap.itemName || '';
 
       const varietyName =
-        fav.subItemName ||
-        fav.productName ||
-        fav.varietyName ||
-        fav.product?.productName ||
-        fromMap.varietyName ||
-        '';
+        fav.subItemName || fav.productName || fav.varietyName || fav.product?.productName || fromMap.varietyName || '';
 
       const codeFallback = fav.productCode ?? '';
 
@@ -238,19 +228,5 @@ onMounted(loadFavorites);
   background-color: #eef2ff;
   color: #4338ca;
   font-size: 11px;
-}
-
-.remove-btn {
-  border: none;
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 12px;
-  cursor: pointer;
-  background-color: #fee2e2;
-  color: #b91c1c;
-}
-
-.remove-btn:hover {
-  background-color: #fecaca;
 }
 </style>
