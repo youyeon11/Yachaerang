@@ -60,7 +60,9 @@ export function useSignupForm() {
     }
   };
 
-  const isPasswordValid = computed(() => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).{8,20}$/.test(password.value));
+  const isPasswordValid = computed(() =>
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$/.test(password.value)
+  );
 
   const isPasswordMatch = computed(() => password.value === passwordConfirm.value);
 
