@@ -4,12 +4,15 @@ import { fetchItemsApi, fetchSubItemsApi } from '@/api/price';
 export const useProductNameStore = defineStore('productName', {
   state: () => ({
     initialized: false,
+    loading: false,
     nameMap: {},
   }),
 
   actions: {
     async loadProductNames(favoritesList = []) {
       if (this.initialized) return this.nameMap;
+
+      if (this.loading) return this.nameMap;
 
       const productCodes = new Set(
         favoritesList.map((f) => f.productCode).filter((code) => typeof code === 'string' && code.trim() !== '')
@@ -19,6 +22,9 @@ export const useProductNameStore = defineStore('productName', {
         this.initialized = true;
         return this.nameMap;
       }
+
+      this.loading = true;
+      let loadedCount = 0;
 
       try {
         const itemsRes = await fetchItemsApi();
@@ -40,28 +46,34 @@ export const useProductNameStore = defineStore('productName', {
                 const productCode = sub.productCode ?? sub.code ?? sub.id;
                 if (!productCodes.has(productCode)) return;
 
-                const varietyName = sub.subItemName ?? sub.name ?? sub.productName ?? '';
-
                 this.nameMap[productCode] = {
                   itemName,
-                  varietyName,
+                  varietyName: sub.subItemName ?? sub.name ?? sub.productName ?? '',
                 };
+
+                loadedCount++;
               });
             } catch (e) {
               console.error('하위 품목 조회 실패:', e);
             }
           })
         );
+
+        if (loadedCount > 0) {
+          this.initialized = true;
+        }
       } catch (e) {
         console.error('품목 전체 조회 실패:', e);
+      } finally {
+        this.loading = false;
       }
 
-      this.initialized = true;
       return this.nameMap;
     },
 
     reset() {
       this.initialized = false;
+      this.loading = false;
       this.nameMap = {};
     },
   },

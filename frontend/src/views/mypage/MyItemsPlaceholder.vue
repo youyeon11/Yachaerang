@@ -24,7 +24,6 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchFavorites, removeFavorite } from '@/api/favorite';
-import { fetchItemsApi, fetchSubItemsApi } from '@/api/price';
 import { useProductNameStore } from '@/stores/productNameStore';
 
 const router = useRouter();
