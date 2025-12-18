@@ -4,13 +4,8 @@
     <div class="form-area">
       <div class="field">
         <label>현재 비밀번호</label>
-        <input
-          v-model="currentPassword"
-          type="password"
-          class="input"
-          placeholder="비밀번호 입력 (문자, 숫자, 특수문자 포함 8~20자)"
-          @blur="checkCurrentPassword"
-        />
+        <input v-model="currentPassword" type="password" class="input" placeholder="현재 비밀번호 입력" />
+
         <p v-if="currentPasswordMsg" :class="currentPasswordClass">
           {{ currentPasswordMsg }}
         </p>
@@ -65,23 +60,6 @@ const currentPasswordMsg = ref('');
 
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$/;
 
-const checkCurrentPassword = async () => {
-  if (!currentPassword.value) return;
-
-  try {
-    await apiClient.post('/api/v1/members/password', {
-      oldPassword: currentPassword.value,
-      newPassword: currentPassword.value,
-    });
-
-    currentPasswordValid.value = true;
-    currentPasswordMsg.value = '현재 비밀번호가 일치합니다.';
-  } catch {
-    currentPasswordValid.value = false;
-    currentPasswordMsg.value = '현재 비밀번호가 일치하지 않습니다.';
-  }
-};
-
 const newPasswordMsg = computed(() => {
   if (!passwordRegex.test(newPassword.value)) {
     return '문자, 숫자, 특수문자를 포함한 8~20자여야 합니다.';
@@ -122,8 +100,8 @@ const handleSubmit = async () => {
 
     logout();
     router.push('/login');
-  } catch {
-    alert('비밀번호 변경 중 오류가 발생했습니다.');
+  } catch (error) {
+    alert(error.response?.data?.message || '비밀번호 변경 중 오류가 발생했습니다.');
   }
 };
 </script>
