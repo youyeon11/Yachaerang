@@ -9,11 +9,27 @@
           <label class="form-label">이메일</label>
           <div class="input-with-button">
             <input type="email" v-model="email" placeholder="이메일 입력" class="input-field" />
-            <button type="button" class="check-btn" @click="checkEmailDuplicate">중복 확인</button>
+            <button type="button" class="check-btn" @click="sendEmailCode">인증 요청</button>
           </div>
-          <p v-if="emailMessage" :class="['message', emailValid ? 'success' : 'error']">
-            {{ emailMessage }}
-          </p>
+
+          <p v-if="emailSent" class="message success">입력하신 이메일로 인증번호를 발송했습니다.</p>
+        </div>
+
+        <!-- 인증번호 -->
+        <div v-if="emailSent" class="form-group">
+          <label class="form-label">인증번호</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              v-model="emailCode"
+              maxlength="6"
+              placeholder="인증번호 6자리 입력"
+              class="input-field"
+            />
+            <button type="button" class="check-btn" @click="verifyEmailCode">확인</button>
+          </div>
+
+          <p v-if="emailVerified" class="message success">이메일 인증이 완료되었습니다.</p>
         </div>
 
         <!-- 비밀번호 -->
@@ -54,8 +70,13 @@
           <input type="text" v-model="nickname" placeholder="닉네임을 입력해주세요" class="input-field" />
         </div>
 
-        <!-- 회원가입 버튼 -->
-        <button type="submit" class="signup-btn" :class="{ disabled: !isFormValid }" :disabled="!isFormValid">
+        <!-- 회원가입 -->
+        <button
+          type="submit"
+          class="signup-btn"
+          :class="{ disabled: !isFormValid || !emailVerified }"
+          :disabled="!isFormValid || !emailVerified"
+        >
           회원가입
         </button>
       </form>
@@ -72,12 +93,14 @@ const {
   passwordConfirm,
   name,
   nickname,
-  emailMessage,
-  emailValid,
+  emailSent,
+  emailCode,
+  emailVerified,
   isPasswordValid,
   isPasswordMatch,
   isFormValid,
-  checkEmailDuplicate,
+  sendEmailCode,
+  verifyEmailCode,
   handleSignup,
 } = useSignupForm();
 </script>

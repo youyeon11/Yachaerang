@@ -14,6 +14,11 @@ const router = createRouter({
       component: () => import('@/views/auth/LoginView.vue'),
     },
     {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: () => import('@/views/auth/ForgotPasswordView.vue'),
+    },
+    {
       path: '/signup',
       name: 'signup',
       component: () => import('@/views/auth/SignupView.vue'),
@@ -22,12 +27,12 @@ const router = createRouter({
     {
       path: '/searchMainpage',
       name: 'searchMainpage',
-      component: () => import('@/views/priceSearchMain/PriceSearchMain.vue'),
+      component: () => import('@/views/PriceSearchMain/PriceSearchMain.vue'),
     },
     {
       path: '/search',
       name: 'search',
-      component: () => import('@/views/priceSearchDetail/PriceSearchDetail.vue'),
+      component: () => import('@/views/PriceSearchDetail/PriceSearchDetail.vue'),
     },
     {
       path: '/articles',
