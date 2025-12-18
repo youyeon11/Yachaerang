@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { useToastStore } from '@/stores/toast';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,6 +49,7 @@ const router = createRouter({
       path: '/ai-chat',
       name: 'ai-chat',
       component: () => import('@/views/ai/AIChat.vue'),
+      meta: { requiresAuth: true },
     },
     {
       path: '/mypage',
@@ -72,6 +74,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const accessToken = localStorage.getItem('accessToken');
+  const toastStore = useToastStore();
 
   const hasValidToken =
     accessToken && accessToken.trim() !== '' && accessToken !== 'null' && accessToken !== 'undefined';
@@ -81,6 +84,7 @@ router.beforeEach((to, from, next) => {
 
   // 1) 로그인 안 되어 있는데 보호 라우트 들어가면 -> 로그인으로
   if (isAuthRequired && !hasValidToken) {
+    toastStore.show('로그인이 필요한 기능입니다', 'info');
     next({ name: 'login' });
     return;
   }
