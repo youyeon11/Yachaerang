@@ -1,101 +1,132 @@
 <template>
-  <div class="page-container article-page">
-    <header class="page-header">
-      <div class="page-header-left">
-        <h1 class="page-title">기사</h1>
-        <p class="page-subtitle">한눈에 확인하는, 야채랑 PICK 농촌 기사</p>
-      </div>
+  <main class="flex-1 overflow-y-auto p-8 bg-gray-50">
+    <div class="mx-auto max-w-5xl space-y-6">
+      <!-- 헤더 -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight text-gray-900">기사</h1>
+          <p class="text-gray-600">한눈에 확인하는, 야채랑 PICK 농촌 기사</p>
+        </div>
 
-      <div class="page-header-right">
-        <div class="search-box">
+        <!-- 검색창 -->
+        <div class="flex border-2 border-[#FECC21] rounded-lg overflow-hidden">
           <input
             type="text"
             v-model="searchQuery"
             placeholder="검색어를 입력하세요."
-            class="search-input"
+            class="w-60 px-4 py-2.5 text-sm border-none outline-none"
             @keyup.enter="handleSearch"
           />
-          <button class="search-btn" @click="handleSearch">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
+          <button 
+            @click="handleSearch"
+            class="px-4 py-2.5 bg-[#FECC21] border-none cursor-pointer flex items-center justify-center text-gray-800 hover:bg-[#e5b800] transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
               <path d="m21 21-4.3-4.3"></path>
             </svg>
           </button>
         </div>
       </div>
-    </header>
 
-    <div class="article-list">
-      <div v-for="article in articles" :key="article.id" class="article-item" @click="goToDetail(article.id)">
-        <div class="article-thumbnail">
-          <img :src="article.thumbnail" :alt="article.title" />
-        </div>
-        <div class="article-content">
-          <h3 class="article-title">{{ article.title }}</h3>
-          <div class="article-tags" v-if="article.tags && article.tags.length">
-            <span v-for="tag in article.tags" :key="tag" class="tag">#{{ tag }}</span>
-          </div>
-          <div class="article-meta">
-            <span class="date">{{ article.date }}</span>
+      <!-- 기사 목록 -->
+      <div class="space-y-4">
+        <div
+          v-for="article in articles"
+          :key="article.id"
+          @click="goToDetail(article.id)"
+          class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-lg cursor-pointer"
+        >
+          <div class="flex flex-col md:flex-row">
+            <img
+              :src="article.thumbnail"
+              :alt="article.title"
+              class="h-48 w-full object-cover md:w-64"
+            />
+            <div class="flex-1 p-6">
+              <h3 class="mb-2 text-xl font-semibold text-gray-900">{{ article.title }}</h3>
+              
+              <!-- 태그 -->
+              <div v-if="article.tags && article.tags.length" class="flex gap-2 flex-wrap mb-2">
+                <span 
+                  v-for="tag in article.tags" 
+                  :key="tag" 
+                  class="text-sm text-[#F44323]"
+                >
+                  #{{ tag }}
+                </span>
+              </div>
+
+              <p class="mb-4 text-sm text-gray-500">{{ formatDate(article.date) }}</p>
+              
+              <button 
+                @click.stop="goToDetail(article.id)"
+                class="rounded-lg border-2 border-[#F44323] bg-transparent px-4 py-2 font-medium text-[#F44323] transition-colors hover:bg-[#F44323] hover:text-white"
+              >
+                자세히 보기
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="pagination">
-      <button class="page-btn nav" :disabled="currentPage === 1" @click="goToPage(1)">처음</button>
-      <button class="page-btn nav" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+      <!-- 페이지네이션 -->
+      <div class="flex items-center justify-center gap-2">
+        <!-- 처음 버튼 -->
+        <button
+          @click="goToPage(1)"
+          :disabled="currentPage === 1"
+          class="px-3 h-10 rounded-lg border border-gray-300 text-sm text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <path d="m15 18-6-6 6-6"></path>
-        </svg>
-      </button>
-      <button
-        v-for="page in visiblePages"
-        :key="page"
-        class="page-btn"
-        :class="{ active: page === currentPage }"
-        @click="goToPage(page)"
-      >
-        {{ page }}
-      </button>
-      <button class="page-btn nav" :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          처음
+        </button>
+
+        <!-- 이전 버튼 -->
+        <button
+          @click="goToPage(currentPage - 1)"
+          :disabled="currentPage === 1"
+          class="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <path d="m9 18 6-6-6-6"></path>
-        </svg>
-      </button>
-      <button class="page-btn nav" :disabled="currentPage === totalPages" @click="goToPage(totalPages)">마지막</button>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m15 18-6-6 6-6"></path>
+          </svg>
+        </button>
+
+        <!-- 페이지 번호들 -->
+        <button
+          v-for="page in visiblePages"
+          :key="page"
+          @click="goToPage(page)"
+          class="h-10 rounded-lg px-4 font-medium transition-colors"
+          :class="currentPage === page 
+            ? 'bg-[#F44323] text-white' 
+            : 'border border-gray-300 text-gray-700 hover:bg-gray-50'"
+        >
+          {{ page }}
+        </button>
+
+        <!-- 다음 버튼 -->
+        <button
+          @click="goToPage(currentPage + 1)"
+          :disabled="currentPage === totalPages"
+          class="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 18 6-6-6-6"></path>
+          </svg>
+        </button>
+
+        <!-- 마지막 버튼 -->
+        <button
+          @click="goToPage(totalPages)"
+          :disabled="currentPage === totalPages"
+          class="px-3 h-10 rounded-lg border border-gray-300 text-sm text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          마지막
+        </button>
+      </div>
     </div>
-  </div>
+  </main>
 </template>
 
 <script setup>
@@ -126,7 +157,6 @@ const loadArticles = async (page = 1) => {
     const response = await fetchArticles({
       page,
       size: itemsPerPage,
-      // TODO: 검색 파라미터가 정의되면 여기에 추가 (예: keyword: searchQuery.value)
     });
 
     const data = response.data?.data;
@@ -174,177 +204,8 @@ const goToPage = (page) => {
     loadArticles(page);
   }
 };
+
+const formatDate = (dateStr) => {
+  return new Date(dateStr).toLocaleDateString('ko-KR');
+};
 </script>
-
-<style scoped>
-.article-page {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.header-left {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.search-box {
-  display: flex;
-  border: 2px solid #fecc21;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.search-input {
-  width: 240px;
-  padding: 10px 14px;
-  font-size: 14px;
-  border: none;
-  outline: none;
-}
-
-.search-input::placeholder {
-  color: #999;
-}
-
-.search-btn {
-  padding: 10px 14px;
-  background-color: #fecc21;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #333;
-}
-
-.search-btn:hover {
-  background-color: #e5a030;
-}
-
-.article-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.article-item {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 20px 0;
-  border-top: 1px solid #eee;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.article-item:hover {
-  background-color: #fafafa;
-}
-
-.article-item:last-child {
-  border-bottom: 1px solid #eee;
-}
-
-.article-thumbnail {
-  width: 120px;
-  height: 80px;
-  border-radius: 8px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.article-thumbnail img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.article-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.article-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-}
-
-.article-tags {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.tag {
-  font-size: 12px;
-  color: #666;
-}
-
-.article-meta {
-  display: flex;
-  gap: 16px;
-  font-size: 13px;
-  color: #999;
-}
-
-.bookmark-btn {
-  padding: 8px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #ccc;
-  transition: color 0.2s;
-}
-
-.bookmark-btn:hover {
-  color: #f5b041;
-}
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 4px;
-  margin-top: 40px;
-}
-
-.page-btn {
-  min-width: 36px;
-  height: 36px;
-  padding: 0 12px;
-  border: none;
-  border-radius: 50%;
-  background: none;
-  font-size: 14px;
-  color: #666;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.page-btn:hover:not(:disabled) {
-  background-color: #f5f5f5;
-}
-
-.page-btn.active {
-  background-color: #333;
-  color: #fff;
-}
-
-.page-btn.nav {
-  border-radius: 8px;
-  font-size: 13px;
-  color: #999;
-}
-
-.page-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-</style>
