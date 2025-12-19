@@ -13,6 +13,17 @@
         <result property="periodType" column="period_type"
                 typeHandler="com.yachaerang.backend.global.util.PeriodTypeHandler"/>
     </resultMap>
+    <!-- DTO -->
+    <resultMap id="favoriteReadResultMap"
+               type="com.yachaerang.backend.api.favorite.dto.response.FavoriteResponseDto$ReadDto">
+        <id property="favoriteId" column="favorite_id"/>
+        <result property="itemCode" column="item_code"/>
+        <result property="itemName" column="item_name"/>
+        <result property="productCode" column="product_code"/>
+        <result property="productName" column="name"/>
+        <!-- String 일 경우 TypeHandler 불필요 -->
+        <result property="periodType" column="period_type" javaType="String"/>
+    </resultMap>
 
     <!-- save -->
     <insert id="save"
@@ -32,19 +43,34 @@
     </delete>
 
     <!-- findByMemberIdAndProductCode -->
-    <select id="findByMemberIdAndProductCode" resultMap="favoriteResultMap">
-        SELECT favorite_id, member_id, product_code, period_type, created_at, updated_at
-        FROM favorite
-        WHERE member_id = #{memberId}
-          AND product_code = #{productCode}
-          AND period_type = #{periodType}
+    <select id="findByMemberIdAndProductCode"
+            resultMap="favoriteReadResultMap">
+        SELECT
+            f.favorite_id,
+            p.item_code,
+            p.item_name,
+            f.product_code,
+            p.name,
+            f.period_type as period_type
+        FROM favorite f
+                 LEFT JOIN product p ON p.product_code = f.product_code
+        WHERE f.member_id = #{memberId}
+          AND f.product_code = #{productCode}
+          AND f.period_type = #{periodType}
     </select>
 
     <!-- findAllByMemberId -->
-    <select id="findAllByMemberId" resultMap="favoriteResultMap">
-        SELECT favorite_id, member_id, product_code, period_type, created_at, updated_at
-        FROM favorite
-        WHERE member_id = #{memberId}
-        ORDER BY created_at DESC
+    <select id="findAllByMemberId" resultMap="favoriteReadResultMap">
+        SELECT
+            f.favorite_id,
+            p.item_code,
+            p.item_name,
+            p.product_code,
+            p.name,
+            f.period_type AS period_type
+        FROM favorite f
+                 LEFT JOIN product p ON p.product_code = f.product_code
+        WHERE f.member_id = #{memberId}
+        ORDER BY f.created_at DESC
     </select>
 </mapper>

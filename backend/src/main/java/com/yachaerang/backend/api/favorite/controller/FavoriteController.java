@@ -41,7 +41,7 @@ public class FavoriteController {
      * 관심사 목록 전체 조회하기
      */
     @GetMapping("")
-    public List<FavoriteResponseDto.RegisterDto> getAll(
+    public List<FavoriteResponseDto.ReadDto> getAll(
             @RequestHeader("Authorization") String token
     ) {
         return favoriteService.getAllFavoriteList();
