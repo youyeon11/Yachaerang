@@ -5,16 +5,21 @@ export const useToastStore = defineStore('toast', {
     message: '',
     type: 'info',
     visible: false,
+    timerId: null,
   }),
 
   actions: {
     show(message, type = 'info') {
+      if (this.timerId) {
+        clearTimeout(this.timerId);
+      }
       this.message = message;
       this.type = type;
       this.visible = true;
 
-      setTimeout(() => {
+      this.timerId = setTimeout(() => {
         this.visible = false;
+        this.timerId = null;
       }, 2500);
     },
   },
