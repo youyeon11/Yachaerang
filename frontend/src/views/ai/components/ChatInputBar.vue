@@ -1,36 +1,54 @@
 <template>
-  <div class="input-wrapper">
-    <button v-if="messages.length > 0" class="reset-btn" @click="emit('reset')">
-      <span class="icon">↺</span>
-      <span class="label">대화 종료</span>
-    </button>
+  <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+    <div class="flex items-center gap-2">
+      <button
+        v-if="showReset && messages && messages.length > 0"
+        type="button"
+        class="hidden sm:inline-flex items-center gap-1 rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+        @click="emit('reset')"
+      >
+        <span class="icon">↺</span>
+        <span class="label">대화 종료</span>
+      </button>
 
-    <input
-      v-model="text"
-      class="input-box"
-      type="text"
-      :placeholder="
-        isLoading ? '야치가 답변을 만드는 중이에요...' : '궁금한 점을 야치에게 질문해주세요!'
-      "
-      :disabled="isLoading"
-      @keyup.enter="send"
-    />
+      <input
+        v-model="text"
+        type="text"
+        :placeholder="isLoading ? '야치가 답변을 만드는 중이에요...' : '궁금한 점을 야치에게 질문해주세요!'"
+        :disabled="isLoading"
+        @keyup.enter="send"
+        class="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20 disabled:bg-gray-100"
+      />
 
-    <button class="send-btn" :disabled="isLoading" @click="send">
-      <span v-if="!isLoading">➤</span>
-      <span v-else class="spinner"></span>
-    </button>
+      <button
+        type="button"
+        class="flex items-center justify-center rounded-lg bg-[#F44323] px-4 py-2 text-white transition-colors hover:bg-[#d63a1f] disabled:cursor-default disabled:opacity-60"
+        :disabled="isLoading"
+        @click="send"
+      >
+        <IconSend v-if="!isLoading" class="h-4 w-4" />
+        <span v-else class="spinner"></span>
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import IconSend from '@/components/icons/IconSend.vue';
 
 const props = defineProps({
-  messages: Array,
+  messages: {
+    type: Array,
+    default: () => [],
+  },
   isLoading: {
     type: Boolean,
     default: false,
+  },
+  showReset: {
+    type: Boolean,
+    default: true,
   },
 });
 
@@ -39,104 +57,24 @@ const emit = defineEmits(['send', 'reset']);
 const text = ref('');
 
 function send() {
-  if (!text.value.trim()) return;
-  emit('send', text.value);
+  const message = text.value.trim();
+  if (!message) return;
+  emit('send', message);
   text.value = '';
 }
+
+// 새 대화로 리셋되면 입력창도 비워주기
+watch(
+  () => props.messages && props.messages.length,
+  (newLen, oldLen) => {
+    if (oldLen > 1 && newLen === 1) {
+      text.value = '';
+    }
+  }
+);
 </script>
 
 <style scoped>
-.input-wrapper {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 40px);
-  max-width: 720px;
-
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  background: #f5f5f5;
-  padding: 12px 18px;
-  border-radius: 30px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-
-  z-index: 999;
-}
-
-.input-box {
-  flex: 1;
-  border: none;
-  background: transparent;
-  font-size: 16px;
-  outline: none;
-}
-
-.send-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: none;
-  background: #fecc21;
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.send-btn:disabled {
-  opacity: 0.7;
-  cursor: default;
-}
-
-.reset-btn {
-  position: relative;
-  height: 36px;
-  padding: 0 10px;
-  border: none;
-  background: #e9e9e9;
-  border-radius: 20px;
-  cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  font-size: 15px;
-
-  transition: all 0.25s ease;
-  overflow: hidden;
-  white-space: nowrap;
-
-  width: 36px;
-}
-.reset-btn:hover {
-  width: 110px;
-  background: #dcdcdc;
-}
-.icon {
-  font-size: 18px;
-  flex-shrink: 0;
-}
-.label {
-  opacity: 0;
-  width: 0;
-  overflow: hidden;
-  padding: 0;
-  transform: translateX(-6px);
-  transition: 0.25s ease;
-}
-.reset-btn:hover .label {
-  opacity: 1;
-  width: auto;
-  padding-left: 4px;
-  transform: translateX(0);
-}
-
 .spinner {
   width: 16px;
   height: 16px;
