@@ -84,8 +84,7 @@ router.beforeEach((to, from, next) => {
 
   // 1) 로그인 안 되어 있는데 보호 라우트 들어가면 -> 로그인으로
   if (isAuthRequired && !hasValidToken) {
-    toastStore.show('로그인이 필요한 기능입니다', 'info');
-    next({ name: 'login' });
+    next({ name: 'login', query: { message: '로그인이 필요한 기능입니다' } });
     return;
   }
 
