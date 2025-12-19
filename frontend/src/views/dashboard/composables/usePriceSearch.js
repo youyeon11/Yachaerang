@@ -105,7 +105,6 @@ export function usePriceSearch() {
   const fetchItems = async () => {
     try {
       const res = await fetchItemsApi();
-      console.log('품목 응답:', res.data);
       const body = res.data;
       const list = Array.isArray(body) ? body : Array.isArray(body?.data) ? body.data : [];
       itemOptions.value = list.map((item) => ({
@@ -232,161 +231,6 @@ export function usePriceSearch() {
     }
   };
 
-  /* ================= 즐겨찾기에서 필터 세팅 ================= */
-
-  const mapFavoriteToPeriodType = (favoritePeriodType) => {
-    switch (favoritePeriodType) {
-      case 'DAILY':
-        return 'day';
-      case 'WEEKLY':
-        return 'week';
-      case 'MONTHLY':
-        return 'month';
-      case 'YEARLY':
-        return 'year';
-      default:
-        return null;
-    }
-  };
-
-  const findItemCodeByProductCode = async (targetProductCode) => {
-    if (!targetProductCode) return null;
-
-    const normalizedTarget = String(targetProductCode);
-
-    if (!itemOptions.value.length) {
-      await fetchItems();
-    }
-
-    for (const opt of itemOptions.value) {
-      await fetchSubItems(opt.value);
-      const found = varietyOptions.value.some((v) => String(v.value) === normalizedTarget);
-      if (found) {
-        return String(opt.value);
-      }
-    }
-
-    return null;
-  };
-
-  const initializeFromFavorite = async (productCode, favoritePeriodType) => {
-    if (!productCode || !favoritePeriodType) return;
-
-    const normalizedProductCode = String(productCode);
-
-    const mappedPeriod = mapFavoriteToPeriodType(favoritePeriodType);
-    if (!mappedPeriod) return;
-
-    // 기간 타입 설정
-    periodType.value = mappedPeriod;
-
-    // 기간별 기본 날짜/연도 범위 세팅
-    if (mappedPeriod === 'day') {
-      // 일별: 어제 기준 1주일(7일)
-      const end = new Date(yesterday);
-      const start = new Date(end);
-      start.setDate(end.getDate() - 6);
-      dayStartDate.value = start;
-      dayEndDate.value = end;
-    } else if (mappedPeriod === 'week') {
-      // 주간: 마지막 완전한 주 기준 2주
-      const end = new Date(lastWeekSunday);
-      const start = new Date(end);
-      start.setDate(end.getDate() - 14);
-      weekStartDate.value = start;
-      weekEndDate.value = end;
-    } else if (mappedPeriod === 'month') {
-      // 월간: 어제가 속한 월 기준 최근 3개월
-      const end = new Date(yesterday);
-      const endYear = end.getFullYear();
-      const endMonthIndex = end.getMonth();
-      const start = new Date(endYear, endMonthIndex - 2, 1);
-      const endMonth = new Date(endYear, endMonthIndex, 1);
-      monthStartDate.value = start;
-      monthEndDate.value = endMonth;
-    } else if (mappedPeriod === 'year') {
-      isYearDetail.value = false;
-      const latestYear = maxYear;
-      yearStart.value = String(latestYear);
-      yearEnd.value = String(latestYear);
-    }
-
-    // 품목/품종 선택 세팅
-    suppressVarietyReset.value = true;
-    try {
-      const itemCode = await findItemCodeByProductCode(normalizedProductCode);
-      if (itemCode) {
-        selectedItem.value = String(itemCode);
-        await fetchSubItems(itemCode);
-
-        const exactMatch = varietyOptions.value.find((v) => String(v.value) === normalizedProductCode);
-        if (exactMatch) {
-          selectedVariety.value = String(exactMatch.value);
-        } else if (varietyOptions.value.length > 0) {
-          selectedVariety.value = varietyOptions.value[0].value;
-        } else {
-          selectedVariety.value = '';
-        }
-      }
-    } finally {
-      suppressVarietyReset.value = false;
-    }
-  };
-
-  const initializeFromRank = async (productCode) => {
-    if (!productCode) return;
-
-    const normalizedProductCode = String(productCode);
-
-    periodType.value = 'day';
-    const end = new Date(yesterday);
-    const start = new Date(end);
-    start.setDate(end.getDate() - 13);
-    dayStartDate.value = start;
-    dayEndDate.value = end;
-
-    suppressVarietyReset.value = true;
-    try {
-      const itemCode = await findItemCodeByProductCode(normalizedProductCode);
-      if (itemCode) {
-        selectedItem.value = String(itemCode);
-        await fetchSubItems(itemCode);
-
-        const exactMatch = varietyOptions.value.find((v) => String(v.value) === normalizedProductCode);
-        if (exactMatch) {
-          selectedVariety.value = String(exactMatch.value);
-        } else if (varietyOptions.value.length > 0) {
-          selectedVariety.value = String(varietyOptions.value[0].value);
-        } else {
-          selectedVariety.value = '';
-        }
-      }
-    } finally {
-      suppressVarietyReset.value = false;
-    }
-  };
-
-  const resetFilters = () => {
-    selectedItem.value = '';
-    selectedVariety.value = '';
-    periodType.value = 'year';
-    hasSearched.value = false;
-
-    dayStartDate.value = null;
-    dayEndDate.value = null;
-    weekStartDate.value = null;
-    weekEndDate.value = null;
-    monthStartDate.value = null;
-    monthEndDate.value = null;
-    yearStart.value = '';
-    yearEnd.value = '';
-    yearDetail.value = '';
-    isYearDetail.value = false;
-    varietyOptions.value = [];
-    priceResult.value = [];
-    hasSearched.value = false;
-  };
-
   /* ================= 응답 파싱 ================= */
 
   const extractPriceList = (raw) => {
@@ -397,6 +241,7 @@ export function usePriceSearch() {
     }
     return [];
   };
+
   /* ================= 일자 변환 함수 ================= */
   const normalizeResult = (rawList, type) => {
     return rawList.map((item) => {
@@ -434,11 +279,6 @@ export function usePriceSearch() {
   const handleSearch = async () => {
     const productCode = selectedVariety.value;
     const toastStore = useToastStore();
-
-    console.log('handleSearch 호출됨', {
-      periodType: periodType.value,
-      productCode,
-    });
 
     if (!productCode) {
       toastStore.show('품종을 선택해 주세요', 'info');
@@ -569,8 +409,27 @@ export function usePriceSearch() {
 
       toastStore.show('가격 정보를 가져오는 중 오류가 발생했습니다', 'error');
     }
+  };
 
-    console.log('최종 priceResult', priceResult.value);
+  const resetFilters = () => {
+    selectedItem.value = '';
+    selectedVariety.value = '';
+    periodType.value = 'year';
+    hasSearched.value = false;
+
+    dayStartDate.value = null;
+    dayEndDate.value = null;
+    weekStartDate.value = null;
+    weekEndDate.value = null;
+    monthStartDate.value = null;
+    monthEndDate.value = null;
+    yearStart.value = '';
+    yearEnd.value = '';
+    yearDetail.value = '';
+    isYearDetail.value = false;
+    varietyOptions.value = [];
+    priceResult.value = [];
+    hasSearched.value = false;
   };
 
   return {
@@ -600,7 +459,5 @@ export function usePriceSearch() {
     resetFilters,
     handleSearch,
     handleAddFavorite,
-    initializeFromFavorite,
-    initializeFromRank,
   };
 }
