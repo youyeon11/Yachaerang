@@ -8,6 +8,9 @@
       <Footer />
     </div>
   </div>
+  <div v-if="toast.visible" class="toast" :class="toast.type">
+    {{ toast.message }}
+  </div>
 </template>
 
 <script setup>
@@ -16,6 +19,7 @@ import { useRoute } from 'vue-router';
 import { useAuth } from '@/stores/auth';
 import Footer from '@/components/layout/Footer.vue';
 import NavBar from '@/components/layout/NavBar.vue';
+import { useToastStore } from '@/stores/toast';
 
 const route = useRoute();
 const { checkAuth } = useAuth();
@@ -27,6 +31,7 @@ onMounted(() => {
 const isFullPageLayout = computed(() => {
   return route.name === 'login' || route.name === 'signup' || route.name === 'ai-chat';
 });
+const toast = useToastStore();
 </script>
 
 <style>
