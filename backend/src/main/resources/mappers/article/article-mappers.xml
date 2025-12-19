@@ -40,4 +40,24 @@
         FROM article
         WHERE article_id = #{id}
     </select>
+
+    <!-- findByKeyword -->
+    <select id="findByKeyword" resultMap="articleResultMap">
+        SELECT DISTINCT a.*
+        FROM article a
+            LEFT JOIN tag t ON a.article_id = t.article_id
+        WHERE a.title LIKE CONCAT('%', #{keyword}, '%')
+           OR t.name LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY a.created_at DESC
+            LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- countByKeyword -->
+    <select id="countByKeyword" resultType="long">
+        SELECT COUNT(DISTINCT a.article_id)
+        FROM article a
+            LEFT JOIN tag t ON a.article_id = t.article_id
+        WHERE a.title LIKE CONCAT('%', #{keyword}, '%')
+           OR t.name LIKE CONCAT('%', #{keyword}, '%')
+    </select>
 </mapper>
