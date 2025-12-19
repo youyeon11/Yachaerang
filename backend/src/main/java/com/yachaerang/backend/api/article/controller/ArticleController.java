@@ -33,4 +33,18 @@ public class ArticleController {
     ) {
         return articleService.getArticle(articleId);
     }
+
+    @GetMapping("/search")
+    public ArticleResponseDto.PageDto<?> search(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(name = "keyword") String keyword
+    ) {
+        ArticleRequestDto.PageDto pageRequest
+                = ArticleRequestDto.PageDto.builder()
+                .page(page)
+                .size(size)
+                .build();
+        return articleService.searchArticles(pageRequest, keyword);
+    }
 }

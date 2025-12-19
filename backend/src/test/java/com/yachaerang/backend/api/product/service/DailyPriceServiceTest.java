@@ -42,14 +42,14 @@ class DailyPriceServiceTest {
     private List<DailyPriceResponseDto.RankDto> createDescendingMockData() {
         return List.of(
                 DailyPriceResponseDto.RankDto.builder()
-                        .itemCode("WATERMELON")
-                        .itemName("수박")
+                        .productCode("WATERMELON")
+                        .productName("수박")
                         .unit("개")
                         .price(20000L)
                         .build(),
                 DailyPriceResponseDto.RankDto.builder()
-                        .itemCode("GRAPE")
-                        .itemName("포도")
+                        .productCode("GRAPE")
+                        .productName("포도")
                         .unit("kg")
                         .price(15000L)
                         .build());
@@ -58,14 +58,14 @@ class DailyPriceServiceTest {
     private List<DailyPriceResponseDto.RankDto> createAscendingMockData() {
         return List.of(
                 DailyPriceResponseDto.RankDto.builder()
-                        .itemCode("ORANGE")
-                        .itemName("감귤")
+                        .productCode("ORANGE")
+                        .productName("감귤")
                         .unit("kg")
                         .price(2000L)
                         .build(),
                 DailyPriceResponseDto.RankDto.builder()
-                        .itemCode("PLUM")
-                        .itemName("자두")
+                        .productCode("PLUM")
+                        .productName("자두")
                         .unit("kg")
                         .price(4000L)
                         .build());
@@ -198,7 +198,7 @@ class DailyPriceServiceTest {
 
             // then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).getItemName()).isEqualTo("수박");
+            assertThat(result.get(0).getProductName()).isEqualTo("수박");
             assertThat(result.get(0).getPrice()).isEqualTo(20000);
 
             verify(dailyPriceMapper).getPricesDescending(YESTERDAY);
@@ -238,7 +238,7 @@ class DailyPriceServiceTest {
 
             // then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).getItemName()).isEqualTo("감귤");
+            assertThat(result.get(0).getProductName()).isEqualTo("감귤");
             assertThat(result.get(0).getPrice()).isEqualTo(2000L);
 
             verify(dailyPriceMapper).getPricesAscending(YESTERDAY);

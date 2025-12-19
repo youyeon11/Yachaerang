@@ -133,4 +133,46 @@ class S3FileServiceTest {
 
         verify(s3Client, never()).deleteObject(any(Consumer.class));
     }
+
+    @Test
+    @DisplayName("다양한 Content-Type 처리 성공")
+    void 다양한_ContentType_처리_성공() throws Exception {
+        // given
+        MultipartFile file = mock(MultipartFile.class);
+        given(file.getContentType()).willReturn("image/jpeg");
+        given(file.getSize()).willReturn(100L);
+        given(file.getInputStream()).willReturn(new ByteArrayInputStream(new byte[100]));
+
+        given(s3Client.utilities()).willReturn(s3Utilities);
+        given(s3Utilities.getUrl(any(GetUrlRequest.class)))
+                .willReturn(new URL("https://test-bucket.s3.amazonaws.com/images/profiles/1/photo.jpg"));
+
+        // when
+        String url = s3FileService.upload(file, "1/photo.jpg");
+
+        // then
+        ArgumentCaptor<PutObjectRequest> captor = ArgumentCaptor.forClass(PutObjectRequest.class);
+        verify(s3Client).putObject(captor.capture(), any(RequestBody.class));
+        assertThat(captor.getValue().contentType()).isEqualTo("image/jpeg");
+    }
+
+    @Test
+    @DisplayName("빈 path인 경우 성공")
+    void 빈_path인_경우() {
+        // given - path가 "/" 만 있는 경우
+        String url = "https://example.com/";
+
+        // when
+        s3FileService.deleteByUrl(url);
+
+        // then
+        ArgumentCaptor<Consumer<DeleteObjectRequest.Builder>> captor = ArgumentCaptor.forClass(Consumer.class);
+        verify(s3Client).deleteObject(captor.capture());
+
+        DeleteObjectRequest.Builder builder = DeleteObjectRequest.builder();
+        captor.getValue().accept(builder);
+        DeleteObjectRequest req = builder.build();
+
+        assertThat(req.key()).isEmpty();
+    }
 }

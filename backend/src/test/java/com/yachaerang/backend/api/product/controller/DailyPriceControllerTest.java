@@ -71,40 +71,40 @@ class DailyPriceControllerTest extends RestDocsSupport {
     void setUp() {
         rankList1 = List.of(
                 DailyPriceResponseDto.RankDto.builder()
-                        .itemName("수박")
-                        .itemCode("WATERMELON")
+                        .productName("수박(1개) - 상품")
+                        .productCode("WATERMELON")
                         .unit("개")
                         .price(20000L)
                         .build(),
                 DailyPriceResponseDto.RankDto.builder()
-                        .itemName("포도")
-                        .itemCode("GRAPE")
+                        .productName("포도(1kg) - 중품")
+                        .productCode("GRAPE")
                         .unit("kg")
                         .price(15000L)
                         .build(),
                 DailyPriceResponseDto.RankDto.builder()
-                        .itemName("딸기")
-                        .itemCode("STRAWBERRY")
+                        .productName("딸기(1kg) - 상품")
+                        .productCode("STRAWBERRY")
                         .unit("kg")
                         .price(12000L)
                         .build()
             );
         rankList2 = List.of(
                 DailyPriceResponseDto.RankDto.builder()
-                        .itemName("오렌지")
-                        .itemCode("ORANGE")
+                        .productName("오렌지(10개) - 중품")
+                        .productCode("ORANGE")
                         .unit("개")
                         .price(3000L)
                         .build(),
                 DailyPriceResponseDto.RankDto.builder()
-                        .itemName("자두")
-                        .itemCode("PLUM")
+                        .productName("자두(1kg) - 상품")
+                        .productCode("PLUM")
                         .unit("kg")
                         .price(4000L)
                         .build(),
                 DailyPriceResponseDto.RankDto.builder()
-                        .itemName("사과")
-                        .itemCode("APPLE")
+                        .productName("사과(1kg) - 상품")
+                        .productCode("APPLE")
                         .unit("kg")
                         .price(5000L)
                         .build()
@@ -180,8 +180,8 @@ class DailyPriceControllerTest extends RestDocsSupport {
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_LIST_DESCRIPTOR)
                                 .andWithPrefix("data[]",
-                                        fieldWithPath("itemName").type(STRING).description("상품 이름"),
-                                        fieldWithPath("itemCode").type(STRING).description("상품 코드"),
+                                        fieldWithPath("productName").type(STRING).description("상품 이름"),
+                                        fieldWithPath("productCode").type(STRING).description("상품 코드"),
                                         fieldWithPath("unit").type(STRING).description("단위"),
                                         fieldWithPath("price").type(NUMBER).description("가격")
                                 )));
@@ -205,8 +205,8 @@ class DailyPriceControllerTest extends RestDocsSupport {
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_LIST_DESCRIPTOR)
                                 .andWithPrefix("data[]",
-                                        fieldWithPath("itemName").type(STRING).description("상품 이름"),
-                                        fieldWithPath("itemCode").type(STRING).description("상품 코드"),
+                                        fieldWithPath("productName").type(STRING).description("상품 이름"),
+                                        fieldWithPath("productCode").type(STRING).description("상품 코드"),
                                         fieldWithPath("unit").type(STRING).description("단위"),
                                         fieldWithPath("price").type(NUMBER).description("가격")
                                 )));

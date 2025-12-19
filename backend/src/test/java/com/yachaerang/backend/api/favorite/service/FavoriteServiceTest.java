@@ -13,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -42,6 +43,7 @@ class FavoriteServiceTest {
     private static final Long TEST_MEMBER_ID = 1L;
     private static final Long TEST_FAVORITE_ID = 100L;
     private static final String TEST_PRODUCT_CODE = "PROD001";
+    private static final String TEST_PRODUCT_NAME = "PRODUCT";
     private static final String TEST_PERIOD_TYPE = "DAILY";
 
     @BeforeEach
@@ -63,33 +65,27 @@ class FavoriteServiceTest {
                     .periodType(TEST_PERIOD_TYPE)
                     .build();
 
-            Favorite savedFavorite = Favorite.builder()
-                    .favoriteId(TEST_FAVORITE_ID)
-                    .memberId(TEST_MEMBER_ID)
-                    .productCode(TEST_PRODUCT_CODE)
-                    .periodType(PeriodType.fromCode(TEST_PERIOD_TYPE))
-                    .build();
-
             // 중복 체크
             given(favoriteMapper.findByMemberIdAndProductCode(
                     eq(TEST_MEMBER_ID), eq(TEST_PRODUCT_CODE), eq(TEST_PERIOD_TYPE)))
-                    .willReturn(null)  // 첫 번째 호출 (중복 체크)
-                    .willReturn(savedFavorite);  // 두 번째 호출 (저장 후 조회)
-
-            given(favoriteMapper.save(any(Favorite.class))).willReturn(1);
-
+                    .willReturn(null);
+            given(favoriteMapper.save(any(Favorite.class))).willAnswer(invocation -> {
+                Favorite favorite = invocation.getArgument(0);
+                favorite.setFavoriteId(1L);
+                return 1;
+            });
             // when
             FavoriteResponseDto.RegisterDto result = favoriteService.register(requestDto);
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getFavoriteId()).isEqualTo(TEST_FAVORITE_ID);
+            assertThat(result.getFavoriteId()).isEqualTo(1L);
             assertThat(result.getProductCode()).isEqualTo(TEST_PRODUCT_CODE);
             assertThat(result.getPeriodType()).isEqualTo(TEST_PERIOD_TYPE);
 
+            verify(favoriteMapper).findByMemberIdAndProductCode(
+                    TEST_MEMBER_ID, TEST_PRODUCT_CODE, TEST_PERIOD_TYPE);
             verify(favoriteMapper).save(any(Favorite.class));
-            verify(favoriteMapper, times(2))
-                    .findByMemberIdAndProductCode(TEST_MEMBER_ID, TEST_PRODUCT_CODE, TEST_PERIOD_TYPE);
         }
 
         @Test
@@ -101,22 +97,24 @@ class FavoriteServiceTest {
                     .periodType(TEST_PERIOD_TYPE)
                     .build();
 
-            Favorite existingFavorite = Favorite.builder()
+            FavoriteResponseDto.ReadDto existingFavorite = FavoriteResponseDto.ReadDto.builder()
                     .favoriteId(TEST_FAVORITE_ID)
-                    .memberId(TEST_MEMBER_ID)
                     .productCode(TEST_PRODUCT_CODE)
-                    .periodType(PeriodType.fromCode(TEST_PERIOD_TYPE))
+                    .periodType(TEST_PERIOD_TYPE)
                     .build();
 
+            given(authenticatedMemberProvider.getCurrentMemberId()).willReturn(TEST_MEMBER_ID);
+
+            // 중복 체크에서 중복
             given(favoriteMapper.findByMemberIdAndProductCode(
-                    TEST_MEMBER_ID, TEST_PRODUCT_CODE, TEST_PERIOD_TYPE))
-                    .willReturn(existingFavorite);
+                    eq(TEST_MEMBER_ID), eq(TEST_PRODUCT_CODE), eq(TEST_PERIOD_TYPE)
+            )).willReturn(existingFavorite);
 
             // when & then
             assertThatThrownBy(() -> favoriteService.register(requestDto))
                     .isInstanceOf(GeneralException.class)
-                    .satisfies(exception -> {
-                        GeneralException ge = (GeneralException) exception;
+                    .satisfies(ex -> {
+                        GeneralException ge = (GeneralException) ex;
                         assertThat(ge.getErrorCode()).isEqualTo(ErrorCode.FAVORITE_DUPLICATED);
                     });
 
@@ -156,31 +154,37 @@ class FavoriteServiceTest {
         @DisplayName("회원의 모든 관심사 조회 성공")
         void 회원의_모든_관심사_조회_성공() {
             // given
-            List<Favorite> favorites = List.of(
-                    Favorite.builder()
+            List<FavoriteResponseDto.ReadDto> favorites = List.of(
+                    FavoriteResponseDto.ReadDto.builder()
                             .favoriteId(1L)
-                            .memberId(TEST_MEMBER_ID)
+                            .itemCode("A")
+                            .itemName("item A")
                             .productCode("PROD_A")
-                            .periodType(PeriodType.fromCode("DAILY"))
+                            .productName("PRODUCT_A")
+                            .periodType("DAILY")
                             .build(),
-                    Favorite.builder()
+                    FavoriteResponseDto.ReadDto.builder()
                             .favoriteId(2L)
-                            .memberId(TEST_MEMBER_ID)
+                            .itemCode("B")
+                            .itemName("item B")
                             .productCode("PROD_B")
-                            .periodType(PeriodType.fromCode("WEEKLY"))
+                            .productName("PRODUCT_B")
+                            .periodType("DAILY")
                             .build(),
-                    Favorite.builder()
+                    FavoriteResponseDto.ReadDto.builder()
                             .favoriteId(3L)
-                            .memberId(TEST_MEMBER_ID)
+                            .itemCode("C")
+                            .itemName("item C")
                             .productCode("PROD_C")
-                            .periodType(PeriodType.fromCode("MONTHLY"))
+                            .productName("PRODUCT_C")
+                            .periodType("DAILY")
                             .build()
             );
 
             given(favoriteMapper.findAllByMemberId(TEST_MEMBER_ID)).willReturn(favorites);
 
             // when
-            List<FavoriteResponseDto.RegisterDto> result = favoriteService.getAllFavoriteList();
+            List<FavoriteResponseDto.ReadDto> result = favoriteService.getAllFavoriteList();
 
             // then
             assertThat(result).hasSize(3);
@@ -200,7 +204,7 @@ class FavoriteServiceTest {
                     .willReturn(Collections.emptyList());
 
             // when
-            List<FavoriteResponseDto.RegisterDto> result = favoriteService.getAllFavoriteList();
+            List<FavoriteResponseDto.ReadDto> result = favoriteService.getAllFavoriteList();
 
             // then
             assertThat(result).isEmpty();
@@ -212,22 +216,24 @@ class FavoriteServiceTest {
         @DisplayName("DTO 매핑 성공")
         void DTO_매핑_성공() {
             // given
-            Favorite favorite = Favorite.builder()
+            FavoriteResponseDto.ReadDto favorite = FavoriteResponseDto.ReadDto.builder()
                     .favoriteId(TEST_FAVORITE_ID)
-                    .memberId(TEST_MEMBER_ID)
+                    .itemCode("A")
+                    .itemName("item A")
                     .productCode(TEST_PRODUCT_CODE)
-                    .periodType(PeriodType.fromCode(TEST_PERIOD_TYPE))
-                    .build();
+                    .productName(TEST_PRODUCT_NAME)
+                    .periodType(TEST_PERIOD_TYPE)
+                            .build();
 
             given(favoriteMapper.findAllByMemberId(TEST_MEMBER_ID))
                     .willReturn(List.of(favorite));
 
             // when
-            List<FavoriteResponseDto.RegisterDto> result = favoriteService.getAllFavoriteList();
+            List<FavoriteResponseDto.ReadDto> result = favoriteService.getAllFavoriteList();
 
             // then
             assertThat(result).hasSize(1);
-            FavoriteResponseDto.RegisterDto dto = result.get(0);
+            FavoriteResponseDto.ReadDto dto = result.get(0);
             assertThat(dto.getFavoriteId()).isEqualTo(TEST_FAVORITE_ID);
             assertThat(dto.getProductCode()).isEqualTo(TEST_PRODUCT_CODE);
             assertThat(dto.getPeriodType()).isEqualTo(TEST_PERIOD_TYPE);
@@ -299,25 +305,24 @@ class FavoriteServiceTest {
                 .periodType(TEST_PERIOD_TYPE)
                 .build();
 
-        Favorite savedFavorite = Favorite.builder()
-                .favoriteId(TEST_FAVORITE_ID)
-                .memberId(specificMemberId)
-                .productCode(TEST_PRODUCT_CODE)
-                .periodType(PeriodType.fromCode(TEST_PERIOD_TYPE))
-                .build();
-
+        // 중복 체크에서 중복 없음
         given(favoriteMapper.findByMemberIdAndProductCode(
                 eq(specificMemberId), eq(TEST_PRODUCT_CODE), eq(TEST_PERIOD_TYPE)))
-                .willReturn(null)
-                .willReturn(savedFavorite);
+                .willReturn(null);
         given(favoriteMapper.save(any(Favorite.class))).willReturn(1);
 
         // when
-        favoriteService.register(requestDto);
+        FavoriteResponseDto.RegisterDto result = favoriteService.register(requestDto);
 
         // then
+        assertThat(result).isNotNull();
         verify(authenticatedMemberProvider).getCurrentMemberId();
-        verify(favoriteMapper, times(2)).findByMemberIdAndProductCode(
-                specificMemberId, TEST_PRODUCT_CODE, TEST_PERIOD_TYPE);
+        verify(favoriteMapper).findByMemberIdAndProductCode(
+                eq(specificMemberId), eq(TEST_PRODUCT_CODE), eq(TEST_PERIOD_TYPE));
+
+        // 저장 메서드에서 specificMemberId 사용됐는지 확인
+        ArgumentCaptor<Favorite> captor = ArgumentCaptor.forClass(Favorite.class);
+        verify(favoriteMapper).save(captor.capture());
+        assertThat(captor.getValue().getMemberId()).isEqualTo(specificMemberId);
     }
 }

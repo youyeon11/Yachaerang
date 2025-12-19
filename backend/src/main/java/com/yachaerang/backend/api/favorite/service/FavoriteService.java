@@ -43,13 +43,11 @@ public class FavoriteService {
         if (result != 1) {
             throw GeneralException.of(ErrorCode.FAVORITE_SAVE_FAILED);
         }
-        Favorite savedFavorite = favoriteMapper.findByMemberIdAndProductCode(
-                memberId, requestDto.getProductCode(), requestDto.getPeriodType()
-        );
+
         return FavoriteResponseDto.RegisterDto.builder()
-                .favoriteId(savedFavorite.getFavoriteId())
-                .productCode(savedFavorite.getProductCode())
-                .periodType(savedFavorite.getPeriodType().getCode())
+                .favoriteId(favorite.getFavoriteId())
+                .productCode(requestDto.getProductCode())
+                .periodType(requestDto.getPeriodType())
                 .build();
     }
 
@@ -58,15 +56,9 @@ public class FavoriteService {
     관심 대시보드 목록 전체 조회하기
      */
     @Transactional(readOnly = true)
-    public List<FavoriteResponseDto.RegisterDto> getAllFavoriteList() {
+    public List<FavoriteResponseDto.ReadDto> getAllFavoriteList() {
         Long memberId = authenticatedMemberProvider.getCurrentMemberId();
         return favoriteMapper.findAllByMemberId(memberId).stream()
-                .map(favorite -> FavoriteResponseDto.RegisterDto.builder()
-                        .favoriteId(favorite.getFavoriteId())
-                        .productCode(favorite.getProductCode())
-                        .periodType(favorite.getPeriodType().getCode())
-                        .build()
-                )
                 .toList();
     }
 

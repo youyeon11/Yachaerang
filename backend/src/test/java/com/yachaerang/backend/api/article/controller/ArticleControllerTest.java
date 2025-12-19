@@ -176,4 +176,54 @@ class ArticleControllerTest extends RestDocsSupport {
                                         fieldWithPath("createdAt").type(STRING).description("작성일")
                 )));
     }
+
+    @Test
+    @DisplayName("[GET] /api/v1/articles/search")
+    void searchArticles() throws Exception {
+        // given
+        String keyword = "제목1";
+        ArticleResponseDto.PageDto<ArticleResponseDto.ListDto> pageDto =
+                ArticleResponseDto.PageDto.<ArticleResponseDto.ListDto>builder()
+                        .content(List.of(listDto1, listDto2))
+                        .currentPage(1)
+                        .pageSize(5)
+                        .totalElements(2L)
+                        .totalPages(1)
+                        .first(true)
+                        .last(true)
+                        .hasNext(false)
+                        .hasPrevious(false)
+                        .build();
+
+        given(articleService.searchArticles(any(ArticleRequestDto.PageDto.class), any(String.class)))
+                .willReturn(pageDto);
+
+        // when & then
+        mockMvc.perform(get("/api/v1/articles/search")
+                        .param("page", "1")
+                        .param("size", "5")
+                        .param("keyword", keyword)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(doc(
+                        "search-articles",
+                        requestHeaders(),
+                        pathParameters(),
+                        queryParameters(
+                                parameterWithName("page").description("페이지 번호 (기본값: 1)"),
+                                parameterWithName("size").description("페이지 크기 (기본값: 5)"),
+                                parameterWithName("keyword").description("검색할 키워드")
+                        ),
+                        responseFields(ENVELOPE_COMMON)
+                                .and(fieldWithPath("data").type(OBJECT).description("응답 데이터"))
+                                .andWithPrefix("data.", PAGE_FIELDS)
+                                .andWithPrefix("data.content[].",
+                                        fieldWithPath("articleId").type(NUMBER).description("기사 ID"),
+                                        fieldWithPath("title").type(STRING).description("기사 제목"),
+                                        fieldWithPath("imageUrl").type(STRING).description("이미지 URL"),
+                                        fieldWithPath("tagList[]").type(ARRAY).description("태그 목록"),
+                                        fieldWithPath("createdAt").type(STRING).description("작성일")
+                                )
+                ));
+    }
 }

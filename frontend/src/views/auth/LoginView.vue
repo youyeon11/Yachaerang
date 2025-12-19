@@ -21,7 +21,7 @@
       </form>
 
       <div class="bottom-links">
-        <a href="#" class="link">비밀번호 찾기</a>
+        <router-link to="/forgot-password" class="link">비밀번호 찾기</router-link>
         <span class="divider">|</span>
         <router-link to="/signup" class="link">회원가입</router-link>
       </div>

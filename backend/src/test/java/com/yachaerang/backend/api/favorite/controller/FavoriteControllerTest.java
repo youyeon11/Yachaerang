@@ -144,20 +144,29 @@ class FavoriteControllerTest extends RestDocsSupport {
     @DisplayName("관심사 목록을 성공적으로 조회한다")
     void getAll_Success() throws Exception {
         // given
-        List<FavoriteResponseDto.RegisterDto> responseList = List.of(
-                FavoriteResponseDto.RegisterDto.builder()
+        List<FavoriteResponseDto.ReadDto> responseList = List.of(
+                FavoriteResponseDto.ReadDto.builder()
                         .favoriteId(1L)
+                        .itemCode("ITEM_A")
+                        .itemName("A")
                         .productCode("PROD_A")
+                        .productName("PRODUCT_A")
                         .periodType("DAILY")
                         .build(),
-                FavoriteResponseDto.RegisterDto.builder()
+                FavoriteResponseDto.ReadDto.builder()
                         .favoriteId(2L)
+                        .itemCode("ITEM_B")
+                        .itemName("B")
                         .productCode("PROD_B")
+                        .productName("PRODUCT_B")
                         .periodType("WEEKLY")
                         .build(),
-                FavoriteResponseDto.RegisterDto.builder()
+                FavoriteResponseDto.ReadDto.builder()
                         .favoriteId(3L)
+                        .itemCode("ITEM_C")
+                        .itemName("C")
                         .productCode("PROD_C")
+                        .productName("PRODUCT_C")
                         .periodType("MONTHLY")
                         .build()
         );
@@ -180,7 +189,10 @@ class FavoriteControllerTest extends RestDocsSupport {
                                 .and(DATA_ARRAY_DESCRIPTOR)
                                 .andWithPrefix("data[]",
                                         fieldWithPath("favoriteId").type(NUMBER).description("관심 대시보드(favorite) 고유 ID"),
+                                        fieldWithPath("itemCode").type(STRING).description("상위 품목 코드"),
+                                        fieldWithPath("itemName").type(STRING).description("상위 품목 이름"),
                                         fieldWithPath("productCode").type(STRING).description("상품 코드"),
+                                        fieldWithPath("productName").type(STRING).description("상품 이름"),
                                         fieldWithPath("periodType").type(STRING).description("기간 타입")
                                 )));
     }

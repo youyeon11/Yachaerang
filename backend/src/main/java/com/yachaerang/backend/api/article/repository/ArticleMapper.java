@@ -29,4 +29,21 @@ public interface ArticleMapper {
     모든 Article 개수 조회
      */
     Long countAll();
+
+    /**
+     * 기사 검색하기
+     * @param limit : size
+     * @param offset : page로 계산
+     * @param keyword : 검색어
+     * @return
+     */
+    List<Article> findByKeyword(
+            @Param("limit") int limit,
+            @Param("offset") int offset,
+            @Param("keyword") String keyword);
+
+    /**
+     * 검색에 해당되는 기사 개수 조회(페이지네이션)
+     */
+    Long countByKeyword(@Param("keyword") String keyword);
 }

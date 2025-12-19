@@ -23,8 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ArticleServiceTest {
@@ -45,6 +44,12 @@ class ArticleServiceTest {
     private Tag tag3;
     private Tag tag4;
 
+    private static final String TEST_KEYWORD = "title";
+    private static final int TEST_SIZE = 5;
+    private static final int TEST_PAGE = 1;
+
+    private ArticleRequestDto.PageDto pageRequest;
+
     @BeforeEach
     void setUp() {
         tag1 = Tag.builder().id(1L).name("tag1").articleId(1L).build();
@@ -58,6 +63,10 @@ class ArticleServiceTest {
         article2 = new Article(2L, "title2", "content2", "default.png", "http://example.com",
                 List.of(tag3, tag4));
         article2.setCreatedAt(LocalDateTime.of(2020, 11,12,11,11));
+        pageRequest = ArticleRequestDto.PageDto.builder()
+                .size(TEST_SIZE)
+                .page(TEST_PAGE)
+                .build();
     }
 
     @Test
@@ -119,7 +128,7 @@ class ArticleServiceTest {
 
         verify(articleMapper).findAllWithPagination(5, 0);
         verify(tagMapper, never()).findByArticleIdList(anyList());
-        verify(articleMapper, never()).countAll();
+        verify(articleMapper, times(1)).countAll();
     }
 
     @Test
@@ -220,5 +229,100 @@ class ArticleServiceTest {
         // then
         assertThat(result.getArticleId()).isEqualTo(articleId);
         assertThat(result.getTagList()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("기사 검색 성공")
+    void 기사_검색_성공() {
+        // given
+        given(articleMapper.findByKeyword(pageRequest.getLimit(), pageRequest.getOffset(), TEST_KEYWORD))
+                .willReturn(List.of(article1, article2));
+
+        given(articleMapper.countByKeyword(TEST_KEYWORD))
+                .willReturn(2L);
+        // 태그 다시 조회
+        given(tagMapper.findByArticleIdList(List.of(1L, 2L)))
+                .willReturn(List.of(tag1, tag2, tag3, tag4));
+
+        // when
+        ArticleResponseDto.PageDto<ArticleResponseDto.ListDto> result =
+                articleService.searchArticles(pageRequest, TEST_KEYWORD);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getTotalElements()).isEqualTo(2L);
+
+        List<ArticleResponseDto.ListDto> content = result.getContent();
+        assertThat(content).hasSize(2);
+
+        ArticleResponseDto.ListDto dto1 = content.get(0);
+        assertThat(dto1.getArticleId()).isEqualTo(1L);
+        assertThat(dto1.getTitle()).isEqualTo("title1");
+        assertThat(dto1.getImageUrl()).isEqualTo("default.png");
+        assertThat(dto1.getCreatedAt()).isEqualTo(LocalDateTime.of(2020, 11, 11, 11, 11).toLocalDate());
+        assertThat(dto1.getTagList()).containsExactlyInAnyOrder("tag1", "tag2");
+
+        ArticleResponseDto.ListDto dto2 = content.get(1);
+        assertThat(dto2.getArticleId()).isEqualTo(2L);
+        assertThat(dto2.getTitle()).isEqualTo("title2");
+        assertThat(dto2.getImageUrl()).isEqualTo("default.png");
+        assertThat(dto2.getCreatedAt()).isEqualTo(LocalDateTime.of(2020, 11, 12, 11, 11).toLocalDate());
+        assertThat(dto2.getTagList()).containsExactlyInAnyOrder("tag3", "tag4");
+
+        verify(articleMapper).findByKeyword(pageRequest.getLimit(), pageRequest.getOffset(), TEST_KEYWORD);
+        verify(articleMapper).countByKeyword(TEST_KEYWORD);
+        verify(tagMapper).findByArticleIdList(List.of(1L, 2L));
+    }
+
+    @Test
+    @DisplayName("검색 결과가 없으면 빈 리스트 반환")
+    void 검색_결과가_없으면_빈리스트() {
+        // given
+        given(articleMapper.findByKeyword(pageRequest.getLimit(), pageRequest.getOffset(), TEST_KEYWORD))
+                .willReturn(Collections.emptyList());
+
+        given(articleMapper.countByKeyword(TEST_KEYWORD))
+                .willReturn(0L);
+
+        // when
+        ArticleResponseDto.PageDto<ArticleResponseDto.ListDto> result =
+                articleService.searchArticles(pageRequest, TEST_KEYWORD);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).isEmpty();
+        assertThat(result.getTotalElements()).isEqualTo(0L);
+
+        verify(articleMapper).findByKeyword(pageRequest.getLimit(), pageRequest.getOffset(), TEST_KEYWORD);
+        verify(articleMapper).countByKeyword(TEST_KEYWORD);
+        verify(tagMapper, never()).findByArticleIdList(anyList());
+    }
+
+    @Test
+    @DisplayName("태그 조회 결과가 비면 tagList 빈 리스트")
+    void 태그_조회_결과가_비면_tagList_빈리스트() {
+        // given
+        given(articleMapper.findByKeyword(pageRequest.getLimit(), pageRequest.getOffset(), TEST_KEYWORD))
+                .willReturn(List.of(article1));
+
+        given(articleMapper.countByKeyword(TEST_KEYWORD))
+                .willReturn(1L);
+
+        given(tagMapper.findByArticleIdList(List.of(1L)))
+                .willReturn(Collections.emptyList());
+
+        // when
+        ArticleResponseDto.PageDto<ArticleResponseDto.ListDto> result =
+                articleService.searchArticles(pageRequest, TEST_KEYWORD);
+
+        // then
+        assertThat(result.getTotalElements()).isEqualTo(1L);
+        assertThat(result.getContent()).hasSize(1);
+
+        ArticleResponseDto.ListDto dto = result.getContent().get(0);
+        assertThat(dto.getArticleId()).isEqualTo(1L);
+        assertThat(dto.getTagList()).isEmpty();
+
+        verify(tagMapper).findByArticleIdList(List.of(1L));
     }
 }

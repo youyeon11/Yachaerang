@@ -1,6 +1,7 @@
 package com.yachaerang.backend.api.favorite.repository;
 
 import com.yachaerang.backend.api.common.PeriodType;
+import com.yachaerang.backend.api.favorite.dto.response.FavoriteResponseDto;
 import com.yachaerang.backend.api.favorite.entity.Favorite;
 import com.yachaerang.backend.global.config.MyBatisConfig;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +31,10 @@ class FavoriteMapperTest {
 
     @Autowired private FavoriteMapper favoriteMapper;
 
+    private static final String TEST_ITEM_NAME = "사과";
+    private static final String TEST_ITEM_CODE = "411";
     private static final String TEST_PRODUCT_CODE = "KM-411-02-04"; // 테스트 데이터와는 다른 productCode
+    private static final String TEST_PRODUCT_NAME = "홍로(10kg) - 상품";
     private static final Long TEST_MEMBER_ID = 1L;
     private static final String TEST_PERIOD_TYPE = "DAILY";
 
@@ -96,7 +100,7 @@ class FavoriteMapperTest {
         assertThat(result).isEqualTo(1);
 
         // 삭제 확인
-        Favorite deleted = favoriteMapper.findByMemberIdAndProductCode(
+        FavoriteResponseDto.ReadDto deleted = favoriteMapper.findByMemberIdAndProductCode(
                 TEST_MEMBER_ID, TEST_PRODUCT_CODE, "DAILY");
         assertThat(deleted).isNull();
     }
@@ -120,24 +124,26 @@ class FavoriteMapperTest {
     @DisplayName("관심사 찾기 성공")
     void 관심사_찾기_성공() {
         // given
-        Favorite favorite = createAndSaveFavorite(TEST_MEMBER_ID, TEST_PRODUCT_CODE, "DAILY");
+        createAndSaveFavorite(TEST_MEMBER_ID, TEST_PRODUCT_CODE, "DAILY");
 
         // when
-        Favorite found = favoriteMapper.findByMemberIdAndProductCode(
+        FavoriteResponseDto.ReadDto found = favoriteMapper.findByMemberIdAndProductCode(
                 TEST_MEMBER_ID, TEST_PRODUCT_CODE, "DAILY");
 
         // then
         assertThat(found).isNotNull();
-        assertThat(found.getMemberId()).isEqualTo(TEST_MEMBER_ID);
+        assertThat(found.getItemCode()).isEqualTo(TEST_ITEM_CODE);
+        assertThat(found.getItemName()).isEqualTo(TEST_ITEM_NAME);
         assertThat(found.getProductCode()).isEqualTo(TEST_PRODUCT_CODE);
-        assertThat(found.getPeriodType()).isEqualTo(PeriodType.fromCode("DAILY"));
+        assertThat(found.getProductName()).isEqualTo(TEST_PRODUCT_NAME);
+        assertThat(found.getPeriodType()).isEqualTo("DAILY");
     }
 
     @Test
     @DisplayName("존재하지 않는 조합으로 조회 시 null")
     void 존재하지않는_조합으로_조회시_null() {
         // when
-        Favorite found = favoriteMapper.findByMemberIdAndProductCode(
+        FavoriteResponseDto.ReadDto found = favoriteMapper.findByMemberIdAndProductCode(
                 TEST_MEMBER_ID, "NON_EXISTING_PROD", TEST_PERIOD_TYPE);
 
         // then
@@ -152,9 +158,9 @@ class FavoriteMapperTest {
         createAndSaveFavorite(TEST_MEMBER_ID, TEST_PRODUCT_CODE, "WEEKLY");
 
         // when
-        Favorite dailyFavorite = favoriteMapper.findByMemberIdAndProductCode(
+        FavoriteResponseDto.ReadDto dailyFavorite = favoriteMapper.findByMemberIdAndProductCode(
                 TEST_MEMBER_ID, TEST_PRODUCT_CODE, "DAILY");
-        Favorite weeklyFavorite = favoriteMapper.findByMemberIdAndProductCode(
+        FavoriteResponseDto.ReadDto weeklyFavorite = favoriteMapper.findByMemberIdAndProductCode(
                 TEST_MEMBER_ID, TEST_PRODUCT_CODE, "WEEKLY");
 
         // then
@@ -173,7 +179,7 @@ class FavoriteMapperTest {
         createAndSaveFavorite(TEST_MEMBER_ID, TEST_PRODUCT_CODE, "MONTHLY");
 
         // when
-        List<Favorite> favoriteList = favoriteMapper.findAllByMemberId(TEST_MEMBER_ID);
+        List<FavoriteResponseDto.ReadDto> favoriteList = favoriteMapper.findAllByMemberId(TEST_MEMBER_ID);
 
         // then
         assertThat(favoriteList).hasSize(8); // 기존의 테스트 데이터 5
@@ -186,7 +192,7 @@ class FavoriteMapperTest {
         Long memberWithNoFavorites = 3L;
 
         // when
-        List<Favorite> favorites = favoriteMapper.findAllByMemberId(memberWithNoFavorites);
+        List<FavoriteResponseDto.ReadDto> favorites = favoriteMapper.findAllByMemberId(memberWithNoFavorites);
 
         // then
         assertThat(favorites).isEmpty();
@@ -203,13 +209,13 @@ class FavoriteMapperTest {
         Favorite third = createAndSaveFavorite(3L, TEST_PRODUCT_CODE, "MONTHLY");
 
         // when
-        List<Favorite> favorites = favoriteMapper.findAllByMemberId(3L);
+        List<FavoriteResponseDto.ReadDto> favorites = favoriteMapper.findAllByMemberId(3L);
 
         // then
         assertThat(favorites).hasSize(3);
-        assertThat(favorites.get(0).getPeriodType()).isEqualTo(PeriodType.fromCode("DAILY"));
-        assertThat(favorites.get(1).getPeriodType()).isEqualTo(PeriodType.fromCode("WEEKLY"));
-        assertThat(favorites.get(2).getPeriodType()).isEqualTo(PeriodType.fromCode("MONTHLY"));
+        assertThat(favorites.get(0).getPeriodType()).isEqualTo("DAILY");
+        assertThat(favorites.get(1).getPeriodType()).isEqualTo("WEEKLY");
+        assertThat(favorites.get(2).getPeriodType()).isEqualTo("MONTHLY");
     }
 
     @Test
@@ -217,11 +223,11 @@ class FavoriteMapperTest {
     void 다른_회원의_관심사는_조회불가() {
         // given
         Long otherMemberId = 3L;
-        createAndSaveFavorite(otherMemberId, TEST_PRODUCT_CODE, "DAILY");
+        createAndSaveFavorite(otherMemberId, TEST_PRODUCT_CODE,"DAILY");
 
         // when
-        List<Favorite> myFavorites = favoriteMapper.findAllByMemberId(TEST_MEMBER_ID);
-        List<Favorite> otherFavorites = favoriteMapper.findAllByMemberId(otherMemberId);
+        List<FavoriteResponseDto.ReadDto> myFavorites = favoriteMapper.findAllByMemberId(TEST_MEMBER_ID);
+        List<FavoriteResponseDto.ReadDto> otherFavorites = favoriteMapper.findAllByMemberId(otherMemberId);
 
         // then
         assertThat(myFavorites).hasSize(5); // 테스트 데이터
