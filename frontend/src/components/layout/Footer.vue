@@ -17,7 +17,7 @@
           <span class="dot">•</span>
           <a href="#">개인정보처리방침</a>
         </nav>
-        <p class="copyright">© 2025 Farm Service. All rights reserved.</p>
+        <p class="copyright">© 2025 Yachaerang Service. All rights reserved.</p>
       </div>
     </div>
   </footer>

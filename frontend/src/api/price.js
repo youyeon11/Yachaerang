@@ -31,11 +31,15 @@ export function fetchYearlyPriceDetailApi(productCode, params) {
   return apiClient.get(`/api/v1/yearly-prices/${productCode}/detail`, { params });
 }
 // 가격 상위 랭킹
-export function fetchHighPriceRank() {
-  return apiClient.get('/api/v1/daily-prices/rank/high-prices');
+export function fetchHighPriceRank(size = 9) {
+  return apiClient.get('/api/v1/daily-prices/rank/high-prices', {
+    params: { size },
+  });
 }
 
 // 가격 하위 랭킹
-export function fetchLowPriceRank() {
-  return apiClient.get('/api/v1/daily-prices/rank/low-prices');
+export function fetchLowPriceRank(size = 9) {
+  return apiClient.get('/api/v1/daily-prices/rank/low-prices', {
+    params: { size },
+  });
 }

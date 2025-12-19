@@ -1,9 +1,9 @@
 <template>
-  <div class="card">
+  <button class="card" type="button" @click="$emit('select', item)">
     <h3>{{ item.itemName }}</h3>
     <small>{{ item.unit }}</small>
     <p class="price">{{ (item.price ?? 0).toLocaleString() }}원</p>
-  </div>
+  </button>
 </template>
 
 <script setup>
@@ -16,6 +16,8 @@ defineProps({
     },
   },
 });
+
+defineEmits(['select']);
 </script>
 
 <style scoped>
@@ -24,6 +26,9 @@ defineProps({
   border-radius: 16px;
   border: 1px solid #eee;
   background: #fff;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
 }
 .price {
   margin-top: 4px;

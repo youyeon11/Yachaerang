@@ -18,3 +18,10 @@ export function uploadProfileImage(file) {
     },
   });
 }
+
+export function changePasswordApi(oldPassword, newPassword) {
+  return apiClient.post('/api/v1/members/password', {
+    oldPassword,
+    newPassword,
+  });
+}
