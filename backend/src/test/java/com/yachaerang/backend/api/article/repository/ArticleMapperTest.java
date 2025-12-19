@@ -172,4 +172,83 @@ class ArticleMapperTest {
 
         assertThat((long) actualTotalItems).isEqualTo(totalCount);
     }
+
+
+    @Test
+    @DisplayName("키워드로 기사 검색 성공")
+    @Sql(scripts = "/sql/article-test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    void 기사_키워드_검색_성공() {
+        // given
+        int limit = 10;
+        int offset = 0;
+        String keyword = "기사제목10";
+
+        // when
+        List<Article> articles =
+                articleMapper.findByKeyword(limit, offset, keyword);
+
+        // then
+        assertThat(articles).isNotNull();
+        assertThat(articles).isNotEmpty();
+        assertThat(articles.size()).isLessThanOrEqualTo(limit);
+        // 검색 결과 -> 키워드 포함 확인
+        articles.forEach(article ->
+                assertThat(
+                        article.getTitle().contains(keyword)
+                                || article.getContent().contains(keyword)
+                ).isTrue()
+        );
+    }
+
+    @Test
+    @DisplayName("키워드 검색 결과가 없을 때 빈 리스트 반환")
+    void 기사_키워드_검색_결과없음() {
+        // given
+        int limit = 10;
+        int offset = 0;
+        String keyword = "존재하지않는키워드";
+
+        // when
+        List<Article> articles =
+                articleMapper.findByKeyword(limit, offset, keyword);
+
+        // then
+        assertThat(articles).isNotNull();
+        assertThat(articles).isEmpty();
+    }
+
+    @Test
+    @DisplayName("키워드 검색 기사 개수 조회")
+    void 기사_키워드_개수_조회() {
+        // given
+        String keyword = "환경";
+
+        // when
+        Long count = articleMapper.countByKeyword(keyword);
+
+        // then
+        assertThat(count).isNotNull();
+        assertThat(count).isGreaterThanOrEqualTo(0L);
+    }
+
+    @Test
+    @DisplayName("페이징 동작 확인")
+    void 기사_검색_페이징_동작_확인() {
+        // given
+        String keyword = "환경";
+        int limit = 5;
+
+        // when
+        List<Article> firstPage =
+                articleMapper.findByKeyword(limit, 0, keyword);
+        List<Article> secondPage =
+                articleMapper.findByKeyword(limit, limit, keyword);
+
+        // then
+        if (!firstPage.isEmpty() && !secondPage.isEmpty()) {
+            assertThat(firstPage.get(0).getId())
+                    .isNotEqualTo(secondPage.get(0).getId());
+        }
+    }
 }
