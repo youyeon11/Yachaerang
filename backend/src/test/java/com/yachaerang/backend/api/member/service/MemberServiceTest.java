@@ -341,4 +341,25 @@ class MemberServiceTest {
         then(bCryptPasswordEncoder).should().encode(newPassword);
         then(memberMapper).should().updatePassword(testMember.getEmail(), encodedNewPassword);
     }
+
+    @Test
+    @DisplayName("확장자 없는 파일 업로드 성공")
+    void 프로필_사진_업로드_성공_확장자없음() {
+        // given
+        MultipartFile file = mock(MultipartFile.class);
+        given(file.getOriginalFilename()).willReturn("filename_without_extension");
+
+        given(authenticatedMemberProvider.getCurrentMemberId()).willReturn(1L);
+        given(memberMapper.findImageUrl(1L)).willReturn(null);
+        given(s3FileService.upload(eq(file), anyString())).willReturn("https://s3.new/image");
+        given(memberMapper.updateProfileImage(anyString(), eq(1L))).willReturn(1);
+
+        TransactionSynchronizationManager.initSynchronization();
+
+        // when & then
+        assertThatCode(() -> memberService.uploadProfileImage(file))
+                .doesNotThrowAnyException();
+
+        then(s3FileService).should().upload(eq(file), argThat(filename -> !filename.contains(".")));
+    }
 }
