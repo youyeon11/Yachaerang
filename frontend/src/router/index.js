@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { useToastStore } from '@/stores/toast';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -74,7 +73,6 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const accessToken = localStorage.getItem('accessToken');
-  const toastStore = useToastStore();
 
   const hasValidToken =
     accessToken && accessToken.trim() !== '' && accessToken !== 'null' && accessToken !== 'undefined';
