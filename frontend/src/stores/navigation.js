@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 export const useNavigationStore = defineStore('navigation', {
   state: () => ({
     activeSectionIndex: 0,
-    isScrolling: false, // Locks input during animation
+    isScrolling: false,
   }),
   actions: {
     setActiveSection(index) {
