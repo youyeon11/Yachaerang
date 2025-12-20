@@ -80,6 +80,44 @@ public class SecurityConfig {
     }
 
     /*
+    필터 차원에서의 예외처리를 위한 EntryPoint
+    필터 체인에서 예외 금지
+     */
+    @Bean
+    public AuthenticationEntryPoint unauthorizedEntryPoint() {
+        return (request, response, authException) -> {
+            ErrorCode errorCode = ErrorCode.UNAUTHORIZED_ACCESS;
+            ErrorResponse errorResponse = ErrorResponse.builder()
+                    .httpStatus(errorCode.getHttpStatus())
+                    .code(errorCode.getCode())
+                    .message(errorCode.getMessage())
+                    .build();
+
+            response.setStatus(errorCode.getHttpStatus().value());
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write(objectMapper.writeValueAsString(errorResponse));        };
+    }
+
+    /*
+    접근 권한 예외
+     */
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, accessDeniedException) -> {
+            ErrorCode errorCode = ErrorCode.ACCESS_DENIED;
+            ErrorResponse errorResponse = ErrorResponse.builder()
+                    .httpStatus(errorCode.getHttpStatus())
+                    .code(errorCode.getCode())
+                    .message(errorCode.getMessage())
+                    .build();
+
+            response.setStatus(errorCode.getHttpStatus().value());
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+        };
+    }
+
+    /*
     CORS 설정
      */
     @Bean
