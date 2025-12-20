@@ -17,6 +17,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 
 import org.springframework.http.MediaType;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -71,6 +72,8 @@ class WeeklyPriceControllerTest extends RestDocsSupport {
                         .avgPrice(15000L)
                         .minPrice(12000L)
                         .maxPrice(18000L)
+                        .priceChange(100L)
+                        .priceChangeRate(new BigDecimal(1.00))
                         .build(),
                 WeeklyPriceResponseDto.PriceRecordDto.builder()
                         .startDate(LocalDate.of(2025, 11, 10))
@@ -78,6 +81,8 @@ class WeeklyPriceControllerTest extends RestDocsSupport {
                         .avgPrice(16000L)
                         .minPrice(13000L)
                         .maxPrice(19000L)
+                        .priceChange(-100L)
+                        .priceChangeRate(new BigDecimal(-1.00))
                         .build()
         );
 
@@ -107,7 +112,9 @@ class WeeklyPriceControllerTest extends RestDocsSupport {
                                         fieldWithPath("endDate").type(VARIES).description("기록 종료 날짜"),
                                         fieldWithPath("avgPrice").type(NUMBER).description("평균 가격"),
                                         fieldWithPath("minPrice").type(NUMBER).description("최소 가격"),
-                                        fieldWithPath("maxPrice").type(NUMBER).description("최고 가격")
+                                        fieldWithPath("maxPrice").type(NUMBER).description("최고 가격"),
+                                        fieldWithPath("priceChange").type(NUMBER).description("지난주 대비 가격 변화량"),
+                                        fieldWithPath("priceChangeRate").type(NUMBER).description("지난주 대비 가격 변화율")
                                 )));
     }
 

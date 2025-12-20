@@ -117,6 +117,8 @@ class DailyPriceControllerTest extends RestDocsSupport {
                         .productCode("APPLE")
                         .unit("kg")
                         .price(5000L)
+                        .priceChange(-500L)
+                        .priceChangeRate(BigDecimal.valueOf(-20.00))
                         .build()
         );
     }
@@ -174,7 +176,9 @@ class DailyPriceControllerTest extends RestDocsSupport {
                                 .and(DATA_LIST_DESCRIPTOR)
                                 .andWithPrefix("data[]",
                                         fieldWithPath("priceDate").type(STRING).description("기록 날짜"),
-                                        fieldWithPath("price").type(NUMBER).description("가격")
+                                        fieldWithPath("price").type(NUMBER).description("가격"),
+                                        fieldWithPath("priceChange").type(NUMBER).description("전일 대비 가격 변화량"),
+                                        fieldWithPath("priceChangeRate").type(NUMBER).description("전일 대비 가격 변화율")
                                 )));
     }
 
@@ -227,8 +231,8 @@ class DailyPriceControllerTest extends RestDocsSupport {
                                         fieldWithPath("productCode").type(STRING).description("상품 코드"),
                                         fieldWithPath("unit").type(STRING).description("단위"),
                                         fieldWithPath("price").type(NUMBER).description("가격"),
-                                        fieldWithPath("priceChange").type(NUMBER).description("가격 변화량"),
-                                        fieldWithPath("priceChangeRate").type(NUMBER).description("가격 변화율")
+                                        fieldWithPath("priceChange").type(NUMBER).description("전일 대비 가격 변화량"),
+                                        fieldWithPath("priceChangeRate").type(NUMBER).description("전일 대비 가격 변화율")
                                 )));
     }
 
