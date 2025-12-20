@@ -1,18 +1,36 @@
 <template>
   <section class="section ai" ref="target" :class="{ show: isVisible }">
     <div class="content">
-      <div class="img-area"></div>
 
+      <!-- 텍스트 영역 (left) -->
       <div class="text-area">
-        <h3>AI 야채랑</h3>
-        <h2>야치는 짱입니다</h2>
+        <h2>농장 도우미 <span class="label">야치</span></h2>
         <p>
-          시장 판매 시점 추천, 판매 전략 조언 및 <br />
+          농업 관련 도우미봇 야치를 통해서<br />
+          시장 판매 시점 추천, 판매 전략 조언 및<br />
           시장 분석 리포트를 쉽게 받을 수 있어요
         </p>
-
-        <button class="btn btn-yellow" @click="$router.push('/ai-chat')">AI 야채랑 바로가기</button>
+        <button class="btn btn-red" @click="$router.push('/ai-chat')">
+          챗봇 야치 바로가기
+        </button>
       </div>
+      <!-- 마키 이미지 영역 (rignht) -->
+      <div class="marquee-container">
+        <div class="marquee-track">
+          <img 
+            :src="imageSrc" 
+            alt="챗봇 서비스 미리보기" 
+            class="marquee-image" 
+          />
+          <img 
+            :src="imageSrc" 
+            alt="챗봇 서비스 미리보기" 
+            class="marquee-image" 
+          />
+        </div>
+        <div class="marquee-fade"></div>
+      </div>
+
     </div>
   </section>
 </template>
@@ -20,9 +38,11 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useSectionObserver } from '@/views/auth/composables/useSectionObserver';
+import imageOrigin from '@/assets/Mockup.png';
 
 const target = ref(null);
 const { isVisible, observe } = useSectionObserver();
+const imageSrc= imageOrigin
 
 onMounted(() => {
   observe(target.value);
@@ -30,11 +50,206 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.img-area {
-  width: 540px;
-  height: 320px;
+.section.ai {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  width: 100%;
 }
-.text-area h3 {
-  color: #fecc21;
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+  max-width: 1600px;
+  width: 95%;
+}
+
+@media (min-width: 768px) {
+  .content {
+    flex-direction: row;
+    gap: 4rem;
+    width: 90%;
+  }
+}
+
+@media (min-width: 1400px) {
+  .content {
+    max-width: 1800px;
+    gap: 5rem;
+  }
+}
+
+/* 텍스트 영역 */
+.text-area {
+  flex: 1;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+@media (min-width: 768px) {
+  .text-area {
+    min-width: 320px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .text-area {
+    min-width: 400px;
+  }
+}
+
+@media (max-width: 767px) {
+  .text-area {
+    align-items: center;
+    text-align: center;
+  }
+}
+
+.text-area .label {
+  color: #e53935;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.text-area h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .text-area h2 {
+    font-size: 2.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .text-area h2 {
+    font-size: 2.5rem;
+  }
+}
+
+.text-area p {
+  color: #6b7280;
+  line-height: 1.75;
+  margin: 0;
+  font-size: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .text-area p {
+    font-size: 1.125rem;
+  }
+}
+
+.btn-red {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #e53935;
+  color: #fff6f6;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+@media (min-width: 1024px) {
+  .btn-red {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+}
+
+.btn-red:hover {
+  background-color: #e53935;
+  transform: translateY(-2px);
+}
+
+/* 마키 컨테이너 */
+.marquee-container {
+  flex: 2;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 1rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  height: 16rem;
+}
+
+@media (min-width: 768px) {
+  .marquee-container {
+    height: 22rem;
+    min-width: 400px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .marquee-container {
+    height: 26rem;
+    min-width: 550px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .marquee-container {
+    height: 30rem;
+    min-width: 700px;
+  }
+}
+
+.marquee-track {
+  display: flex;
+  height: 100%;
+  width: max-content;
+  animation: marquee 20s linear infinite;
+}
+
+.marquee-image {
+  height: 100%;
+  width: auto;
+  object-fit: cover;
+}
+
+.marquee-fade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: 
+    inset 30px 0 40px -10px white,
+    inset -30px 0 40px -10px white;
+}
+
+/* 애니메이션 */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* 섹션 등장 애니메이션 */
+.section.ai {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.section.ai.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>
