@@ -12,13 +12,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.restdocs.payload.FieldDescriptor;
 
 import static org.mockito.Mockito.mock;
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 
 import org.springframework.http.MediaType;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -75,17 +75,23 @@ class DailyPriceControllerTest extends RestDocsSupport {
                         .productCode("WATERMELON")
                         .unit("개")
                         .price(20000L)
+                        .priceChange(-100L)
+                        .priceChangeRate(BigDecimal.valueOf(-3.00))
                         .build(),
                 DailyPriceResponseDto.RankDto.builder()
                         .productName("포도(1kg) - 중품")
                         .productCode("GRAPE")
                         .unit("kg")
+                        .priceChange(100L)
+                        .priceChangeRate(BigDecimal.valueOf(3.00))
                         .price(15000L)
                         .build(),
                 DailyPriceResponseDto.RankDto.builder()
                         .productName("딸기(1kg) - 상품")
                         .productCode("STRAWBERRY")
                         .unit("kg")
+                        .priceChange(200L)
+                        .priceChangeRate(BigDecimal.valueOf(4.00))
                         .price(12000L)
                         .build()
             );
@@ -95,12 +101,16 @@ class DailyPriceControllerTest extends RestDocsSupport {
                         .productCode("ORANGE")
                         .unit("개")
                         .price(3000L)
+                        .priceChange(40L)
+                        .priceChangeRate(BigDecimal.valueOf(15.00))
                         .build(),
                 DailyPriceResponseDto.RankDto.builder()
                         .productName("자두(1kg) - 상품")
                         .productCode("PLUM")
                         .unit("kg")
                         .price(4000L)
+                        .priceChange(-500L)
+                        .priceChangeRate(BigDecimal.valueOf(-20.00))
                         .build(),
                 DailyPriceResponseDto.RankDto.builder()
                         .productName("사과(1kg) - 상품")
@@ -124,14 +134,20 @@ class DailyPriceControllerTest extends RestDocsSupport {
                 DailyPriceResponseDto.PriceRecordDto.builder()
                         .priceDate(LocalDate.of(2024, 1, 10))
                         .price(10000L)
+                        .priceChange(-500L)
+                        .priceChangeRate(BigDecimal.valueOf(-20.00))
                         .build(),
                 DailyPriceResponseDto.PriceRecordDto.builder()
                         .priceDate(LocalDate.of(2024, 1, 15))
                         .price(10500L)
+                        .priceChange(10L)
+                        .priceChangeRate(BigDecimal.valueOf(3.00))
                         .build(),
                 DailyPriceResponseDto.PriceRecordDto.builder()
                         .priceDate(LocalDate.of(2024, 1, 20))
                         .price(9800L)
+                        .priceChange(-50L)
+                        .priceChangeRate(BigDecimal.valueOf(-5.00))
                         .build()
         );
 
@@ -183,7 +199,9 @@ class DailyPriceControllerTest extends RestDocsSupport {
                                         fieldWithPath("productName").type(STRING).description("상품 이름"),
                                         fieldWithPath("productCode").type(STRING).description("상품 코드"),
                                         fieldWithPath("unit").type(STRING).description("단위"),
-                                        fieldWithPath("price").type(NUMBER).description("가격")
+                                        fieldWithPath("price").type(NUMBER).description("가격"),
+                                        fieldWithPath("priceChange").type(NUMBER).description("전일 대비 가격 변화량"),
+                                        fieldWithPath("priceChangeRate").type(NUMBER).description("전일 대비 가격 변화율")
                                 )));
     }
 
@@ -208,7 +226,9 @@ class DailyPriceControllerTest extends RestDocsSupport {
                                         fieldWithPath("productName").type(STRING).description("상품 이름"),
                                         fieldWithPath("productCode").type(STRING).description("상품 코드"),
                                         fieldWithPath("unit").type(STRING).description("단위"),
-                                        fieldWithPath("price").type(NUMBER).description("가격")
+                                        fieldWithPath("price").type(NUMBER).description("가격"),
+                                        fieldWithPath("priceChange").type(NUMBER).description("가격 변화량"),
+                                        fieldWithPath("priceChangeRate").type(NUMBER).description("가격 변화율")
                                 )));
     }
 
