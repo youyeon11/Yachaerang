@@ -19,7 +19,7 @@
       </div>
       <!-- 텍스트 영역 (right) -->
       <div class="text-area">
-        <h2>시세 <span class="lable">랭킹</span> 한 눈에 조회</h2>
+        <h2>시세 <span class="label">랭킹</span> 한 눈에 조회</h2>
         <p>
           가장 최근 날짜의 시세를 한 눈에 봄으로써<br />
           시장에 대한 트렌드를 파악해보아요<br />
@@ -111,9 +111,7 @@ onMounted(() => {
 }
 
 .text-area .label {
-  color: #fecc21 !important;
-  font-weight: 600;
-  font-size: 0.875rem;
+  color: #fecc21;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }

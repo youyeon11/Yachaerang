@@ -19,7 +19,7 @@
       </div>
       <!-- 텍스트 영역 (right) -->
       <div class="text-area">
-        <h2>한 눈에 파악하는 농업 소식</h2>
+        <h2>한 눈에 파악하는 <span class="label">농촌 소식</span></h2>
         <p>
           다양한 플랫폼의<br />
           야채랑 PICK 농업 소식
@@ -111,11 +111,7 @@ onMounted(() => {
 }
 
 .text-area .label {
-  color: #fecc21 !important;
-  font-weight: 600;
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  color: #fecc21;
 }
 
 .text-area h2 {

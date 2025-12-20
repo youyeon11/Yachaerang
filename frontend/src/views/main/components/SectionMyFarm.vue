@@ -4,7 +4,7 @@
 
       <!-- 텍스트 영역 (left) -->
       <div class="text-area">
-        <h2>편리하게 나의 농장을<br />관리하세요</h2>
+        <h2>편리하게 <span class="label">나의 농장</span>을<br />관리하세요</h2>
         <p>
           내가 직접 만드는 온라인 농장<br />
           간단하게 관리하세요
@@ -113,9 +113,7 @@ onMounted(() => {
 }
 
 .text-area .label {
-  color: #e53935 !important;
-  font-weight: 600;
-  font-size: 0.875rem;
+  color: #e53935;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }

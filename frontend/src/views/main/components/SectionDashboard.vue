@@ -6,7 +6,7 @@
       <div class="text-area">
         <h2>
           원하는 품목의<br />
-          가격 추이 대시보드
+          가격 추이 <span class="label">대시보드</span>
         </h2>
         <p>
           원하는 기한의 품목의 시세를<br />
@@ -116,9 +116,7 @@ onMounted(() => {
 }
 
 .text-area .label {
-  color: #e53935 !important;
-  font-weight: 600;
-  font-size: 0.875rem;
+  color: #e53935;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }

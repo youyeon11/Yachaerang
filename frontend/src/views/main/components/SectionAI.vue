@@ -4,7 +4,7 @@
 
       <!-- 텍스트 영역 (left) -->
       <div class="text-area">
-        <h2>농장 도우미 <span class="lable">야치</span></h2>
+        <h2>농장 도우미 <span class="label">야치</span></h2>
         <p>
           농업 관련 도우미봇 야치를 통해서<br />
           시장 판매 시점 추천, 판매 전략 조언 및<br />
@@ -114,9 +114,7 @@ onMounted(() => {
 }
 
 .text-area .label {
-  color: #e53935 !important;
-  font-weight: 600;
-  font-size: 0.875rem;
+  color: #e53935;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
