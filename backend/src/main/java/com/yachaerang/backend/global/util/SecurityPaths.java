@@ -11,7 +11,7 @@ public final class SecurityPaths {
             "/health",
             "/api/v1/auth/signup",
             "/api/v1/auth/login",
-            "/api/v1/auth/mails/**",
+            "/api/v1/mails/**",
             "/api/v1/products/**",
             "/api/v1/articles/**",
             "/api/v1/daily-prices/**",
@@ -28,8 +28,7 @@ public final class SecurityPaths {
             "/api/v1/auth/reissue",
             "/api/v1/members/**",
             "/api/v1/favorites/**",
-            "/api/v1/chat/**",
-            "/api/v1/chat"
+            "/api/v1/chat/**"
     };
 
     /**
