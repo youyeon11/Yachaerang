@@ -8,12 +8,16 @@
         <result property="productCode" column="product_code"/>
         <result property="priceDate" column="price_date"/>
         <result property="price" column="price"/>
+        <result property="priceChange" column="price_change"/>
+        <result property="priceChangeRate" column="price_change_rage"/>
     </resultMap>
     <!-- PriceDto 매핑용 ResultMap -->
     <resultMap id="priceDtoResultMap"
                type="com.yachaerang.backend.api.product.dto.response.DailyPriceResponseDto$PriceRecordDto">
         <result property="priceDate" column="price_date" javaType="java.time.LocalDate"/>
         <result property="price" column="price" javaType="java.lang.Long"/>
+        <result property="priceChange" column="price_change" javaType="java.lang.Long"/>
+        <result property="priceChangeRate" column="price_change_rate"/>
     </resultMap>
     <!-- RankDto 매핑용 ResultMap -->
     <resultMap id="rankDtoResultMap"
@@ -22,6 +26,8 @@
         <result property="productCode" column="product_code" javaType="String"/>
         <result property="unit" column="unit" javaType="String"/>
         <result property="price" column="price" javaType="java.lang.Long"/>
+        <result property="priceChange" column="price_change" javaType="java.lang.Long"/>
+        <result property="priceChangeRate" column="price_change_rate"/>
     </resultMap>
 
     <!-- getPriceDuration -->
@@ -29,7 +35,9 @@
             resultMap="priceDtoResultMap">
         SELECT
             price_date,
-            price
+            price,
+            price_change,
+            price_change_rate
         FROM
             daily_price
         WHERE
@@ -46,14 +54,18 @@
             name,
             product_code,
             unit,
-            price
+            price,
+            price_change,
+            price_change_rate
         FROM (
             SELECT
                 p.name AS name,
                 p.product_code as product_code,
                 p.unit as unit,
                 dp.price as price,
-                dp.price_date as price_date
+                dp.price_date as price_date,
+                dp.price_change as price_change,
+                dp.price_change_rate as price_change_rate
             FROM product p
             JOIN daily_price dp
                 ON dp.product_code = p.product_code
@@ -69,14 +81,18 @@
             name,
             product_code,
             unit,
-            price
+            price,
+            price_change,
+            price_change_rate
         FROM (
                  SELECT
                      p.name AS name,
                      p.product_code as product_code,
                      p.unit as unit,
                      dp.price as price,
-                     dp.price_date as price_date
+                     dp.price_date as price_date,
+                     dp.price_change as price_change,
+                     dp.price_change_rate as price_change_rate
                  FROM product p
                           JOIN daily_price dp
                                ON dp.product_code = p.product_code
