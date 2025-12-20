@@ -1,35 +1,33 @@
 <template>
   <section class="section ai" ref="target" :class="{ show: isVisible }">
     <div class="content">
-
-      <!-- 텍스트 영역 (left) -->
-      <div class="text-area">
-        <h2>편리하게 나의 농장을<br />관리하세요</h2>
-        <p>
-          내가 직접 만드는 온라인 농장<br />
-          간단하게 관리하세요
-        </p>
-        <button class="btn btn-red" @click="$router.push('/myfarm')">
-          나의농장 바로가기
-        </button>
-      </div>
-      <!-- 마키 이미지 영역 (rignht) -->
+      <!-- 마키 이미지 영역 (left) -->
       <div class="marquee-container">
         <div class="marquee-track">
           <img 
             :src="imageSrc" 
-            alt="나의농장 서비스 미리보기" 
+            alt="시세 랭킹 미리보기" 
             class="marquee-image" 
           />
           <img 
             :src="imageSrc" 
-            alt="나의농장 서비스 미리보기" 
+            alt="시세 랭킹 미리보기" 
             class="marquee-image" 
           />
         </div>
         <div class="marquee-fade"></div>
       </div>
-
+      <!-- 텍스트 영역 (right) -->
+      <div class="text-area">
+        <h2>시세 <span class="lable">랭킹</span> 한 눈에 조회</h2>
+        <p>
+          가장 최근 날짜의 시세를 한 눈에 봄으로써<br />
+          시장에 대한 트렌드를 파악해보아요<br />
+        </p>
+        <button class="btn btn-yellow" @click="$router.push('/rank')">
+            랭킹 바로가기
+        </button>
+      </div>
     </div>
   </section>
 </template>
@@ -39,9 +37,9 @@ import { ref, onMounted } from 'vue';
 import { useSectionObserver } from '@/views/auth/composables/useSectionObserver';
 import imageOrigin from '@/assets/Mockup.png';
 
+const imageSrc = imageOrigin
 const target = ref(null);
 const { isVisible, observe } = useSectionObserver();
-const imageSrc = imageOrigin
 
 onMounted(() => {
   observe(target.value);
@@ -113,7 +111,7 @@ onMounted(() => {
 }
 
 .text-area .label {
-  color: #e53935 !important;
+  color: #fecc21 !important;
   font-weight: 600;
   font-size: 0.875rem;
   text-transform: uppercase;
@@ -152,11 +150,11 @@ onMounted(() => {
   }
 }
 
-.btn-red {
+.btn-yellow {
   margin-top: 1rem;
   padding: 0.75rem 1.5rem;
-  background-color: #e53935;
-  color: #fff6f6;
+  background-color: #fecc21;
+  color: #1f2937;
   font-weight: 600;
   border: none;
   border-radius: 0.5rem;
@@ -165,14 +163,14 @@ onMounted(() => {
 }
 
 @media (min-width: 1024px) {
-  .btn-red {
+  .btn-yellow {
     padding: 1rem 2rem;
     font-size: 1.1rem;
   }
 }
 
-.btn-red:hover {
-  background-color: #e53935;
+.btn-yellow:hover {
+  background-color: #fbbf24;
   transform: translateY(-2px);
 }
 
