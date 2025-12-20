@@ -1,7 +1,13 @@
 <template>
-  <div class="flex h-screen overflow-hidden bg-white">
-    <SideBar />
-    <main class="flex-1 overflow-y-auto">
+  <div 
+    class="flex h-screen overflow-hidden"
+    :class="$route.meta.hideSidebar"
+  >
+    <SideBar v-if="!$route.meta.hideSidebar" />
+    <main 
+      class="flex-1 overflow-y-auto"
+      :class="{ 'w-full': $route.meta.hideSidebar }"
+    >
       <RouterView />
     </main>
   </div>
