@@ -41,7 +41,9 @@ public enum ErrorCode implements BaseCode{
     CLAIM_INVALID_FORMAT(HttpStatus.BAD_REQUEST, "TOKEN_008", "토큰 정보 형식이 올바르지 않습니다"),
     UNMATCHED_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "TOKEN_009", "refresh token이 일치하지 않습니다."),
 
+    // auth
     UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "인증된 사용자가 아닙니다."),
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "FORBIDDEN", "접근 권한이 존재하지 않습니다."),
 
     TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "TOKEN_010", "토큰이 존재하지 않습니다"),
     TOKEN_HEADER_INVALID(HttpStatus.BAD_REQUEST, "TOKEN_011", "토큰 헤더 형식이 올바르지 않습니다"),

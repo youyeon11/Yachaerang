@@ -1,13 +1,11 @@
 package com.yachaerang.backend.global.auth.jwt;
 
-import com.yachaerang.backend.global.exception.GeneralException;
-import com.yachaerang.backend.global.response.ErrorCode;
+import com.yachaerang.backend.global.util.LogUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
@@ -16,7 +14,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -26,18 +23,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     private static final List<String> NON_FILTER_PATTERNS = List.of(
-            "/health",
-            "/api/v1/auth/**",
-            "/api/v1/products/**",
-            "/api/v1/daily-prices/**",
-            "/api/v1/weekly-prices/**",
-            "/api/v1/monthly-prices/**",
-            "/api/v1/yearly-prices/**",
-            "/api/v1/articles",
-            "/api/v1/articles/**",
-            "/api/v1/mails"
+            "/health", "/test"
     );
-
     private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
     /*
@@ -48,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String requestUrl = request.getRequestURI();
 
-        log.debug("Request URL in JwtFilter: {}", requestUrl);
+        LogUtil.debug("Request URL in JwtFilter: {}", requestUrl);
 
         String contextPath = request.getContextPath();
         if (contextPath != null && !contextPath.isEmpty() && requestUrl.startsWith(contextPath)) {
@@ -78,8 +65,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             // 인증 실패 시 SecurityContext를 비움
             SecurityContextHolder.clearContext();
-            log.warn("JWT 인증 필터 실패: {}", e.getMessage());
-            throw GeneralException.of(ErrorCode.UNAUTHORIZED_ACCESS);
+            // 필터 내부에서는 Log만 기록
+            LogUtil.warn("JWT 인증 필터 실패: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);
@@ -97,5 +84,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         return null;
     }
-
 }
