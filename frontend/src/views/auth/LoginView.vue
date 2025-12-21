@@ -1,10 +1,11 @@
 <template>
   <div class="login-container">
-    <div class="login-box">
+<div class="login-box">
       <div class="logo-wrapper">
-        <img src="@/assets/logo.svg" alt="야채랑 로고" class="logo" />
+        <div class="logo-squash-stretch">
+          <BrandLogoImage :src="logoUrl" size="lg"/>
+        </div>
       </div>
-
       <form class="login-form" @submit.prevent="handleLogin">
         <div class="input-group">
           <input type="email" v-model="email" placeholder="이메일" class="input-field" />
@@ -32,10 +33,33 @@
 <script setup>
 import { useLoginForm } from '@/views/auth/composables/useLoginForm';
 
+import BrandLogoImage from '@/components/brand/BrandLogoImage.vue';
+import logoUrl from '../../assets/logo.svg'
+
 const { email, password, isFormValid, errorMessage, handleLogin } = useLoginForm();
 </script>
 
 <style scoped>
+/* LogoImage */
+.logo-squash-stretch {
+  animation: squashStretch 2s ease-in-out 2;
+}
+
+@keyframes squashStretch {
+  0%, 100% {
+    transform: scaleX(1) scaleY(1);
+  }
+  25% {
+    transform: scaleX(1.1) scaleY(0.9);
+  }
+  50% {
+    transform: scaleX(0.9) scaleY(1.1);
+  }
+  75% {
+    transform: scaleX(1.05) scaleY(0.95);
+  }
+}
+
 .login-container {
   width: 100%;
   height: 100%;
@@ -47,25 +71,26 @@ const { email, password, isFormValid, errorMessage, handleLogin } = useLoginForm
 
 .login-box {
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
 }
 
 .logo-wrapper {
+  width: 100%;
   display: flex;
   justify-content: center;
-  margin-bottom: 60px;
-}
-
-.logo {
-  width: 120px;
-  height: auto;
 }
 
 .login-form {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  align-items: center;
+  gap: 12px; /* input 간 간격 추가 */
 }
 
 .input-group {
@@ -74,63 +99,64 @@ const { email, password, isFormValid, errorMessage, handleLogin } = useLoginForm
 
 .input-field {
   width: 100%;
-  padding: 16px 20px;
+  padding: 18px 24px;
   font-size: 16px;
   border: 1px solid #e0e0e0;
+  border-radius: 8px; /* 모든 input에 동일한 border-radius */
   background-color: #fff;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
   box-sizing: border-box;
 }
 
-.input-field:first-of-type,
-.input-group:first-child .input-field {
-  border-radius: 8px 8px 0 0;
-  border-bottom: none;
-}
-
-.input-group:last-of-type .input-field,
-.input-group:nth-child(2) .input-field {
-  border-radius: 0 0 8px 8px;
-}
-
 .input-field:focus {
-  border-color: #f5b041;
+  border-color: #FECC21;
+  box-shadow: 0 0 0 2px rgba(254, 204, 33, 0.2);
 }
 
 .input-field::placeholder {
   color: #999;
 }
 
+/* 버튼 */
 .login-btn {
   width: 100%;
-  padding: 16px;
-  margin-top: 24px;
-  font-size: 16px;
+  padding: 18px;
+  margin-top: 12px;
+  font-size: 17px;
   font-weight: 600;
-  color: #333;
-  background-color: #f5b041;
+  color: #fff;
+  background: linear-gradient(135deg, #E53935 0%, #EF5350 100%);
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s, opacity 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.3);
 }
 
 .login-btn:hover:not(.disabled) {
-  background-color: #e5a030;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(229, 57, 53, 0.4);
+  background: linear-gradient(135deg, #D32F2F 0%, #E53935 100%);
+}
+
+.login-btn:active:not(.disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(229, 57, 53, 0.3);
 }
 
 .login-btn.disabled {
-  background-color: #ccc;
-  color: #888;
+  background: #e0e0e0;
+  color: #999;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
+/* 하단 링크 */
 .bottom-links {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
   gap: 12px;
 }
 
@@ -138,11 +164,12 @@ const { email, password, isFormValid, errorMessage, handleLogin } = useLoginForm
   color: #666;
   text-decoration: none;
   font-size: 14px;
+  transition: color 0.2s;
 }
 
 .link:hover {
-  color: #333;
-  text-decoration: underline;
+  color: #E53935;
+  text-decoration: none;
 }
 
 .divider {
@@ -150,13 +177,17 @@ const { email, password, isFormValid, errorMessage, handleLogin } = useLoginForm
   font-size: 14px;
 }
 
+/* 에러 메시지 */
 .error-message {
+  width: 100%;
   margin-top: 12px;
   padding: 12px;
-  background-color: #fee;
-  color: #c33;
+  background-color: #FFEBEE;
+  color: #E53935;
+  border: 1px solid #FFCDD2;
   border-radius: 6px;
   font-size: 14px;
   text-align: center;
+  box-sizing: border-box;
 }
 </style>
