@@ -4,7 +4,7 @@
       ref="textareaRef"
       :value="modelValue"
       @input="onInput"
-      @keydown.enter.prevent="emitSend"
+      @keydown.enter.exact.prevent="emitSend"
       :placeholder="placeholder"
       rows="1"
       class="flex-1 bg-transparent border-0 outline-none resize-none px-2 py-2 text-base"
