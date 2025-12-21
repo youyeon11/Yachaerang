@@ -61,14 +61,23 @@
             <input
               type="date"
               v-model="modelWeekStart"
-              :max="maxDate"
+              :max="maxWeekDate"
               @change="handleWeekStartChange"
               class="date-input"
             />
           </div>
           <div class="relative">
-            <input type="date" v-model="modelWeekEnd" :max="maxDate" @change="handleWeekEndChange" class="date-input" />
+            <input
+              type="date"
+              v-model="modelWeekEnd"
+              :max="maxWeekDate"
+              @change="handleWeekEndChange"
+              class="date-input"
+            />
           </div>
+          <p v-if="modelWeekStart && modelWeekEnd" class="text-[10px] text-gray-500 font-medium">
+            선택된 주: {{ modelWeekStart }} ~ {{ modelWeekEnd }}
+          </p>
         </div>
 
         <div v-else-if="currentPeriod === 'month'" class="space-y-1.5">
@@ -151,8 +160,30 @@ const modelYearEnd = defineModel('yearEnd');
 const emit = defineEmits(['search', 'updatePeriod']);
 const isModalOpen = ref(false);
 
-const maxDate = computed(() => new Date().toISOString().split('T')[0]);
-const maxMonth = computed(() => new Date().toISOString().substring(0, 7));
+// 미래 일자는 선택 불가 (데이터는 어제까지)
+const maxDate = computed(() => {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().split('T')[0];
+});
+
+// 주간: 완전히 끝난 지난 주의 일요일까지만 선택 가능
+const maxWeekDate = computed(() => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const weekday = today.getDay(); // 0(일)~6(토)
+  const daysSinceMonday = (weekday + 6) % 7;
+  const lastWeekSunday = new Date(today);
+  lastWeekSunday.setDate(today.getDate() - daysSinceMonday - 1);
+  return lastWeekSunday.toISOString().split('T')[0];
+});
+
+// 월 단위는 "완전히 끝난 지난 달"까지만 허용 (이번 달은 제외)
+const maxMonth = computed(() => {
+  const d = new Date();
+  d.setMonth(d.getMonth() - 1);
+  return d.toISOString().substring(0, 7);
+});
 
 const formatDate = (date) => {
   const y = date.getFullYear();
@@ -176,7 +207,14 @@ const handleWeekEndChange = (e) => {
   const d = new Date(val);
   const day = d.getDay();
   const diff = d.getDate() + (day === 0 ? 0 : 7 - day);
-  modelWeekEnd.value = formatDate(new Date(d.setDate(diff)));
+
+  let sunday = new Date(d.setDate(diff));
+  const max = new Date(maxDate.value);
+  if (sunday > max) {
+    sunday = max;
+  }
+
+  modelWeekEnd.value = formatDate(sunday);
 };
 
 const selectItem = (itemCode) => {
