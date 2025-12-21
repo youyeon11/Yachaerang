@@ -106,7 +106,6 @@ const {
   clearRecentSearches,
 } = usePriceSearch();
 
-// --- Computed: 라벨 처리 ---
 const selectedItemLabel = computed(() => {
   if (!selectedItem.value) return '품목 선택';
   const target = itemOptions.value.find((opt) => opt.value === selectedItem.value);
@@ -162,14 +161,22 @@ const paginatedData = computed(() => {
 
   return priceResult.value.slice(start, end).map((item, index) => {
     const thisPrice = item.priceLabel || 0;
+
     const globalIndex = start + index;
     const randomFactor = 0.85 + (Math.sin(globalIndex) * 0.15 + 0.1);
     const lastPrice = thisPrice ? Math.floor(thisPrice * randomFactor) : 0;
+
+    const prevItem = priceResult.value[globalIndex + 1];
+    const dailyDiff = prevItem ? thisPrice - prevItem.priceLabel : 0;
+
+    const yoyDiff = thisPrice - lastPrice;
 
     return {
       date: item.dateLabel,
       thisPrice: thisPrice,
       lastPrice: lastPrice,
+      dailyDiff: dailyDiff,
+      yoyDiff: yoyDiff,
     };
   });
 });
