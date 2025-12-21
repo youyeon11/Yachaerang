@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -19,4 +20,7 @@ public class DailyPrice extends BaseEntity {
 
     private LocalDate priceDate;
     private long price;
+
+    private Long priceChange;
+    private BigDecimal priceChangeRate;
 }

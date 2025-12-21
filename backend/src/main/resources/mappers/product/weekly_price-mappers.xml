@@ -14,6 +14,8 @@
         <result property="maxPrice" column="max_price"/>
         <result property="avgPrice" column="avg_price"/>
         <result property="priceCount" column="price_count"/>
+        <result property="priceChange" column="price_change"/>
+        <result property="priceChangeRate" column="price_change_rate"/>
     </resultMap>
     <!-- PriceDto 매핑용 ResultMap -->
     <resultMap id="priceDtoResultMap"
@@ -23,6 +25,8 @@
         <result property="avgPrice" column="avg_price"/>
         <result property="minPrice" column="min_price"/>
         <result property="maxPrice" column="max_price"/>
+        <result property="priceChange" column="price_change"/>
+        <result property="priceChangeRate" column="price_change_rate"/>
     </resultMap>
     <!-- getPriceDuration -->
     <select id="getPriceDuration"
@@ -32,7 +36,9 @@
             wp.end_date,
             wp.avg_price,
             wp.min_price,
-            wp.max_price
+            wp.max_price,
+            wp.price_change,
+            wp.price_change_rate
         FROM
             weekly_price AS wp
         WHERE

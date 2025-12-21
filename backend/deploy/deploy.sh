@@ -27,13 +27,24 @@ trap 'echo "Error occurred: $ERR_MSG"; exit 1' ERR
 
 log "===== Deployment script started ====="
 
-if docker ps --filter "name=app-blue" --quiet | grep -E .; then
-  echo "Blue down, Green Up "
+# 현재 실행 중인 컨테이너 확인
+BLUE_RUNNING=$(docker ps --filter "name=app-blue" --filter "status=running" --quiet)
+GREEN_RUNNING=$(docker ps --filter "name=app-green" --filter "status=running" --quiet)
+
+if [[ -n "$BLUE_RUNNING" ]]; then
+  # Blue가 실행 중, Green 배포
+  log "Blue is running. Deploying Green..."
   BEFORE_COMPOSE_COLOR="blue"
   AFTER_COMPOSE_COLOR="green"
-else
-  echo "Green down, Blue up"
+elif [[ -n "$GREEN_RUNNING" ]]; then
+  # Green이 실행 중, Blue 배포
+  log "Green is running. Deploying Blue..."
   BEFORE_COMPOSE_COLOR="green"
+  AFTER_COMPOSE_COLOR="blue"
+else
+  # 둘 다 없음 , Blue 시작
+  log "No running containers found. Initial deployment with Blue..."
+  BEFORE_COMPOSE_COLOR=""
   AFTER_COMPOSE_COLOR="blue"
 fi
 
@@ -88,14 +99,17 @@ log "Nginx container 다시 시작 중..."
 docker compose -f "$COMPOSE_FILE" up -d --no-deps nginx
 
 # 이전 컨테이너 종료
-log "Stopping old container (app-${BEFORE_COMPOSE_COLOR})..."
-ERR_MSG="이전 컨테이너 종료 실패"
-docker compose -f "$COMPOSE_FILE" stop "app-${BEFORE_COMPOSE_COLOR}" || true
+if [[ -n "$BEFORE_COMPOSE_COLOR" ]]; then
+  log "Stopping old container (app-${BEFORE_COMPOSE_COLOR})..."
+  ERR_MSG="이전 컨테이너 종료 실패"
+  docker compose -f "$COMPOSE_FILE" stop "app-${BEFORE_COMPOSE_COLOR}" || true
 
-# 컨테이너 정리
-log "Cleaning up old container..."
-ERR_MSG="docker container 정리 실패"
-docker compose -f "$COMPOSE_FILE" rm -f "app-${BEFORE_COMPOSE_COLOR}" || true
+  log "Cleaning up old container..."
+  ERR_MSG="docker container 정리 실패"
+  docker compose -f "$COMPOSE_FILE" rm -f "app-${BEFORE_COMPOSE_COLOR}" || true
+else
+  log "Initial deployment: No old container to clean up."
+fi
 
 log "Deployment completed successfully."
 log "===== Deployment script ended ====="

@@ -12,6 +12,8 @@
         <result property="minPrice" column="min_price"/>
         <result property="maxPrice" column="max_price"/>
         <result property="priceCount" column="price_count"/>
+        <result property="priceChange" column="price_change"/>
+        <result property="priceChangeRate" column="price_change_rate"/>
     </resultMap>
     <!-- PriceDto 매핑용 ResultMap -->
     <resultMap id="priceDtoResultMap"
@@ -21,6 +23,8 @@
         <result property="avgPrice" column="avg_price"/>
         <result property="minPrice" column="min_price"/>
         <result property="maxPrice" column="max_price"/>
+        <result property="priceChange" column="price_change"/>
+        <result property="priceChangeRate" column="price_change_rate"/>
     </resultMap>
     <!-- getPriceDuration -->
     <select id="getPriceDuration" resultMap="priceDtoResultMap">
@@ -30,7 +34,9 @@
             price_month,
             avg_price,
             min_price,
-            max_price
+            max_price,
+            price_change,
+            price_change_rate
         FROM
             monthly_price
         WHERE

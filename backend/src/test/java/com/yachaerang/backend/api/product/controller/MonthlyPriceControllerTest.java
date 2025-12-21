@@ -18,6 +18,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,6 +72,8 @@ class MonthlyPriceControllerTest extends RestDocsSupport {
                 .avgPrice(10000L)
                 .minPrice(9000L)
                 .maxPrice(11000L)
+                .priceChange(-1000L)
+                .priceChangeRate(new BigDecimal(-1.00))
                 .build();
         priceDto2 = MonthlyPriceResponseDto.PriceDto.builder()
                         .priceYear(2024)
@@ -78,6 +81,8 @@ class MonthlyPriceControllerTest extends RestDocsSupport {
                         .avgPrice(11000L)
                         .minPrice(10000L)
                         .maxPrice(12000L)
+                        .priceChange(-1000L)
+                        .priceChangeRate(new BigDecimal(-1.00))
                         .build();
         priceDto3 = MonthlyPriceResponseDto.PriceDto.builder()
                         .priceYear(2024)
@@ -85,6 +90,8 @@ class MonthlyPriceControllerTest extends RestDocsSupport {
                         .avgPrice(90000L)
                         .minPrice(8000L)
                         .maxPrice(10000L)
+                        .priceChange(100L)
+                        .priceChangeRate(new BigDecimal(1.00))
                         .build();
     }
 
@@ -132,7 +139,10 @@ class MonthlyPriceControllerTest extends RestDocsSupport {
                                         fieldWithPath("priceMonth").type(NUMBER).description("기록 월"),
                                         fieldWithPath("avgPrice").type(NUMBER).description("평균 가격"),
                                         fieldWithPath("minPrice").type(NUMBER).description("최소 가격"),
-                                        fieldWithPath("maxPrice").type(NUMBER).description("최고 가격"))
+                                        fieldWithPath("maxPrice").type(NUMBER).description("최고 가격"),
+                                        fieldWithPath("priceChange").type(NUMBER).description("전월 대비 가격 변화량"),
+                                        fieldWithPath("priceChangeRate").type(NUMBER).description("전월 대비 가격 변화율")
+                                        )
                         )
                 );
     }

@@ -2,6 +2,8 @@ package com.yachaerang.backend.api.product.dto.response;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 public class MonthlyPriceResponseDto {
 
     @Getter
@@ -15,5 +17,7 @@ public class MonthlyPriceResponseDto {
         private Long avgPrice;
         private Long minPrice;
         private Long maxPrice;
+        private Long priceChange;
+        private BigDecimal priceChangeRate;
     }
 }
