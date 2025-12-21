@@ -1,6 +1,6 @@
 <template>
   <div
-    class="p-4 sm:p-6 bg-gray-50/50 rounded-2xlbg-white rounded-xl shadow-md border border-gray-100 font-sans text-sm"
+    class="p-4 sm:p-6 bg-gray-50/50 rounded-2xl bg-white rounded-xl shadow-md border border-gray-100 font-sans text-sm"
   >
     <div class="overflow-x-auto">
       <table class="w-full text-left table-fixed min-w-[800px]">
@@ -159,7 +159,7 @@ const visiblePages = computed(() => {
 </script>
 
 <style scoped>
-@reference "../../../assets/main.css";
+@import '../../../assets/main.css';
 .page-nav-btn {
   @apply w-12 h-8 flex items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 text-xs font-bold transition-all hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white;
 }
