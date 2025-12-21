@@ -72,6 +72,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import { useRoute } from 'vue-router';
 import { usePriceSearch } from '@/views/dashboard/composables/usePriceSearch';
 import DashboardFilter from '@/views/dashboard/components/DashboardFilter.vue';
 import DashboardSummary from '@/views/dashboard/components/DashboardSummary.vue';
@@ -106,7 +107,10 @@ const {
   handleAddFavorite,
   applyRecentItem,
   clearRecentSearches,
+  initializeFromRank,
 } = usePriceSearch();
+
+const route = useRoute();
 
 const selectedItemLabel = computed(() => {
   if (!selectedItem.value) return '품목 선택';
@@ -211,6 +215,14 @@ watch(
 );
 
 onMounted(async () => {
+  const { productCode, source } = route.query || {};
+
+  if (productCode && (source === 'rank' || source === 'favorite')) {
+    await initializeFromRank(productCode);
+    await handleSearch();
+    return;
+  }
+
   const saved = localStorage.getItem(STORAGE_KEY);
 
   if (saved) {
