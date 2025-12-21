@@ -8,7 +8,6 @@ import './assets/main.css'
 import { setupInterceptors, setLogoutHandler } from '@/api/interceptors';
 import { useAuthStore } from '@/stores/auth';
 
-
 // 앱 시작 전 localStorage 정리 (잘못된 토큰 제거)
 const accessToken = localStorage.getItem('accessToken');
 if (accessToken) {
@@ -21,11 +20,11 @@ if (accessToken) {
 }
 
 // App 생성 및 플러그인 등록
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(createPinia())
-app.use(router)
-app.use(VCalendar, {})
+app.use(createPinia());
+app.use(router);
+app.use(VCalendar, {});
 
 // 인터셉터 설정
 setupInterceptors();
@@ -36,4 +35,4 @@ setLogoutHandler(() => authStore.logout());
 
 
 // 마운트
-app.mount('#app')
+app.mount('#app');

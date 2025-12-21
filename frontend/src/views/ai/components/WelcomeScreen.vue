@@ -28,27 +28,6 @@
           </button>
         </div>
       </section>
-
-      <section class="side">
-        <div class="side-card">
-          <div class="side-header">
-            <div class="yachi-circle">
-              <img src="@/assets/yachi.png" alt="야치" />
-            </div>
-            <div>
-              <p class="side-title">야치가 도와줄 수 있는 것들</p>
-              <p class="side-sub">질문을 편하게 써 보세요.</p>
-            </div>
-          </div>
-
-          <ul class="side-list">
-            <li>품목별 최근 도매·소매 시세 정리</li>
-            <li>다음 주 가격 방향성과 리스크 요약</li>
-            <li>밭 상황을 바탕으로 재배·병해 관리 팁</li>
-            <li>출하 타이밍과 판매 전략 아이디어</li>
-          </ul>
-        </div>
-      </section>
     </div>
   </div>
 </template>
@@ -96,14 +75,14 @@ const usePrompt = (text) => {
 .welcome-inner {
   width: 100%;
   max-width: 960px;
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  gap: 40px;
-  align-items: center;
+  display: flex;
+  justify-content: center;
 }
 
 .hero {
-  text-align: left;
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
 }
 
 .badge {
@@ -168,72 +147,6 @@ const usePrompt = (text) => {
 .example-label {
   font-size: 13px;
   color: #444;
-}
-
-.side {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.side-card {
-  width: 100%;
-  max-width: 360px;
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 20px 18px;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-}
-
-.side-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.yachi-circle {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #fff8d5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.yachi-circle img {
-  width: 80%;
-  height: 80%;
-  object-fit: contain;
-}
-
-.side-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #222;
-}
-
-.side-sub {
-  font-size: 12px;
-  color: #999;
-}
-
-.side-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 13px;
-  color: #555;
-}
-
-.side-list li::before {
-  content: '• ';
-  color: #fecc21;
 }
 
 @media (max-width: 768px) {
