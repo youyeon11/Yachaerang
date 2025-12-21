@@ -36,12 +36,10 @@ const scrollToBottom = (force = false) => {
   const el = chatBoxRef.value;
   if (!el) return;
 
-  if (force) {
-    el.scrollTop = el.scrollHeight;
-    emit('scroll-state', { showNewButton: false, isUserScrolling: false });
-    return;
-  }
   el.scrollTop = el.scrollHeight;
+  if (force) {
+    emit('scroll-state', { showNewButton: false, isUserScrolling: false });
+  }
 };
 
 const handleScroll = () => {
