@@ -64,7 +64,7 @@ public class S3FileService {
      * @param url
      */
     public void deleteByUrl(String url) {
-        if (url == DEFAULT_IMAGE) {
+        if (url.equals(DEFAULT_IMAGE)) {
             return;
         }
         URI uri = URI.create(url);
