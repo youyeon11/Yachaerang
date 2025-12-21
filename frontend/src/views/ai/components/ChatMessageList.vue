@@ -1,89 +1,55 @@
 <template>
-  <div ref="messagesEl" class="messages" @scroll="checkIsAtBottom">
-    <ChatMessage v-for="msg in messages" :key="msg.id" :message="msg" />
+  <div
+    class="flex flex-1 flex-col gap-[25px] overflow-y-auto py-[30px] px-[10%]"
+    ref="chatBoxRef"
+    @scroll="handleScroll"
+  >
+    <ChatMessageItem
+      v-for="msg in messages"
+      :key="msg.id"
+      :msg="msg"
+      :ai-profile="aiProfile"
+      :user-profile="userProfile"
+    />
 
-    <div v-if="isLoading" class="loading-bubble">야치가 답변을 만드는 중이에요...</div>
-
-    <div ref="bottomAnchor" class="scroll-anchor" />
+    <ChatLoadingBubble v-if="isLoading" />
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted, nextTick } from 'vue';
-import ChatMessage from './ChatMessage.vue';
+import { ref } from 'vue';
+import ChatMessageItem from './ChatMessageItem.vue';
+import ChatLoadingBubble from './ChatLoadingBubble.vue';
 
 const props = defineProps({
-  messages: {
-    type: Array,
-    default: () => [],
-  },
-  isLoading: {
-    type: Boolean,
-    default: false,
-  },
+  messages: { type: Array, required: true },
+  aiProfile: { type: Object, required: true },
+  userProfile: { type: Object, required: true },
+  isLoading: { type: Boolean, required: true },
 });
 
-const messagesEl = ref(null);
-const bottomAnchor = ref(null);
+const emit = defineEmits(['scroll-state']);
 
-const isUserAtBottom = ref(true);
+const chatBoxRef = ref(null);
 
-const forceScroll = ref(false);
-
-const checkIsAtBottom = () => {
-  const el = messagesEl.value;
+const scrollToBottom = (force = false) => {
+  const el = chatBoxRef.value;
   if (!el) return;
 
-  const threshold = 80;
-  const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-
-  isUserAtBottom.value = distanceFromBottom < threshold;
+  el.scrollTop = el.scrollHeight;
+  if (force) {
+    emit('scroll-state', { showNewButton: false, isUserScrolling: false });
+  }
 };
 
-const scrollToBottom = async (force = false) => {
-  await nextTick();
+const handleScroll = () => {
+  const el = chatBoxRef.value;
+  if (!el) return;
 
-  if (!force && !isUserAtBottom.value) return;
-
-  bottomAnchor.value?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'end',
-  });
+  const { scrollTop, scrollHeight, clientHeight } = el;
+  const showNewButton = scrollHeight - scrollTop > clientHeight + 150;
+  emit('scroll-state', { showNewButton, isUserScrolling: showNewButton });
 };
 
-watch(
-  () => [props.messages.length, props.isLoading],
-  () => {
-    scrollToBottom(forceScroll.value);
-    forceScroll.value = false;
-  },
-  { flush: 'post' }
-);
-
-onMounted(() => {
-  scrollToBottom(true);
-});
+defineExpose({ scrollToBottom });
 </script>
-
-<style scoped>
-.messages {
-  flex: 1;
-  padding: 20px 0 16px;
-  overflow-y: auto;
-}
-
-.loading-bubble {
-  max-width: 90%;
-  margin: 8px auto 80px;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: #f2f2f2;
-  color: #777;
-  font-size: 14px;
-  text-align: center;
-}
-
-.scroll-anchor {
-  height: 1px;
-}
-</style>

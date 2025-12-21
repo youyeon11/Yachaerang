@@ -10,6 +10,9 @@ import {
 } from '@/api/price';
 import { addFavorite } from '@/api/favorite';
 import { useToastStore } from '@/stores/toast';
+import { getLastYearDateRange } from '@/views/dashboard/composables/useLastYearRange';
+const RECENT_KEY = 'recent-price-items';
+const SEARCH_STATE_KEY = 'price-search-state';
 
 export function usePriceSearch() {
   const selectedItem = ref('');
@@ -17,6 +20,7 @@ export function usePriceSearch() {
   const itemOptions = ref([]);
   const varietyOptions = ref([]);
   const priceResult = ref([]);
+  const lastYearPrices = ref([]);
   const hasSearched = ref(false);
   const suppressVarietyReset = ref(false);
 
@@ -34,7 +38,7 @@ export function usePriceSearch() {
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
 
-  const maxYear = yesterday.getFullYear();
+  const maxYear = Math.max(2000, yesterday.getFullYear() - 1);
   const minYear = 2000;
 
   const yearOptions = computed(() => {
@@ -135,7 +139,12 @@ export function usePriceSearch() {
         label: sub.subItemName ?? sub.name ?? sub.productName ?? '',
       }));
       if (!suppressVarietyReset.value) {
-        selectedVariety.value = '';
+        const current = selectedVariety.value ? String(selectedVariety.value) : '';
+        const existsInNewOptions = varietyOptions.value.some((v) => String(v.value) === current);
+
+        if (!existsInNewOptions) {
+          selectedVariety.value = '';
+        }
       }
     } catch (error) {
       console.error('하위품목 목록 조회 실패:', error);
@@ -148,13 +157,11 @@ export function usePriceSearch() {
 
   watch(selectedItem, (newItem) => {
     if (suppressVarietyReset.value) return;
-    hasSearched.value = false;
     fetchSubItems(newItem);
   });
 
   watch(selectedVariety, () => {
     if (suppressVarietyReset.value) return;
-    hasSearched.value = false;
   });
 
   onMounted(() => {
@@ -177,8 +184,6 @@ export function usePriceSearch() {
     yearEnd.value = '';
     yearDetail.value = '';
     isYearDetail.value = false;
-    priceResult.value = [];
-    hasSearched.value = false;
   };
 
   /* ================= 즐겨찾기 등록 ================= */
@@ -223,9 +228,11 @@ export function usePriceSearch() {
       });
       toastStore.show('관심 품목으로 등록되었습니다', 'success');
     } catch (error) {
-      console.error('즐겨찾기 등록 실패:', error);
-      if (error.response?.status === 401) {
-        toastStore.show('로그인이 만료되었습니다. 다시 로그인해주세요', 'info');
+      const errorData = error.response?.data;
+      const errorCode = errorData?.code;
+
+      if (errorCode === 'FAVORITE_003') {
+        toastStore.show('이미 관심 품목으로 등록된 품종입니다', 'info');
         return;
       }
       toastStore.show('관심 품목 등록 중 오류가 발생했습니다', 'error');
@@ -286,15 +293,15 @@ export function usePriceSearch() {
       const end = new Date(yesterday);
       const start = new Date(end);
       start.setDate(end.getDate() - 6);
-      dayStartDate.value = start;
-      dayEndDate.value = end;
+      dayStartDate.value = formatDateToString(start);
+      dayEndDate.value = formatDateToString(end);
     } else if (mappedPeriod === 'week') {
       // 주간: 마지막 완전한 주 기준 2주
       const end = new Date(lastWeekSunday);
       const start = new Date(end);
       start.setDate(end.getDate() - 14);
-      weekStartDate.value = start;
-      weekEndDate.value = end;
+      weekStartDate.value = formatDateToString(start);
+      weekEndDate.value = formatDateToString(end);
     } else if (mappedPeriod === 'month') {
       // 월간: 어제가 속한 월 기준 최근 3개월
       const end = new Date(yesterday);
@@ -302,8 +309,10 @@ export function usePriceSearch() {
       const endMonthIndex = end.getMonth();
       const start = new Date(endYear, endMonthIndex - 2, 1);
       const endMonth = new Date(endYear, endMonthIndex, 1);
-      monthStartDate.value = start;
-      monthEndDate.value = endMonth;
+      const startMonthLabel = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}`;
+      const endMonthLabel = `${endMonth.getFullYear()}-${String(endMonth.getMonth() + 1).padStart(2, '0')}`;
+      monthStartDate.value = startMonthLabel;
+      monthEndDate.value = endMonthLabel;
     } else if (mappedPeriod === 'year') {
       isYearDetail.value = false;
       const latestYear = maxYear;
@@ -342,8 +351,8 @@ export function usePriceSearch() {
     const end = new Date(yesterday);
     const start = new Date(end);
     start.setDate(end.getDate() - 13);
-    dayStartDate.value = start;
-    dayEndDate.value = end;
+    dayStartDate.value = formatDateToString(start);
+    dayEndDate.value = formatDateToString(end);
 
     suppressVarietyReset.value = true;
     try {
@@ -386,15 +395,113 @@ export function usePriceSearch() {
     priceResult.value = [];
     hasSearched.value = false;
   };
+  /* ================= 최근 조회 ================= */
+
+  const saveRecentItem = ({ productCode, itemCode, itemLabel, varietyLabel, periodType, dateRangeLabel }) => {
+    if (!productCode) return;
+
+    const recent = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+
+    const newItem = {
+      productCode,
+      itemCode,
+      itemLabel,
+      varietyLabel: varietyLabel || '전체',
+      periodType,
+      savedAt: Date.now(),
+      dateRangeLabel: dateRangeLabel || '',
+    };
+
+    // 동일 품종 중복 제거
+    const filtered = recent.filter((r) => r.productCode !== newItem.productCode);
+
+    const updated = [newItem, ...filtered].slice(0, 5);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(updated));
+    recentItems.value = updated;
+  };
+
+  const loadRecentItems = () => {
+    return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+  };
+  const clearRecentSearches = () => {
+    recentItems.value = [];
+
+    localStorage.removeItem(RECENT_KEY);
+    localStorage.removeItem(SEARCH_STATE_KEY);
+  };
+
+  const recentItems = ref(loadRecentItems());
+
+  const applyRecentItem = async (recentItem) => {
+    if (!recentItem || !recentItem.productCode || !recentItem.periodType) return;
+
+    const normalizedProductCode = String(recentItem.productCode);
+    const recentPeriod = recentItem.periodType;
+
+    periodType.value = recentPeriod;
+
+    if (recentPeriod === 'day') {
+      const end = new Date(yesterday);
+      const start = new Date(end);
+      start.setDate(end.getDate() - 6);
+      dayStartDate.value = formatDateToString(start);
+      dayEndDate.value = formatDateToString(end);
+    } else if (recentPeriod === 'week') {
+      const end = new Date(lastWeekSunday);
+      const start = new Date(end);
+      start.setDate(end.getDate() - 14);
+      // 주간은 date-input에 'YYYY-MM-DD' 문자열로 바인딩
+      weekStartDate.value = formatDateToString(start);
+      weekEndDate.value = formatDateToString(end);
+    } else if (recentPeriod === 'month') {
+      const end = new Date(yesterday);
+      const endYear = end.getFullYear();
+      const endMonthIndex = end.getMonth();
+      const start = new Date(endYear, endMonthIndex - 2, 1);
+      // month-input은 'YYYY-MM' 문자열로 바인딩
+      const startMonthLabel = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}`;
+      const endMonthLabel = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}`;
+      monthStartDate.value = startMonthLabel;
+      monthEndDate.value = endMonthLabel;
+    } else if (recentPeriod === 'year') {
+      isYearDetail.value = false;
+      const latestYear = maxYear;
+      yearStart.value = String(latestYear);
+      yearEnd.value = String(latestYear);
+    }
+
+    suppressVarietyReset.value = true;
+    try {
+      const itemCode = await findItemCodeByProductCode(normalizedProductCode);
+      if (itemCode) {
+        selectedItem.value = String(itemCode);
+        await fetchSubItems(itemCode);
+
+        const exactMatch = varietyOptions.value.find((v) => String(v.value) === normalizedProductCode);
+        if (exactMatch) {
+          selectedVariety.value = String(exactMatch.value);
+        } else if (varietyOptions.value.length > 0) {
+          selectedVariety.value = String(varietyOptions.value[0].value);
+        } else {
+          selectedVariety.value = '';
+        }
+      }
+    } finally {
+      suppressVarietyReset.value = false;
+    }
+
+    // 4) 필터가 세팅된 뒤 실제 조회 실행
+    await handleSearch();
+  };
 
   /* ================= 응답 파싱 ================= */
 
   const extractPriceList = (raw) => {
     if (!raw) return [];
-    if (Array.isArray(raw)) return raw;
     if (raw && typeof raw === 'object' && Array.isArray(raw.data)) {
       return raw.data;
     }
+    if (Array.isArray(raw)) return raw;
     return [];
   };
   /* ================= 일자 변환 함수 ================= */
@@ -404,6 +511,8 @@ export function usePriceSearch() {
         return {
           dateLabel: item.priceDate || item.date || '',
           priceLabel: item.price ?? item.avgPrice ?? null,
+          priceChange: item.priceChange ?? null,
+          priceChangeRate: item.priceChangeRate ?? null,
         };
       }
 
@@ -411,6 +520,8 @@ export function usePriceSearch() {
         return {
           dateLabel: `${item.startDate} ~ ${item.endDate}`,
           priceLabel: item.avgPrice ?? null,
+          priceChange: item.priceChange ?? null,
+          priceChangeRate: item.priceChangeRate ?? null,
         };
       }
 
@@ -418,13 +529,16 @@ export function usePriceSearch() {
         return {
           dateLabel: `${item.priceYear}-${String(item.priceMonth).padStart(2, '0')}`,
           priceLabel: item.avgPrice ?? null,
+          priceChange: item.priceChange ?? null,
+          priceChangeRate: item.priceChangeRate ?? null,
         };
       }
 
-      // year(연별)
       return {
         dateLabel: `${item.priceYear}`,
         priceLabel: item.avgPrice ?? null,
+        priceChange: item.priceChange ?? null,
+        priceChangeRate: item.priceChangeRate ?? null,
       };
     });
   };
@@ -445,9 +559,10 @@ export function usePriceSearch() {
       return;
     }
 
+    lastYearPrices.value = [];
+
     try {
       if (periodType.value === 'day') {
-        // 일별
         if (!dayStartDate.value || !dayEndDate.value) {
           toastStore.show('시작일과 종료일을 모두 선택해 주세요', 'info');
           return;
@@ -467,8 +582,29 @@ export function usePriceSearch() {
         });
 
         priceResult.value = normalizeResult(extractPriceList(data), 'day');
+
+        const lastYearRange = getLastYearDateRange(startStr, endStr);
+
+        if (lastYearRange) {
+          try {
+            const { data: lastData } = await fetchDailyPricesApi(productCode, {
+              startDate: lastYearRange.startDate,
+              endDate: lastYearRange.endDate,
+            });
+
+            const normalizedLast = normalizeResult(extractPriceList(lastData), 'day');
+
+            lastYearPrices.value = priceResult.value.map((_, idx) => normalizedLast[idx]?.priceLabel ?? null);
+          } catch (e) {
+            console.error('전년 동기간 일별 가격 조회 실패:', e);
+            lastYearPrices.value = priceResult.value.map(() => null);
+          }
+        } else {
+          lastYearPrices.value = priceResult.value.map(() => null);
+        }
+
+        const dateRangeLabel = `${startStr} ~ ${endStr}`;
       } else if (periodType.value === 'week') {
-        // 주간
         if (!weekStartDate.value || !weekEndDate.value) {
           toastStore.show('시작 주와 종료 주를 모두 선택해 주세요', 'info');
           return;
@@ -482,14 +618,38 @@ export function usePriceSearch() {
           return;
         }
 
+        const lastWeekSundayStr = formatDateToString(lastWeekSunday);
+        if (endRange.end > lastWeekSundayStr) {
+          toastStore.show('완전히 끝난 지난 주까지만 조회할 수 있습니다', 'info');
+          return;
+        }
+
         const { data } = await fetchWeeklyPricesApi(productCode, {
           startDate: startRange.start,
           endDate: endRange.end,
         });
 
         priceResult.value = normalizeResult(extractPriceList(data), 'week');
+
+        const lastYearRange = getLastYearDateRange(startRange.start, endRange.end);
+        if (lastYearRange) {
+          try {
+            const { data: lastData } = await fetchWeeklyPricesApi(productCode, {
+              startDate: lastYearRange.startDate,
+              endDate: lastYearRange.endDate,
+            });
+            const normalizedLast = normalizeResult(extractPriceList(lastData), 'week');
+            lastYearPrices.value = priceResult.value.map((_, idx) => normalizedLast[idx]?.priceLabel ?? null);
+          } catch (e) {
+            console.error('전년 동기간 주간 가격 조회 실패:', e);
+            lastYearPrices.value = priceResult.value.map(() => null);
+          }
+        } else {
+          lastYearPrices.value = priceResult.value.map(() => null);
+        }
+
+        const dateRangeLabel = `${startRange.start} ~ ${endRange.end}`;
       } else if (periodType.value === 'month') {
-        // 월간
         if (!monthStartDate.value || !monthEndDate.value) {
           toastStore.show('시작 월과 종료 월을 모두 선택해 주세요', 'info');
           return;
@@ -503,16 +663,56 @@ export function usePriceSearch() {
           return;
         }
 
+        const lastCompletedMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        const endLimitYear = lastCompletedMonth.getFullYear();
+        const endLimitMonth = lastCompletedMonth.getMonth() + 1;
+        const endYearVal = endD.getFullYear();
+        const endMonthVal = endD.getMonth() + 1;
+
+        if (endYearVal > endLimitYear || (endYearVal === endLimitYear && endMonthVal > endLimitMonth)) {
+          toastStore.show('완전히 끝난 지난 달까지만 조회할 수 있습니다', 'info');
+          return;
+        }
+
+        const startYear = startD.getFullYear();
+        const startMonth = startD.getMonth() + 1;
+        const endYear = endYearVal;
+        const endMonth = endMonthVal;
+
         const { data } = await fetchMonthlyPricesApi(productCode, {
-          startYear: startD.getFullYear(),
-          startMonth: startD.getMonth() + 1,
-          endYear: endD.getFullYear(),
-          endMonth: endD.getMonth() + 1,
+          startYear,
+          startMonth,
+          endYear,
+          endMonth,
         });
 
         priceResult.value = normalizeResult(extractPriceList(data), 'month');
+
+        const lastStartYear = startYear - 1;
+        const lastEndYear = endYear - 1;
+
+        if (lastStartYear >= minYear && lastEndYear >= minYear) {
+          try {
+            const { data: lastData } = await fetchMonthlyPricesApi(productCode, {
+              startYear: lastStartYear,
+              startMonth,
+              endYear: lastEndYear,
+              endMonth,
+            });
+            const normalizedLast = normalizeResult(extractPriceList(lastData), 'month');
+            lastYearPrices.value = priceResult.value.map((_, idx) => normalizedLast[idx]?.priceLabel ?? null);
+          } catch (e) {
+            console.error('전년 동기간 월간 가격 조회 실패:', e);
+            lastYearPrices.value = priceResult.value.map(() => null);
+          }
+        } else {
+          lastYearPrices.value = priceResult.value.map(() => null);
+        }
+
+        const startMonthLabel = `${startYear}-${String(startMonth).padStart(2, '0')}`;
+        const endMonthLabel = `${endYear}-${String(endMonth).padStart(2, '0')}`;
+        const dateRangeLabel = `${startMonthLabel} ~ ${endMonthLabel}`;
       } else if (periodType.value === 'year') {
-        // 연간
         if (isYearDetail.value) {
           if (!yearDetail.value) {
             toastStore.show('조회할 연도를 선택해 주세요', 'info');
@@ -527,6 +727,22 @@ export function usePriceSearch() {
 
           const { data } = await fetchYearlyPriceDetailApi(productCode, { year: y });
           priceResult.value = extractPriceList(data);
+          lastYearPrices.value = priceResult.value.map(() => null);
+
+          const dateRangeLabel = `${y}년 상세`;
+
+          saveRecentItem({
+            productCode,
+            itemCode: selectedItem.value,
+            itemLabel: itemOptions.value.find((i) => i.value === selectedItem.value)?.label || '',
+            varietyLabel: varietyOptions.value.find((v) => v.value === selectedVariety.value)?.label || '',
+            periodType: periodType.value,
+            dateRangeLabel,
+          });
+
+          hasSearched.value = true;
+          console.log('최종 priceResult', priceResult.value);
+          return;
         } else {
           if (!yearStart.value || !yearEnd.value) {
             toastStore.show('시작 연도와 종료 연도를 모두 선택해 주세요', 'info');
@@ -552,11 +768,66 @@ export function usePriceSearch() {
           });
 
           priceResult.value = normalizeResult(extractPriceList(data), 'year');
+
+          lastYearPrices.value = priceResult.value.map((row) => {
+            if (row.priceLabel == null || row.priceChange == null) return null;
+            return row.priceLabel - row.priceChange;
+          });
+
+          const dateRangeLabel = ys === ye ? `${ys}` : `${ys} ~ ${ye}`;
+
+          saveRecentItem({
+            productCode,
+            itemCode: selectedItem.value,
+            itemLabel: itemOptions.value.find((i) => i.value === selectedItem.value)?.label || '',
+            varietyLabel: varietyOptions.value.find((v) => v.value === selectedVariety.value)?.label || '',
+            periodType: periodType.value,
+            dateRangeLabel,
+          });
+
+          hasSearched.value = true;
+          console.log('최종 priceResult', priceResult.value);
+          return;
         }
       } else {
         toastStore.show('잘못된 기간 유형입니다', 'error');
         return;
       }
+      const generateDateRangeLabel = () => {
+        if (periodType.value === 'day') {
+          const startStr = formatDateToString(dayStartDate.value);
+          const endStr = formatDateToString(dayEndDate.value);
+          return `${startStr} ~ ${endStr}`;
+        } else if (periodType.value === 'week') {
+          const startRange = getWeekRangeFromDate(weekStartDate.value);
+          const endRange = getWeekRangeFromDate(weekEndDate.value);
+          return `${startRange.start} ~ ${endRange.end}`;
+        } else if (periodType.value === 'month') {
+          const startD = new Date(monthStartDate.value);
+          const endD = new Date(monthEndDate.value);
+          const startMonthLabel = `${startD.getFullYear()}-${String(startD.getMonth() + 1).padStart(2, '0')}`;
+          const endMonthLabel = `${endD.getFullYear()}-${String(endD.getMonth() + 1).padStart(2, '0')}`;
+          return `${startMonthLabel} ~ ${endMonthLabel}`;
+        } else if (periodType.value === 'year') {
+          if (isYearDetail.value) {
+            return `${yearDetail.value}년 상세`;
+          }
+          const ys = Number(yearStart.value);
+          const ye = Number(yearEnd.value);
+          return ys === ye ? `${ys}` : `${ys} ~ ${ye}`;
+        }
+        return '';
+      };
+
+      const dateRangeLabel = generateDateRangeLabel();
+      saveRecentItem({
+        productCode,
+        itemCode: selectedItem.value,
+        itemLabel: itemOptions.value.find((i) => i.value === selectedItem.value)?.label || '',
+        varietyLabel: varietyOptions.value.find((v) => v.value === selectedVariety.value)?.label || '',
+        periodType: periodType.value,
+        dateRangeLabel,
+      });
 
       hasSearched.value = true;
     } catch (error) {
@@ -579,6 +850,7 @@ export function usePriceSearch() {
     itemOptions,
     varietyOptions,
     priceResult,
+    lastYearPrices,
     periodType,
     periodTabs,
     yesterday,
@@ -595,6 +867,7 @@ export function usePriceSearch() {
     yearEnd,
     yearDetail,
     hasSearched,
+    recentItems,
 
     handlePeriodClick,
     resetFilters,
@@ -602,5 +875,8 @@ export function usePriceSearch() {
     handleAddFavorite,
     initializeFromFavorite,
     initializeFromRank,
+    loadRecentItems,
+    applyRecentItem,
+    clearRecentSearches,
   };
 }

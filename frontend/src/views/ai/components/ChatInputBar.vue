@@ -1,157 +1,64 @@
 <template>
-  <div class="input-wrapper">
-    <button v-if="messages.length > 0" class="reset-btn" @click="emit('reset')">
-      <span class="icon">↺</span>
-      <span class="label">대화 종료</span>
-    </button>
-
-    <input
-      v-model="text"
-      class="input-box"
-      type="text"
-      :placeholder="
-        isLoading ? '야치가 답변을 만드는 중이에요...' : '궁금한 점을 야치에게 질문해주세요!'
-      "
-      :disabled="isLoading"
-      @keyup.enter="send"
+  <div class="flex items-end gap-2 bg-[#f8f9fa] border border-[#e9ecef] rounded-[15px] px-[15px] py-[10px]">
+    <textarea
+      ref="textareaRef"
+      :value="modelValue"
+      @input="onInput"
+      @keydown.enter.exact.prevent="emitSend"
+      :placeholder="placeholder"
+      rows="1"
+      class="flex-1 bg-transparent border-0 outline-none resize-none px-2 py-2 text-base"
     />
 
-    <button class="send-btn" :disabled="isLoading" @click="send">
-      <span v-if="!isLoading">➤</span>
-      <span v-else class="spinner"></span>
+    <button
+      type="button"
+      @click="emitSend"
+      class="w-10 h-10 rounded-[10px] bg-[#fecc21] text-[#212121] inline-flex items-center justify-center disabled:opacity-30"
+      :disabled="disabled || !modelValue.trim()"
+    >
+      <IconSend class="w-[18px] h-[18px]" />
     </button>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import IconSend from '@/components/icons/IconSend.vue';
+import { ref, watch, nextTick } from 'vue';
 
 const props = defineProps({
-  messages: Array,
-  isLoading: {
-    type: Boolean,
-    default: false,
-  },
+  modelValue: { type: String, default: '' },
+  disabled: { type: Boolean, default: false },
+  placeholder: { type: String, default: '메시지를 입력하세요...' },
 });
+const emit = defineEmits(['update:modelValue', 'send']);
 
-const emit = defineEmits(['send', 'reset']);
+const textareaRef = ref(null);
 
-const text = ref('');
+const adjustHeight = () => {
+  const el = textareaRef.value;
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+};
 
-function send() {
-  if (!text.value.trim()) return;
-  emit('send', text.value);
-  text.value = '';
-}
+const onInput = (e) => {
+  emit('update:modelValue', e.target.value);
+  adjustHeight();
+};
+
+const emitSend = () => {
+  if (props.disabled) return;
+  emit('send');
+};
+
+watch(
+  () => props.modelValue,
+  async (val) => {
+    if (val === '') {
+      await nextTick();
+      const el = textareaRef.value;
+      if (el) el.style.height = 'auto';
+    }
+  }
+);
 </script>
-
-<style scoped>
-.input-wrapper {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 40px);
-  max-width: 720px;
-
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  background: #f5f5f5;
-  padding: 12px 18px;
-  border-radius: 30px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-
-  z-index: 999;
-}
-
-.input-box {
-  flex: 1;
-  border: none;
-  background: transparent;
-  font-size: 16px;
-  outline: none;
-}
-
-.send-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: none;
-  background: #fecc21;
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.send-btn:disabled {
-  opacity: 0.7;
-  cursor: default;
-}
-
-.reset-btn {
-  position: relative;
-  height: 36px;
-  padding: 0 10px;
-  border: none;
-  background: #e9e9e9;
-  border-radius: 20px;
-  cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  font-size: 15px;
-
-  transition: all 0.25s ease;
-  overflow: hidden;
-  white-space: nowrap;
-
-  width: 36px;
-}
-.reset-btn:hover {
-  width: 110px;
-  background: #dcdcdc;
-}
-.icon {
-  font-size: 18px;
-  flex-shrink: 0;
-}
-.label {
-  opacity: 0;
-  width: 0;
-  overflow: hidden;
-  padding: 0;
-  transform: translateX(-6px);
-  transition: 0.25s ease;
-}
-.reset-btn:hover .label {
-  opacity: 1;
-  width: auto;
-  padding-left: 4px;
-  transform: translateX(0);
-}
-
-.spinner {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  border-top-color: #ffffff;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-</style>

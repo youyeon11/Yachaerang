@@ -1,102 +1,113 @@
 <template>
-  <main class="flex flex-1 flex-col p-8 bg-gray-50">
-    <div class="mx-auto flex w-full max-w-4xl flex-1 flex-col space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-bold tracking-tight text-gray-900">Agricultural Assistant</h1>
-          <p class="text-gray-600">Get personalized farming advice and market insights</p>
-        </div>
-        <button
-          @click="handleNewChat"
-          class="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-50"
-        >
-          <IconRefresh class="h-4 w-4" />
-          New Chat
-        </button>
-      </div>
+  <div class="flex flex-col h-screen overflow-hidden bg-[#f9f9f9]">
+    <div class="relative flex flex-1 flex-col w-full h-full bg-white">
+      <ChatHeader :title="aiProfile.name" @end-chat="endChat" />
 
-      <!-- Chat Messages -->
-      <div class="flex-1 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <div class="h-[500px] overflow-y-auto pr-4">
-          <div class="space-y-4">
-            <div
-              v-for="(message, idx) in messages"
-              :key="idx"
-              class="flex gap-3"
-              :class="message.role === 'user' ? 'justify-end' : 'justify-start'"
-            >
-              <div v-if="message.role === 'assistant'" class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FECC21]">
-                <svg class="h-6 w-6 text-[#F44323]" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                </svg>
-              </div>
-              <div
-                class="max-w-[70%] rounded-lg p-4"
-                :class="message.role === 'user' ? 'bg-[#F44323] text-white' : 'bg-gray-100 text-gray-900'"
-              >
-                <p class="leading-relaxed">{{ message.content }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ChatMessageList
+        ref="messageListRef"
+        :messages="displayMessages"
+        :ai-profile="aiProfile"
+        :user-profile="userProfile"
+        :is-loading="isLoading"
+        @scroll-state="onScrollState"
+      />
 
-      <!-- Input Area -->
-      <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-        <div class="flex gap-2">
-          <input
-            v-model="input"
-            @keypress.enter="handleSend"
-            placeholder="Ask about farming techniques, market prices, or best practices..."
-            class="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
-          />
-          <button
-            @click="handleSend"
-            class="flex items-center justify-center rounded-lg bg-[#F44323] px-4 py-2 text-white transition-colors hover:bg-[#d63a1f]"
-          >
-            <IconSend class="h-4 w-4" />
-          </button>
-        </div>
-      </div>
+      <ChatNewMessageButton v-if="showNewMsgBtn" @click="scrollToBottom(true)" />
+
+      <footer class="bg-white border-t border-[#eee] py-5 px-[10%]">
+        <ChatSuggestions v-if="showSuggestions" :items="suggestions" @pick="handleSuggestionClick" />
+
+        <ChatInputBar
+          v-model="userInput"
+          :disabled="isLoading"
+          :placeholder="isLoading ? '야치가 답변을 만드는 중이에요...' : '메시지를 입력하세요...'"
+          @send="handleSend"
+        />
+      </footer>
     </div>
-  </main>
+  </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import IconRefresh from '../../components/icons/IconRefresh.vue'
-import IconSend from '../../components/icons/IconSend.vue'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue';
+import 'github-markdown-css/github-markdown-light.css';
 
-const messages = ref([
-  {
-    role: 'assistant',
-    content: "Hello! I'm your agricultural assistant. How can I help you today? You can ask me about crop prices, farming techniques, market trends, or any other agricultural questions.",
-  },
-])
+import ChatHeader from '@/views/ai/components/ChatHeader.vue';
+import ChatMessageList from '@/views/ai/components/ChatMessageList.vue';
+import ChatNewMessageButton from '@/views/ai/components/ChatNewMessageButton.vue';
+import ChatSuggestions from '@/views/ai/components/ChatSuggestions.vue';
+import ChatInputBar from '@/views/ai/components/ChatInputBar.vue';
 
-const input = ref('')
+import { useChat } from '@/views/ai/composables/useChat';
+import { useUserProfile } from '@/views/ai/composables/useUserProfile';
+import yachiAvatar from '@/assets/yachi.png';
 
-const handleSend = () => {
-  if (!input.value.trim()) return
+const { displayMessages, sendMessage, resetChat, initSession, isLoading } = useChat();
 
-  messages.value.push({ role: 'user', content: input.value })
+const userInput = ref('');
+const showNewMsgBtn = ref(false);
+const isUserScrolling = ref(false);
 
-  setTimeout(() => {
-    messages.value.push({
-      role: 'assistant',
-      content: 'Thank you for your question. Based on current market data and agricultural best practices, I recommend monitoring seasonal trends and consulting with local agricultural experts for personalized advice.',
-    })
-  }, 1000)
+const messageListRef = ref(null);
 
-  input.value = ''
-}
+const aiProfile = reactive({
+  name: 'AI 야치',
+  avatarUrl: yachiAvatar,
+});
 
-const handleNewChat = () => {
-  messages.value = [
-    {
-      role: 'assistant',
-      content: "Hello! I'm your agricultural assistant. How can I help you today? You can ask me about crop prices, farming techniques, market trends, or any other agricultural questions.",
-    },
-  ]
-}
+const { userProfile, loadUserProfile } = useUserProfile();
+
+const suggestions = [
+  '방울토마토와 같이 심으면 서로 성장을 돕는 동반 식물에는 어떤 게 있어?',
+  '진딧물이 생겼는데 약을 안 쓰고 없애는 방법이 있을까?',
+  '최근 농산물 시장 동향을 요약해줘.',
+  '깻잎 뒷면에 하얀 가루 같은 게 생겼어. 이거 병이야? 친환경적으로 해결할 수 있는 난황유 만드는 법 알려줘.',
+
+  '감자를 수확할 때가 된 것 같은데, 잎이 어떤 상태일 때 캐야 가장 맛있어?',
+];
+
+const showSuggestions = computed(() => displayMessages.value && displayMessages.value.length === 1);
+
+onMounted(async () => {
+  await initSession();
+  await loadUserProfile();
+  scrollToBottom(true);
+});
+
+const handleSend = async () => {
+  const text = userInput.value.trim();
+  if (!text || isLoading.value) return;
+
+  userInput.value = '';
+  await sendMessage(text);
+
+  if (!isUserScrolling.value) scrollToBottom();
+};
+
+const handleSuggestionClick = async (text) => {
+  if (!text) return;
+  userInput.value = text;
+  await handleSend();
+};
+
+const endChat = async () => {
+  if (confirm('대화를 종료하시겠습니까?')) {
+    await resetChat();
+    showNewMsgBtn.value = false;
+    scrollToBottom(true);
+  }
+};
+
+const scrollToBottom = (force = false) => {
+  nextTick(() => {
+    messageListRef.value?.scrollToBottom?.(force);
+    showNewMsgBtn.value = false;
+    isUserScrolling.value = false;
+  });
+};
+
+const onScrollState = ({ showNewButton, isUserScrolling: scrolling }) => {
+  showNewMsgBtn.value = showNewButton;
+  isUserScrolling.value = scrolling;
+};
 </script>
