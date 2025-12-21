@@ -19,6 +19,7 @@
 
 @layer components {
   .markdown-body {
+    background: transparent !important;
     font-family: var(--font-sans) !important;
     font-size: 15px !important;
     line-height: 1.7 !important;
