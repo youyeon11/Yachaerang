@@ -225,7 +225,7 @@ const selectItem = (itemCode) => {
 </script>
 
 <style scoped>
-@reference "../../../assets/main.css";
+@import '../../../assets/main.css';
 .date-input {
   @apply w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-xs font-bold text-gray-600 focus:border-red-300 outline-none transition-all;
 }
