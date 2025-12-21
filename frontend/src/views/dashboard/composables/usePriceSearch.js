@@ -793,25 +793,33 @@ export function usePriceSearch() {
         toastStore.show('잘못된 기간 유형입니다', 'error');
         return;
       }
+      const generateDateRangeLabel = () => {
+        if (periodType.value === 'day') {
+          const startStr = formatDateToString(dayStartDate.value);
+          const endStr = formatDateToString(dayEndDate.value);
+          return `${startStr} ~ ${endStr}`;
+        } else if (periodType.value === 'week') {
+          const startRange = getWeekRangeFromDate(weekStartDate.value);
+          const endRange = getWeekRangeFromDate(weekEndDate.value);
+          return `${startRange.start} ~ ${endRange.end}`;
+        } else if (periodType.value === 'month') {
+          const startD = new Date(monthStartDate.value);
+          const endD = new Date(monthEndDate.value);
+          const startMonthLabel = `${startD.getFullYear()}-${String(startD.getMonth() + 1).padStart(2, '0')}`;
+          const endMonthLabel = `${endD.getFullYear()}-${String(endD.getMonth() + 1).padStart(2, '0')}`;
+          return `${startMonthLabel} ~ ${endMonthLabel}`;
+        } else if (periodType.value === 'year') {
+          if (isYearDetail.value) {
+            return `${yearDetail.value}년 상세`;
+          }
+          const ys = Number(yearStart.value);
+          const ye = Number(yearEnd.value);
+          return ys === ye ? `${ys}` : `${ys} ~ ${ye}`;
+        }
+        return '';
+      };
 
-      let dateRangeLabel = '';
-
-      if (periodType.value === 'day') {
-        const startStr = formatDateToString(dayStartDate.value);
-        const endStr = formatDateToString(dayEndDate.value);
-        dateRangeLabel = `${startStr} ~ ${endStr}`;
-      } else if (periodType.value === 'week') {
-        const startRange = getWeekRangeFromDate(weekStartDate.value);
-        const endRange = getWeekRangeFromDate(weekEndDate.value);
-        dateRangeLabel = `${startRange.start} ~ ${endRange.end}`;
-      } else if (periodType.value === 'month') {
-        const startD = new Date(monthStartDate.value);
-        const endD = new Date(monthEndDate.value);
-        const startMonthLabel = `${startD.getFullYear()}-${String(startD.getMonth() + 1).padStart(2, '0')}`;
-        const endMonthLabel = `${endD.getFullYear()}-${String(endD.getMonth() + 1).padStart(2, '0')}`;
-        dateRangeLabel = `${startMonthLabel} ~ ${endMonthLabel}`;
-      }
-
+      const dateRangeLabel = generateDateRangeLabel();
       saveRecentItem({
         productCode,
         itemCode: selectedItem.value,
