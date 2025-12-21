@@ -14,11 +14,6 @@
               {{ selectedItemName || '품목을 선택하세요' }}
             </span>
           </div>
-          <span
-            class="ml-3 inline-flex items-center justify-center rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-500 shadow-sm"
-          >
-            선택
-          </span>
         </button>
       </div>
 
