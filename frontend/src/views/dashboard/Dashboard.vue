@@ -135,25 +135,19 @@ const currentDateRangeLabel = computed(() => {
 });
 
 // --- Computed: 차트 데이터 포맷팅 ---
-const formattedChartData = computed(() => {
-  const labels = priceResult.value.map((item) => item.dateLabel);
-  const thisPrices = priceResult.value.map((item) => item.priceLabel);
-
-  let lastPrices;
-
-  if (Array.isArray(lastYearPrices?.value) && lastYearPrices.value.length) {
-    lastPrices = priceResult.value.map((_, idx) => {
-      const val = lastYearPrices.value[idx];
-      return typeof val === 'number' ? val : null;
-    });
-  } else {
-    lastPrices = priceResult.value.map(() => null);
+const normalizedLastYearPrices = computed(() => {
+  if (!Array.isArray(lastYearPrices.value) || lastYearPrices.value.length === 0) {
+    return priceResult.value.map(() => null);
   }
 
+  return lastYearPrices.value.map((val) => (typeof val === 'number' ? val : null));
+});
+
+const formattedChartData = computed(() => {
   return {
-    labels,
-    thisPrices,
-    lastPrices,
+    labels: priceResult.value.map((item) => item.dateLabel),
+    thisPrices: priceResult.value.map((item) => item.priceLabel),
+    lastPrices: normalizedLastYearPrices.value,
   };
 });
 
@@ -164,25 +158,16 @@ const totalPages = computed(() => {
   if (priceResult.value.length === 0) return 1;
   return Math.ceil(priceResult.value.length / itemsPerPage);
 });
+
 const paginatedData = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
 
   return priceResult.value.slice(start, end).map((item, index) => {
+    const globalIndex = start + index;
     const thisPrice = item.priceLabel || 0;
 
-    const globalIndex = start + index;
-    let lastPrice = 0;
-    if (Array.isArray(lastYearPrices?.value) && lastYearPrices.value.length) {
-      const val = lastYearPrices.value[globalIndex];
-      lastPrice = typeof val === 'number' ? val : 0;
-    } else {
-      const randomFactor = 0.85 + (Math.sin(globalIndex) * 0.15 + 0.1);
-      lastPrice = thisPrice ? Math.floor(thisPrice * randomFactor) : 0;
-    }
-
-    const prevDiff = item.priceChange ?? 0;
-    const prevRate = item.priceChangeRate ?? 0;
+    const lastPrice = normalizedLastYearPrices.value[globalIndex] || 0;
 
     const yoyDiff = lastPrice > 0 ? thisPrice - lastPrice : 0;
     const yoyRate = lastPrice > 0 ? (yoyDiff / lastPrice) * 100 : 0;
@@ -190,8 +175,8 @@ const paginatedData = computed(() => {
     return {
       date: item.dateLabel,
       thisPrice,
-      prevDiff,
-      prevRate,
+      prevDiff: item.priceChange ?? 0,
+      prevRate: item.priceChangeRate ?? 0,
       lastPrice,
       yoyDiff,
       yoyRate,
@@ -255,7 +240,9 @@ onMounted(async () => {
     selectedVariety.value = 'KM-9903-23-71';
     periodType.value = 'day';
     dayStartDate.value = '2025-11-01';
-    dayEndDate.value = '2025-12-20';
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    dayEndDate.value = yesterday.toISOString().slice(0, 10);
 
     await handleSearch();
   }
