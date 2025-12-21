@@ -1,34 +1,54 @@
 <template>
-  <div class="bg-white p-5 md:p-8 rounded-xl shadow-sm border border-gray-200 space-y-6 font-sans">
-    <div>
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center gap-4 text-[10px] font-bold uppercase text-gray-400 tracking-tight">
-          <div class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-red-500"></span> 금년 시세</div>
-          <div class="flex items-center gap-1.5">
-            <span class="w-3 h-0.5 bg-gray-500 border-dashed border-t"></span> 전년 시세
+  <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 space-y-12 font-sans">
+    <div class="space-y-5">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-3">
+        <div>
+          <h3 class="text-base md:text-lg font-black text-slate-800 flex items-center gap-2">
+            <span class="w-1.5 h-4 bg-slate-900 rounded-full"></span>
+            시세 변동 추이
+          </h3>
+          <p class="text-[13px] text-slate-500 mt-1 font-medium">전년 동기 대비 금년 실거래가의 흐름을 비교합니다.</p>
+        </div>
+
+        <div class="flex items-center gap-5 text-xs font-bold bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">
+          <div class="flex items-center gap-2 text-slate-600"><span class="w-4 h-0.5 bg-slate-500"></span> 금년</div>
+          <div class="flex items-center gap-2 text-slate-400">
+            <span class="w-4 h-2 bg-slate-200 rounded-sm"></span> 전년
+          </div>
+          <div class="flex items-center gap-3 ml-2 border-l border-slate-200 pl-3">
+            <span class="text-rose-500">● 최고</span>
+            <span class="text-blue-500">● 최저</span>
           </div>
         </div>
-        <span class="text-[9px] font-black text-gray-300 uppercase tracking-widest italic">Price Trend</span>
       </div>
-      <div class="h-64 md:h-80"><canvas ref="lineCanvas"></canvas></div>
+      <div class="h-72 md:h-96"><canvas ref="lineCanvas"></canvas></div>
     </div>
 
-    <div class="pt-6 border-t border-gray-50">
-      <div class="flex items-center justify-between mb-4">
-        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
-          조회 기간 내 평균 대비 현황 (vs Average)
-        </p>
-        <div class="flex gap-3 text-[9px] font-bold">
-          <span class="text-red-500">▲ 상승</span>
-          <span class="text-slate-400">▼ 하락</span>
+    <div class="pt-10 border-t border-slate-50 space-y-5">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-3">
+        <div>
+          <h3 class="text-base md:text-lg font-black text-slate-800 flex items-center gap-2">
+            <span class="w-1.5 h-4 bg-rose-400 rounded-full"></span>
+            평균 대비 등락 현황
+          </h3>
+          <p class="text-[13px] text-slate-500 mt-1 font-medium">
+            조회 기간 전체 평균(<span class="font-mono font-bold text-slate-700 bg-slate-100 px-1 rounded"
+              >{{ Math.floor(avgPrice).toLocaleString() }}원</span
+            >) 대비 현황입니다.
+          </p>
+        </div>
+        <div class="flex gap-4 text-xs font-black italic tracking-tight">
+          <span class="text-rose-400">상승 (+)</span>
+          <span class="text-blue-400">하락 (-)</span>
         </div>
       </div>
-      <div class="h-24 md:h-32"><canvas ref="barCanvas"></canvas></div>
+      <div class="h-40 md:h-52"><canvas ref="barCanvas"></canvas></div>
     </div>
   </div>
 </template>
+
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import Chart from 'chart.js/auto';
 
 const props = defineProps({
@@ -44,22 +64,29 @@ const barCanvas = ref(null);
 let lineChart = null;
 let barChart = null;
 
+const avgPrice = computed(() => {
+  const validPrices = props.chartData.thisPrices.filter((p) => p !== null);
+  return validPrices.length ? validPrices.reduce((a, b) => a + b, 0) / validPrices.length : 0;
+});
+
 const initCharts = () => {
   if (!lineCanvas.value || !barCanvas.value) return;
   if (lineChart) lineChart.destroy();
   if (barChart) barChart.destroy();
 
   const data = props.chartData;
+  const currentAvg = avgPrice.value;
 
-  const validPrices = data.thisPrices.filter((p) => p !== null && p !== undefined);
-  const avgPrice = validPrices.length ? validPrices.reduce((a, b) => a + b, 0) / validPrices.length : 0;
-
-  const diffFromAvg = data.thisPrices.map((val) => (val !== null ? val - avgPrice : 0));
-
-  const maxVal = Math.max(...validPrices);
-  const minVal = Math.min(...validPrices);
+  const validThisPrices = data.thisPrices.filter((p) => p !== null);
+  const maxVal = Math.max(...validThisPrices);
+  const minVal = Math.min(...validThisPrices);
   const maxIdx = data.thisPrices.indexOf(maxVal);
   const minIdx = data.thisPrices.indexOf(minVal);
+
+  const diffData = data.thisPrices.map((val) => {
+    if (val === null) return { diff: 0, pct: 0, val: 0 };
+    return { diff: val - currentAvg, pct: ((val - currentAvg) / currentAvg) * 100, val };
+  });
 
   lineChart = new Chart(lineCanvas.value.getContext('2d'), {
     type: 'line',
@@ -69,56 +96,39 @@ const initCharts = () => {
         {
           label: '금년',
           data: data.thisPrices,
-          borderColor: '#ef4444',
-          borderWidth: 2.5,
-          pointRadius: data.thisPrices.map((_, i) => (i === maxIdx || i === minIdx ? 5 : 0)),
-          pointBackgroundColor: data.thisPrices.map((_, i) => (i === maxIdx ? '#ef4444' : '#334155')),
+          borderColor: '#475569',
+          borderWidth: 2,
+          pointRadius: data.thisPrices.map((_, i) => (i === maxIdx || i === minIdx ? 4 : 0)),
+          pointBackgroundColor: data.thisPrices.map((_, i) =>
+            i === maxIdx ? '#f43f5e' : i === minIdx ? '#3b82f6' : '#475569'
+          ),
           pointBorderColor: '#fff',
-          pointBorderWidth: 2,
           tension: 0,
           fill: false,
+          zIndex: 10,
         },
         {
           label: '전년',
           data: data.lastPrices,
-          borderColor: '#adb6bd',
-          borderWidth: 1.5,
+          borderColor: 'transparent',
+          backgroundColor: 'rgba(226, 232, 240, 0.6)',
           pointRadius: 0,
-          borderDash: [5, 5],
           tension: 0,
-          fill: false,
+          fill: true,
+          zIndex: 1,
         },
       ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
       plugins: { legend: { display: false } },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10, weight: '600' }, color: '#94a3b8' } },
+        x: { grid: { display: false }, ticks: { font: { size: 9 }, color: '#94a3b8' } },
         y: {
           grid: { color: '#f8fafc' },
-          ticks: {
-            font: { size: 10 },
-            color: '#cbd5e1',
-            callbacks: {
-              title: (items) => items[0].label,
-              label: (context) => {
-                const label = context.dataset.label || '';
-                const value = context.parsed.y.toLocaleString();
-                return ` ${label}: ${value}원`;
-              },
-            },
-          },
-        },
-      },
-      hover: {
-        mode: 'index',
-        intersect: false,
-      },
-      elements: {
-        point: {
-          hoverRadius: 4,
+          ticks: { font: { size: 10, family: 'monospace' }, color: '#cbd5e1', callback: (v) => v.toLocaleString() },
         },
       },
     },
@@ -130,9 +140,11 @@ const initCharts = () => {
       labels: data.labels,
       datasets: [
         {
-          data: diffFromAvg,
-          backgroundColor: diffFromAvg.map((val) => (val >= 0 ? 'rgba(239, 68, 68, 0.8)' : 'rgba(203, 213, 225, 0.8)')),
-          borderRadius: 4,
+          data: diffData.map((d) => d.diff),
+          backgroundColor: diffData.map((d) => (d.diff >= 0 ? '#fda4af' : '#93c5fd')),
+          hoverBackgroundColor: diffData.map((d) => (d.diff >= 0 ? '#f43f5e' : '#3b82f6')),
+          borderRadius: 2,
+          barPercentage: 0.8,
         },
       ],
     },
@@ -142,12 +154,24 @@ const initCharts = () => {
       plugins: {
         legend: { display: false },
         tooltip: {
+          backgroundColor: 'rgba(30, 41, 59, 0.9)',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          bodyFont: { size: 11, weight: '500' },
+          padding: 12,
+          displayColors: false,
           callbacks: {
-            title: () => '',
-            label: (context) => {
-              const val = context.raw;
-              const sign = val >= 0 ? '+' : '';
-              return ` 평균 대비: ${sign}${Math.floor(val).toLocaleString()}원`;
+            label: (ctx) => {
+              const item = diffData[ctx.dataIndex];
+              const prefix = item.diff >= 0 ? '▲' : '▼';
+              const sign = item.diff >= 0 ? '+' : '';
+
+              return [
+                ` 실거래가: ${item.val.toLocaleString()}원`,
+                ` 평균대비: ${prefix} ${Math.abs(Math.floor(item.diff)).toLocaleString()}원 (${sign}${item.pct.toFixed(
+                  1
+                )}%)`,
+              ];
             },
           },
         },
@@ -155,11 +179,19 @@ const initCharts = () => {
       scales: {
         x: { display: false },
         y: {
+          suggestedMin: Math.min(...diffData.map((d) => d.diff)) * 1.5,
+          suggestedMax: Math.max(...diffData.map((d) => d.diff)) * 1.5,
           grid: {
-            color: (context) => (context.tick.value === 0 ? '#e2e8f0' : 'transparent'),
+            color: (ctx) => (ctx.tick.value === 0 ? '#94a3b8' : 'transparent'),
             lineWidth: 2,
           },
-          ticks: { display: false },
+          ticks: {
+            display: true,
+            values: [0],
+            callback: (val) => (val === 0 ? 'AVG' : ''),
+            font: { size: 9, weight: 'bold' },
+            color: '#94a3b8',
+          },
         },
       },
     },

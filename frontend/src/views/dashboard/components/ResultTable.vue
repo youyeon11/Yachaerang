@@ -1,35 +1,65 @@
 <template>
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden font-mono text-[10px] md:text-xs">
-    <table class="w-full text-left">
-      <thead class="bg-gray-50 font-bold text-gray-500 uppercase border-b border-gray-100 font-sans tracking-tighter">
+  <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden font-sans text-sm">
+    <table class="w-full text-left table-fixed">
+      <thead class="bg-slate-50 font-bold text-slate-500 uppercase border-b border-gray-100">
         <tr>
-          <th class="px-6 py-4">거래 일자</th>
-          <th class="px-6 py-4 text-right">금년 시세</th>
-          <th class="px-6 py-4 text-right">어제대비</th>
-          <th class="px-6 py-4 text-right">전년비</th>
+          <th class="w-2/12 px-5 py-5 tracking-tight">거래 일자</th>
+          <th class="w-2/12 px-5 py-5 text-right text-slate-900 font-black">금년 시세</th>
+          <th class="w-2/12 px-5 py-5 text-right">전일비</th>
+          <th class="w-3/12 px-5 py-5 text-right border-l border-slate-100">전년비 변화량</th>
+          <th class="w-3/12 px-5 py-5 text-right">전년비 변화율</th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-gray-50">
+
+      <tbody class="divide-y divide-slate-50 font-mono text-slate-700">
         <tr v-if="paginatedData.length === 0">
-          <td colspan="4" class="px-6 py-10 text-center text-gray-400 font-sans italic">데이터가 없습니다.</td>
-        </tr>
-        <tr v-for="row in paginatedData" :key="row.date" class="hover:bg-red-50/20 transition-colors">
-          <td class="px-6 py-3.5 font-bold text-gray-500">{{ row.date }}</td>
-          <td class="px-6 py-3.5 text-right font-black text-gray-800">{{ row.thisPrice.toLocaleString() }}원</td>
-          <td
-            class="px-6 py-3.5 text-right font-bold font-sans"
-            :class="row.dailyDiff > 0 ? 'text-red-500' : 'text-slate-500'"
-          >
-            {{ row.dailyDiff > 0 ? '▲' : '▼' }} {{ Math.abs(row.dailyDiff).toLocaleString() }}
+          <td colspan="5" class="px-6 py-12 text-center text-slate-400 font-sans italic text-base">
+            데이터가 없습니다.
           </td>
+        </tr>
+
+        <tr
+          v-for="row in paginatedData"
+          :key="row.date"
+          class="hover:bg-slate-50/80 transition-colors group"
+          :class="[row.isMax ? 'bg-rose-50/40' : '', row.isMin ? 'bg-blue-50/40' : '']"
+        >
+          <td class="px-5 py-4 font-bold text-slate-500 font-sans flex items-center gap-2">
+            <span class="text-sm">{{ row.date }}</span>
+            <span v-if="row.isMax" class="text-[10px] bg-rose-500 text-white px-1.5 py-0.5 rounded font-black"
+              >최고</span
+            >
+            <span v-if="row.isMin" class="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded font-black"
+              >최저</span
+            >
+          </td>
+
+          <td class="px-5 py-4 text-right font-black text-slate-900 text-base tracking-tighter">
+            {{ row.thisPrice.toLocaleString() }}원
+          </td>
+
           <td
-            class="px-6 py-3.5 text-right font-bold font-sans"
-            :class="row.yoyDiff > 0 ? 'text-red-500' : 'text-slate-500'"
+            class="px-5 py-4 text-right font-bold text-sm"
+            :class="row.dailyDiff > 0 ? 'text-rose-500' : row.dailyDiff < 0 ? 'text-blue-500' : 'text-slate-400'"
           >
-            <span class="text-slate-200 mr-1.5 text-[9px] font-normal font-sans">
-              ({{ row.lastPrice.toLocaleString() }})
+            <span class="text-xs mr-0.5">{{ row.dailyDiff > 0 ? '▲' : row.dailyDiff < 0 ? '▼' : '-' }}</span>
+            {{ row.dailyDiff === 0 ? '0' : Math.abs(row.dailyDiff).toLocaleString() }}
+          </td>
+
+          <td
+            class="px-5 py-4 text-right border-l border-slate-50 font-bold text-sm"
+            :class="row.yoyDiff > 0 ? 'text-rose-600' : 'text-blue-600'"
+          >
+            <span class="text-xs mr-0.5">{{ row.yoyDiff > 0 ? '▲' : '▼' }}</span>
+            {{ Math.abs(row.yoyDiff).toLocaleString() }}
+          </td>
+
+          <td class="px-5 py-4 text-right font-bold" :class="row.yoyDiff > 0 ? 'text-rose-600' : 'text-blue-600'">
+            <span
+              class="inline-block min-w-[55px] bg-white border border-slate-200 shadow-sm px-2 py-1 rounded-md text-xs tracking-tight"
+            >
+              {{ ((row.yoyDiff / (row.thisPrice - row.yoyDiff)) * 100).toFixed(1) }}%
             </span>
-            {{ row.yoyDiff > 0 ? '▲' : '▼' }} {{ Math.abs(row.yoyDiff).toLocaleString() }}
           </td>
         </tr>
       </tbody>
@@ -37,14 +67,14 @@
 
     <div
       v-if="totalPages > 1"
-      class="p-4 flex justify-center items-center gap-1.5 bg-gray-50/30 font-sans font-bold border-t border-gray-100"
+      class="p-5 flex justify-center items-center gap-2 bg-slate-50/50 font-sans border-t border-slate-100"
     >
       <button
         @click="$emit('updatePage', Math.max(1, currentPage - 1))"
         :disabled="currentPage === 1"
         class="page-nav-btn"
       >
-        &lt;
+        이전
       </button>
 
       <button
@@ -53,10 +83,10 @@
         @click="$emit('updatePage', p)"
         :class="
           currentPage === p
-            ? 'bg-red-500 text-white shadow-sm border-red-500'
-            : 'bg-white text-gray-400 border-gray-200'
+            ? 'bg-slate-800 text-white shadow-md border-slate-800'
+            : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
         "
-        class="w-7 h-7 rounded-md text-[10px] border transition-all hover:scale-110 active:scale-95"
+        class="w-9 h-9 rounded-lg text-sm font-bold border transition-all hover:scale-105 active:scale-95 flex items-center justify-center"
       >
         {{ p }}
       </button>
@@ -66,7 +96,7 @@
         :disabled="currentPage === totalPages"
         class="page-nav-btn"
       >
-        &gt;
+        다음
       </button>
     </div>
   </div>
@@ -100,6 +130,6 @@ const visiblePages = computed(() => {
 <style scoped>
 @reference "../../../assets/main.css";
 .page-nav-btn {
-  @apply w-7 h-7 flex items-center justify-center rounded-md border border-gray-200 bg-white text-gray-400 transition-all hover:bg-gray-50 disabled:opacity-30 disabled:hover:bg-white;
+  @apply w-7 h-7 flex items-center justify-center rounded-md border border-slate-200 bg-white text-slate-400 transition-all hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white;
 }
 </style>
