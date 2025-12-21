@@ -1,12 +1,10 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-import { createRouter, createWebHistory } from 'vue-router'
-import App from './App.vue'
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import App from './App.vue';
 import router from './router';
-import VCalendar from 'v-calendar'
-import 'v-calendar/style.css'
-import './assets/main.css'
-
+import VCalendar from 'v-calendar';
+import 'v-calendar/style.css';
+import './assets/main.css';
 
 // 앱 시작 전 localStorage 정리 (잘못된 토큰 제거)
 const accessToken = localStorage.getItem('accessToken');
@@ -20,11 +18,11 @@ if (accessToken) {
 }
 
 // App 생성 및 플러그인 등록
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(createPinia())
-app.use(router)
-app.use(VCalendar, {})
+app.use(createPinia());
+app.use(router);
+app.use(VCalendar, {});
 
 // 마운트
-app.mount('#app')
+app.mount('#app');
