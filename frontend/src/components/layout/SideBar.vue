@@ -5,15 +5,8 @@
       class="flex h-16 items-center border-b border-gray-200 px-6 cursor-pointer"
       @click="goToMain"
     >
-      <img 
-        src="@/assets/logo.svg" 
-        alt="Logo" 
-        class="h-8 w-8" 
-        @error="handleImageError" 
-      />
-      <span class="ml-2 text-xl font-bold text-gray-900">야채랑</span>
+      <BrandLogo :src="logoUrl" size="sm" />
     </div>
-
     <!-- Navigation -->
     <nav class="flex-1 space-y-1 p-4">
       <router-link
@@ -64,6 +57,9 @@ import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuth } from '@/stores/auth'
 
+import BrandLogo from '../brand/BrandLogo.vue'
+import logoUrl from '../../assets/logo.svg'
+
 import IconDashboard from '../icons/IconDashboard.vue'
 import IconTrendingUp from '../icons/IconTrendingUp.vue'
 import IconSprout from '../icons/IconSprout.vue'
@@ -80,11 +76,11 @@ const props = defineProps({
 })
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: IconDashboard },
-  { name: 'Rank', href: '/rank', icon: IconTrendingUp },
-  { name: 'MyFarm', href: '/myfarm', icon: IconSprout },
-  { name: 'Articles', href: '/articles', icon: IconNewspaper },
-  { name: 'Chatbot', href: '/ai-chat', icon: IconMessage },
+  { name: '대시보드', href: '/dashboard', icon: IconDashboard },
+  { name: '랭킹', href: '/rank', icon: IconTrendingUp },
+  { name: '나의 농장', href: '/myfarm', icon: IconSprout },
+  { name: '농촌 기사', href: '/articles', icon: IconNewspaper },
+  { name: '챗봇 야치', href: '/ai-chat', icon: IconMessage },
 ]
 
 // 프로필 활성화 상태 확인
