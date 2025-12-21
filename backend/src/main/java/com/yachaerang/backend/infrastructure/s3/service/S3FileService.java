@@ -22,6 +22,8 @@ public class S3FileService {
     private final S3Client s3Client;
 
     private static final String IMAGE_PATH = "images/profiles/";
+    @Value("${external.default-image}")
+    private String DEFAULT_IMAGE;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -62,6 +64,9 @@ public class S3FileService {
      * @param url
      */
     public void deleteByUrl(String url) {
+        if (url.equals(DEFAULT_IMAGE)) {
+            return;
+        }
         URI uri = URI.create(url);
         String path = uri.getPath();
 
