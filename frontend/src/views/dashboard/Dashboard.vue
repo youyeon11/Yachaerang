@@ -147,11 +147,7 @@ const formattedChartData = computed(() => {
       return typeof val === 'number' ? val : null;
     });
   } else {
-    lastPrices = priceResult.value.map((item, index) => {
-      if (!item.priceLabel) return null;
-      const randomFactor = 0.85 + (Math.sin(index) * 0.15 + 0.1);
-      return Math.floor(item.priceLabel * randomFactor);
-    });
+    lastPrices = priceResult.value.map(() => null);
   }
 
   return {
