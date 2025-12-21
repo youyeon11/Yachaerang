@@ -1,36 +1,49 @@
 <template>
-  <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="text-sm font-bold">최근 조회한 품목</h3>
+  <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+    <div class="flex items-center justify-between">
+      <h3 class="text-base font-black text-slate-800 flex items-center gap-2">
+        <span class="w-1 h-3 bg-slate-400 rounded-full"></span>
+        최근 조회 기록
+      </h3>
 
       <button
         v-if="items.length"
         @click="$emit('clear')"
-        class="text-gray-400 hover:text-red-500 transition-colors p-1"
-        title="초기화"
+        class="flex items-center gap-1 text-[12px] font-bold text-slate-400 hover:text-rose-500 transition-colors"
       >
-        <IconRefresh class="w-4 h-4" />
+        <IconRefresh class="w-3.5 h-3.5" />
+        초기화
       </button>
     </div>
 
-    <ul v-if="items.length" class="space-y-2 text-[11px]">
+    <ul v-if="items.length" class="space-y-2.5">
       <li
         v-for="item in items"
         :key="item.productCode"
-        class="flex justify-between text-gray-600 cursor-pointer hover:text-gray-900"
         @click="$emit('select', item)"
+        class="group flex flex-col p-3.5 border border-slate-50 bg-slate-50/50 rounded-xl cursor-pointer hover:bg-white hover:border-slate-300 hover:shadow-md transition-all active:scale-[0.98]"
       >
-        <span>{{ item.itemLabel }} / {{ item.varietyLabel }}</span>
-        <span class="text-gray-400 text-right flex flex-col items-end">
-          <span>{{ periodMap[item.periodType] }}</span>
-          <span v-if="item.dateRangeLabel" class="text-[10px]">
-            {{ item.dateRangeLabel }}
+        <div class="flex justify-between items-start mb-1">
+          <span class="text-sm font-black text-slate-700 group-hover:text-slate-900">
+            {{ item.itemLabel }}
+            <span class="text-slate-400 font-bold ml-1 text-xs">{{ item.varietyLabel }}</span>
           </span>
-        </span>
+          <span
+            class="px-1.5 py-0.5 bg-white border border-slate-200 text-[10px] font-black text-slate-500 rounded text-center"
+          >
+            {{ periodMap[item.periodType] }}
+          </span>
+        </div>
+
+        <div class="text-[11px] font-bold text-slate-400">
+          {{ item.dateRangeLabel || '기간 정보 없음' }}
+        </div>
       </li>
     </ul>
 
-    <p v-else class="text-[11px] text-gray-400 italic">최근 조회한 품목이 없습니다.</p>
+    <div v-else class="py-10 text-center space-y-2">
+      <p class="text-sm font-bold text-slate-300">최근 조회한 기록이 없습니다.</p>
+    </div>
   </div>
 </template>
 
@@ -39,9 +52,7 @@ import IconRefresh from '@/components/icons/IconRefresh.vue';
 
 export default {
   name: 'RecentViewedItems',
-  components: {
-    IconRefresh,
-  },
+  components: { IconRefresh },
   emits: ['select', 'clear'],
   props: {
     items: {
@@ -61,3 +72,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+li {
+  will-change: transform, box-shadow;
+}
+</style>
