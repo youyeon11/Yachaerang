@@ -30,7 +30,7 @@
           :currentPeriod="periodType"
           :selectedItemName="selectedItemLabel"
           @updatePeriod="handlePeriodClick"
-          @search="handleSearch"
+          @search="triggerSearch"
         />
 
         <RecentViewedItems :items="recentItems" @select="handleRecentSelect" @clear="clearRecentSearches" />
@@ -39,6 +39,7 @@
       <div class="col-span-12 lg:col-span-9 order-2 lg:order-1 flex flex-col gap-4">
         <DashboardSummary
           :priceResult="priceResult"
+          :lastYearPrices="lastYearPrices"
           :itemName="selectedItemLabel"
           :varietyName="selectedVarietyLabel"
           :hasSearched="hasSearched"
@@ -140,14 +141,12 @@ const formattedChartData = computed(() => {
 
   let lastPrices;
 
-  // 일간 조회 + 전년 데이터가 있는 경우: 실제 전년 동기간 값 사용
-  if (periodType.value === 'day' && Array.isArray(lastYearPrices?.value) && lastYearPrices.value.length) {
+  if (Array.isArray(lastYearPrices?.value) && lastYearPrices.value.length) {
     lastPrices = priceResult.value.map((_, idx) => {
       const val = lastYearPrices.value[idx];
       return typeof val === 'number' ? val : null;
     });
   } else {
-    // 그 외의 경우(주/월/년 등)는 기존 랜덤 로직 유지
     lastPrices = priceResult.value.map((item, index) => {
       if (!item.priceLabel) return null;
       const randomFactor = 0.85 + (Math.sin(index) * 0.15 + 0.1);
@@ -178,28 +177,28 @@ const paginatedData = computed(() => {
 
     const globalIndex = start + index;
     let lastPrice = 0;
-
-    // 일간 + 전년 데이터가 있으면 실제 전년 값 사용
-    if (periodType.value === 'day' && Array.isArray(lastYearPrices?.value) && lastYearPrices.value.length) {
+    if (Array.isArray(lastYearPrices?.value) && lastYearPrices.value.length) {
       const val = lastYearPrices.value[globalIndex];
       lastPrice = typeof val === 'number' ? val : 0;
     } else {
-      // 그 외는 기존 랜덤 전년값 유지
       const randomFactor = 0.85 + (Math.sin(globalIndex) * 0.15 + 0.1);
       lastPrice = thisPrice ? Math.floor(thisPrice * randomFactor) : 0;
     }
 
-    const prevItem = priceResult.value[globalIndex + 1];
-    const dailyDiff = prevItem ? thisPrice - prevItem.priceLabel : 0;
+    const prevDiff = item.priceChange ?? 0;
+    const prevRate = item.priceChangeRate ?? 0;
 
     const yoyDiff = lastPrice > 0 ? thisPrice - lastPrice : 0;
+    const yoyRate = lastPrice > 0 ? (yoyDiff / lastPrice) * 100 : 0;
 
     return {
       date: item.dateLabel,
-      thisPrice: thisPrice,
-      lastPrice: lastPrice,
-      dailyDiff: dailyDiff,
-      yoyDiff: yoyDiff,
+      thisPrice,
+      prevDiff,
+      prevRate,
+      lastPrice,
+      yoyDiff,
+      yoyRate,
     };
   });
 });
@@ -266,7 +265,13 @@ onMounted(async () => {
   }
 });
 
+const triggerSearch = async () => {
+  currentPage.value = 1;
+  await handleSearch();
+};
+
 const handleRecentSelect = async (item) => {
+  currentPage.value = 1;
   await applyRecentItem(item);
 };
 </script>

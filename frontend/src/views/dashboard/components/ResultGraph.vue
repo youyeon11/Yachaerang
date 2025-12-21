@@ -74,16 +74,29 @@ const initCharts = () => {
   if (lineChart) lineChart.destroy();
   if (barChart) barChart.destroy();
 
-  const data = props.chartData;
+  const src = props.chartData;
+
+  let labels = src.labels ? [...src.labels] : [];
+  let thisPrices = src.thisPrices ? [...src.thisPrices] : [];
+  let lastPrices = src.lastPrices ? [...src.lastPrices] : [];
+
+  if (labels.length === 1) {
+    labels = ['', labels[0], ''];
+    const mainThis = thisPrices[0] ?? null;
+    const mainLast = lastPrices[0] ?? null;
+    thisPrices = [null, mainThis, null];
+    lastPrices = [null, typeof mainLast === 'number' ? mainLast : null, null];
+  }
+
   const currentAvg = avgPrice.value;
 
-  const validThisPrices = data.thisPrices.filter((p) => p !== null);
+  const validThisPrices = thisPrices.filter((p) => p !== null);
   const maxVal = Math.max(...validThisPrices);
   const minVal = Math.min(...validThisPrices);
-  const maxIdx = data.thisPrices.indexOf(maxVal);
-  const minIdx = data.thisPrices.indexOf(minVal);
+  const maxIdx = thisPrices.indexOf(maxVal);
+  const minIdx = thisPrices.indexOf(minVal);
 
-  const diffData = data.thisPrices.map((val) => {
+  const diffData = thisPrices.map((val) => {
     if (val === null) return { diff: 0, pct: 0, val: 0 };
     return { diff: val - currentAvg, pct: ((val - currentAvg) / currentAvg) * 100, val };
   });
@@ -91,15 +104,15 @@ const initCharts = () => {
   lineChart = new Chart(lineCanvas.value.getContext('2d'), {
     type: 'line',
     data: {
-      labels: data.labels,
+      labels,
       datasets: [
         {
           label: '금년',
-          data: data.thisPrices,
+          data: thisPrices,
           borderColor: '#475569',
           borderWidth: 2,
-          pointRadius: data.thisPrices.map((_, i) => (i === maxIdx || i === minIdx ? 4 : 0)),
-          pointBackgroundColor: data.thisPrices.map((_, i) =>
+          pointRadius: thisPrices.map((_, i) => (i === maxIdx || i === minIdx ? 4 : 0)),
+          pointBackgroundColor: thisPrices.map((_, i) =>
             i === maxIdx ? '#f43f5e' : i === minIdx ? '#3b82f6' : '#475569'
           ),
           pointBorderColor: '#fff',
@@ -109,7 +122,7 @@ const initCharts = () => {
         },
         {
           label: '전년',
-          data: data.lastPrices,
+          data: lastPrices,
           borderColor: 'transparent',
           backgroundColor: 'rgba(226, 232, 240, 0.6)',
           pointRadius: 0,
@@ -137,7 +150,7 @@ const initCharts = () => {
   barChart = new Chart(barCanvas.value.getContext('2d'), {
     type: 'bar',
     data: {
-      labels: data.labels,
+      labels,
       datasets: [
         {
           data: diffData.map((d) => d.diff),
