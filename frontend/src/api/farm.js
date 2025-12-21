@@ -1,4 +1,4 @@
-import apiClient from './axios';
+import { apiClient } from './axios';
 
 export function getMyFarm() {
   return apiClient.get('/api/v1/farms');

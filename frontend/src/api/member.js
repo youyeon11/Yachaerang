@@ -1,4 +1,4 @@
-import { apiClient } from '@/api/axios';
+import { apiClient } from './axios';
 
 export function getMyProfile() {
   return apiClient.get('/api/v1/members');
