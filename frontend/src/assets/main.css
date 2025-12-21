@@ -7,11 +7,6 @@
    Tailwind & Plugin Entry
 ============================== */
 @import 'tailwindcss';
-
-/* ==============================
-   Custom Variant
-============================== */
-@custom-variant dark (&:is(.dark *));
 /* ==============================
    Markdown Styles (GitHub Style)
 ============================== */
@@ -86,6 +81,11 @@
 .user-message .markdown-body code {
   background-color: rgba(0, 0, 0, 0.1) !important;
 }
+
+/* ==============================
+   Custom Variant
+============================== */
+@custom-variant dark (&:is(.dark *));
 
 /* ==============================
    CSS Variables (Light Theme)
