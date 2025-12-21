@@ -1,60 +1,111 @@
 <template>
-  <main class="flex flex-1 flex-col p-8 bg-gray-50">
-    <div class="mx-auto flex w-full max-w-4xl flex-1 flex-col space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-bold tracking-tight text-gray-900">Agricultural Assistant</h1>
-          <p class="text-gray-600">Get personalized farming advice and market insights</p>
-        </div>
-        <button
-          @click="handleNewChat"
-          class="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 transition-colors hover:bg-gray-100 hover:border-gray-400 hover:text-gray-900"
-        >
-          <IconRefresh class="h-4 w-4" />
-          New Chat
-        </button>
-      </div>
+  <div class="flex flex-col h-screen overflow-hidden bg-[#f9f9f9]">
+    <div class="relative flex flex-1 flex-col w-full h-full bg-white">
+      <ChatHeader :title="aiProfile.name" @end-chat="endChat" />
 
-      <!-- Chat Messages -->
-      <div class="flex-1 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <div class="h-[500px] overflow-y-auto pr-4">
-          <div class="space-y-4">
-            <WelcomeScreen v-if="isInitialized && displayMessages.length === 1" @use-prompt="sendMessage" />
+      <ChatMessageList
+        ref="messageListRef"
+        :messages="displayMessages"
+        :ai-profile="aiProfile"
+        :user-profile="userProfile"
+        :is-loading="isLoading"
+        @scroll-state="onScrollState"
+      />
 
-            <ChatMessageList v-else :messages="displayMessages" :is-loading="isLoading" />
-          </div>
-        </div>
-      </div>
+      <ChatNewMessageButton v-if="showNewMsgBtn" @click="scrollToBottom(true)" />
 
-      <ChatInputBar :messages="displayMessages" :is-loading="isLoading" :show-reset="false" @send="handleSend" />
+      <footer class="bg-white border-t border-[#eee] py-5 px-[10%]">
+        <ChatSuggestions v-if="showSuggestions" :items="suggestions" @pick="handleSuggestionClick" />
+
+        <ChatInputBar
+          v-model="userInput"
+          :disabled="isLoading"
+          :placeholder="isLoading ? '야치가 답변을 만드는 중이에요...' : '메시지를 입력하세요...'"
+          @send="handleSend"
+        />
+      </footer>
     </div>
-  </main>
+  </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
-import IconRefresh from '@/components/icons/IconRefresh.vue';
+import { ref, reactive, computed, onMounted, nextTick } from 'vue';
+import 'github-markdown-css/github-markdown-light.css';
 
-import { useChat } from './composables/useChat';
-import WelcomeScreen from './components/WelcomeScreen.vue';
-import ChatMessageList from './components/ChatMessageList.vue';
-import ChatInputBar from './components/ChatInputBar.vue';
+import ChatHeader from '@/views/ai/components/ChatHeader.vue';
+import ChatMessageList from '@/views/ai/components/ChatMessageList.vue';
+import ChatNewMessageButton from '@/views/ai/components/ChatNewMessageButton.vue';
+import ChatSuggestions from '@/views/ai/components/ChatSuggestions.vue';
+import ChatInputBar from '@/views/ai/components/ChatInputBar.vue';
 
-const { displayMessages, sendMessage, resetChat, initSession, isLoading, isInitialized } = useChat();
+import { useChat } from '@/views/ai/composables/useChat';
+import { useUserProfile } from '@/views/ai/composables/useUserProfile';
+import yachiAvatar from '@/assets/yachi.png';
 
-const handleSend = async (message) => {
-  if (isLoading.value) return;
-  const trimmed = (message ?? '').trim();
-  if (!trimmed) return;
+const { displayMessages, sendMessage, resetChat, initSession, isLoading } = useChat();
 
-  await sendMessage(trimmed);
-};
+const userInput = ref('');
+const showNewMsgBtn = ref(false);
+const isUserScrolling = ref(false);
 
-const handleNewChat = () => {
-  resetChat();
-};
+const messageListRef = ref(null);
 
-onMounted(() => {
-  initSession();
+const aiProfile = reactive({
+  name: 'AI 야치',
+  avatarUrl: yachiAvatar,
 });
+
+const { userProfile, loadUserProfile } = useUserProfile();
+
+const suggestions = [
+  '이번 주 배추 도매 가격이 어떻게 될까요?',
+  '겨울철 딸기 재배 시 주의해야 할 점을 알려줘.',
+  '내 밭 토양에 맞는 작물을 추천해줘.',
+  '최근 농산물 시장 동향을 요약해줘.',
+];
+
+const showSuggestions = computed(() => displayMessages.value && displayMessages.value.length === 1);
+
+onMounted(async () => {
+  await initSession();
+  await loadUserProfile();
+  scrollToBottom(true);
+});
+
+const handleSend = async () => {
+  const text = userInput.value.trim();
+  if (!text || isLoading.value) return;
+
+  userInput.value = '';
+  await sendMessage(text);
+
+  if (!isUserScrolling.value) scrollToBottom();
+};
+
+const handleSuggestionClick = async (text) => {
+  if (!text) return;
+  userInput.value = text;
+  await handleSend();
+};
+
+const endChat = async () => {
+  if (confirm('대화를 종료하시겠습니까?')) {
+    await resetChat();
+    showNewMsgBtn.value = false;
+    scrollToBottom(true);
+  }
+};
+
+const scrollToBottom = (force = false) => {
+  nextTick(() => {
+    messageListRef.value?.scrollToBottom?.(force);
+    showNewMsgBtn.value = false;
+    isUserScrolling.value = false;
+  });
+};
+
+const onScrollState = ({ showNewButton, isUserScrolling: scrolling }) => {
+  showNewMsgBtn.value = showNewButton;
+  isUserScrolling.value = scrolling;
+};
 </script>
