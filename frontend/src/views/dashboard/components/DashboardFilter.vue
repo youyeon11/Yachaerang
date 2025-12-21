@@ -209,7 +209,7 @@ const handleWeekEndChange = (e) => {
   const diff = d.getDate() + (day === 0 ? 0 : 7 - day);
 
   let sunday = new Date(d.setDate(diff));
-  const max = new Date(maxDate.value);
+  const max = new Date(maxWeekDate.value);
   if (sunday > max) {
     sunday = max;
   }
