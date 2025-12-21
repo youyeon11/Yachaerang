@@ -348,9 +348,11 @@ export function usePriceSearch() {
     const normalizedProductCode = String(productCode);
 
     periodType.value = 'day';
+
     const end = new Date(yesterday);
-    const start = new Date(end);
-    start.setDate(end.getDate() - 13);
+    const start = new Date(today);
+    start.setMonth(start.getMonth() - 3);
+
     dayStartDate.value = formatDateToString(start);
     dayEndDate.value = formatDateToString(end);
 
