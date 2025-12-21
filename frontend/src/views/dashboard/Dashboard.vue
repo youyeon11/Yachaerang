@@ -86,6 +86,7 @@ const {
   itemOptions,
   varietyOptions,
   priceResult,
+  lastYearPrices,
   periodType,
   periodTabs,
   yearOptions,
@@ -134,17 +135,30 @@ const currentDateRangeLabel = computed(() => {
 
 // --- Computed: 차트 데이터 포맷팅 ---
 const formattedChartData = computed(() => {
-  return {
-    labels: priceResult.value.map((item) => item.dateLabel),
-    thisPrices: priceResult.value.map((item) => item.priceLabel),
+  const labels = priceResult.value.map((item) => item.dateLabel);
+  const thisPrices = priceResult.value.map((item) => item.priceLabel);
 
-    // 전년 데이터를 단순히 0.95 곱하는 대신, 약간의 랜덤 변동을 줌
-    lastPrices: priceResult.value.map((item, index) => {
+  let lastPrices;
+
+  // 일간 조회 + 전년 데이터가 있는 경우: 실제 전년 동기간 값 사용
+  if (periodType.value === 'day' && Array.isArray(lastYearPrices?.value) && lastYearPrices.value.length) {
+    lastPrices = priceResult.value.map((_, idx) => {
+      const val = lastYearPrices.value[idx];
+      return typeof val === 'number' ? val : null;
+    });
+  } else {
+    // 그 외의 경우(주/월/년 등)는 기존 랜덤 로직 유지
+    lastPrices = priceResult.value.map((item, index) => {
       if (!item.priceLabel) return null;
-      // 인덱스에 따라 0.85 ~ 1.1 사이의 값을 곱해 선이 서로 교차하게 만듦
       const randomFactor = 0.85 + (Math.sin(index) * 0.15 + 0.1);
       return Math.floor(item.priceLabel * randomFactor);
-    }),
+    });
+  }
+
+  return {
+    labels,
+    thisPrices,
+    lastPrices,
   };
 });
 
@@ -163,13 +177,22 @@ const paginatedData = computed(() => {
     const thisPrice = item.priceLabel || 0;
 
     const globalIndex = start + index;
-    const randomFactor = 0.85 + (Math.sin(globalIndex) * 0.15 + 0.1);
-    const lastPrice = thisPrice ? Math.floor(thisPrice * randomFactor) : 0;
+    let lastPrice = 0;
+
+    // 일간 + 전년 데이터가 있으면 실제 전년 값 사용
+    if (periodType.value === 'day' && Array.isArray(lastYearPrices?.value) && lastYearPrices.value.length) {
+      const val = lastYearPrices.value[globalIndex];
+      lastPrice = typeof val === 'number' ? val : 0;
+    } else {
+      // 그 외는 기존 랜덤 전년값 유지
+      const randomFactor = 0.85 + (Math.sin(globalIndex) * 0.15 + 0.1);
+      lastPrice = thisPrice ? Math.floor(thisPrice * randomFactor) : 0;
+    }
 
     const prevItem = priceResult.value[globalIndex + 1];
     const dailyDiff = prevItem ? thisPrice - prevItem.priceLabel : 0;
 
-    const yoyDiff = thisPrice - lastPrice;
+    const yoyDiff = lastPrice > 0 ? thisPrice - lastPrice : 0;
 
     return {
       date: item.dateLabel,
@@ -212,37 +235,34 @@ onMounted(async () => {
 
   if (saved) {
     const state = JSON.parse(saved);
-    selectedItem.value = state.selectedItem;
-    periodType.value = state.periodType;
-    dayStartDate.value = state.dayStartDate;
-    dayEndDate.value = state.dayEndDate;
-    weekStartDate.value = state.weekStartDate;
-    weekEndDate.value = state.weekEndDate;
-    monthStartDate.value = state.monthStartDate;
-    monthEndDate.value = state.monthEndDate;
-    yearStart.value = state.yearStart;
-    yearEnd.value = state.yearEnd;
 
-    await nextTick();
-    setTimeout(async () => {
-      selectedVariety.value = state.selectedVariety;
+    selectedItem.value = state.selectedItem || '';
+    selectedVariety.value = state.selectedVariety || '';
+    periodType.value = state.periodType || 'year';
 
+    dayStartDate.value = state.dayStartDate ?? null;
+    dayEndDate.value = state.dayEndDate ?? null;
+    weekStartDate.value = state.weekStartDate ?? null;
+    weekEndDate.value = state.weekEndDate ?? null;
+    monthStartDate.value = state.monthStartDate ?? null;
+    monthEndDate.value = state.monthEndDate ?? null;
+    yearStart.value = state.yearStart ?? '';
+    yearEnd.value = state.yearEnd ?? '';
+
+    if (state.selectedItem && state.selectedVariety) {
       await handleSearch();
+    }
 
-      currentPage.value = state.currentPage || 1;
-    }, 500);
+    currentPage.value = state.currentPage || 1;
   } else {
-    //최초 접속 시 기본값 (계란)
+    // 최초 접속 시 기본값 (계란)
     selectedItem.value = '9903';
+    selectedVariety.value = 'KM-9903-23-71';
     periodType.value = 'day';
     dayStartDate.value = '2025-11-01';
     dayEndDate.value = '2025-12-20';
 
-    await nextTick();
-    setTimeout(async () => {
-      selectedVariety.value = 'KM-9903-23-71';
-      await handleSearch();
-    }, 500);
+    await handleSearch();
   }
 });
 

@@ -10,6 +10,7 @@ import {
 } from '@/api/price';
 import { addFavorite } from '@/api/favorite';
 import { useToastStore } from '@/stores/toast';
+import { getLastYearDateRange } from '@/views/dashboard/composables/useLastYearRange';
 const RECENT_KEY = 'recent-price-items';
 const SEARCH_STATE_KEY = 'price-search-state';
 
@@ -19,6 +20,7 @@ export function usePriceSearch() {
   const itemOptions = ref([]);
   const varietyOptions = ref([]);
   const priceResult = ref([]);
+  const lastYearPrices = ref([]);
   const hasSearched = ref(false);
   const suppressVarietyReset = ref(false);
 
@@ -137,7 +139,12 @@ export function usePriceSearch() {
         label: sub.subItemName ?? sub.name ?? sub.productName ?? '',
       }));
       if (!suppressVarietyReset.value) {
-        selectedVariety.value = '';
+        const current = selectedVariety.value ? String(selectedVariety.value) : '';
+        const existsInNewOptions = varietyOptions.value.some((v) => String(v.value) === current);
+
+        if (!existsInNewOptions) {
+          selectedVariety.value = '';
+        }
       }
     } catch (error) {
       console.error('하위품목 목록 조회 실패:', error);
@@ -286,15 +293,15 @@ export function usePriceSearch() {
       const end = new Date(yesterday);
       const start = new Date(end);
       start.setDate(end.getDate() - 6);
-      dayStartDate.value = start;
-      dayEndDate.value = end;
+      dayStartDate.value = formatDateToString(start);
+      dayEndDate.value = formatDateToString(end);
     } else if (mappedPeriod === 'week') {
       // 주간: 마지막 완전한 주 기준 2주
       const end = new Date(lastWeekSunday);
       const start = new Date(end);
       start.setDate(end.getDate() - 14);
-      weekStartDate.value = start;
-      weekEndDate.value = end;
+      weekStartDate.value = formatDateToString(start);
+      weekEndDate.value = formatDateToString(end);
     } else if (mappedPeriod === 'month') {
       // 월간: 어제가 속한 월 기준 최근 3개월
       const end = new Date(yesterday);
@@ -302,8 +309,10 @@ export function usePriceSearch() {
       const endMonthIndex = end.getMonth();
       const start = new Date(endYear, endMonthIndex - 2, 1);
       const endMonth = new Date(endYear, endMonthIndex, 1);
-      monthStartDate.value = start;
-      monthEndDate.value = endMonth;
+      const startMonthLabel = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}`;
+      const endMonthLabel = `${endMonth.getFullYear()}-${String(endMonth.getMonth() + 1).padStart(2, '0')}`;
+      monthStartDate.value = startMonthLabel;
+      monthEndDate.value = endMonthLabel;
     } else if (mappedPeriod === 'year') {
       isYearDetail.value = false;
       const latestYear = maxYear;
@@ -342,8 +351,8 @@ export function usePriceSearch() {
     const end = new Date(yesterday);
     const start = new Date(end);
     start.setDate(end.getDate() - 13);
-    dayStartDate.value = start;
-    dayEndDate.value = end;
+    dayStartDate.value = formatDateToString(start);
+    dayEndDate.value = formatDateToString(end);
 
     suppressVarietyReset.value = true;
     try {
@@ -543,6 +552,9 @@ export function usePriceSearch() {
       return;
     }
 
+    // 검색 시마다 전년 데이터 초기화
+    lastYearPrices.value = [];
+
     try {
       if (periodType.value === 'day') {
         // 일별
@@ -559,12 +571,35 @@ export function usePriceSearch() {
           return;
         }
 
+        // 1) 금년 데이터 조회
         const { data } = await fetchDailyPricesApi(productCode, {
           startDate: startStr,
           endDate: endStr,
         });
 
         priceResult.value = normalizeResult(extractPriceList(data), 'day');
+
+        // 2) 전년 동기간 범위 계산 및 조회
+        const lastYearRange = getLastYearDateRange(startStr, endStr);
+
+        if (lastYearRange) {
+          try {
+            const { data: lastData } = await fetchDailyPricesApi(productCode, {
+              startDate: lastYearRange.startDate,
+              endDate: lastYearRange.endDate,
+            });
+
+            const normalizedLast = normalizeResult(extractPriceList(lastData), 'day');
+
+            // 인덱스 기준 매칭 (길이가 다르면 모자라는 부분은 null)
+            lastYearPrices.value = priceResult.value.map((_, idx) => normalizedLast[idx]?.priceLabel ?? null);
+          } catch (e) {
+            console.error('전년 동기간 일별 가격 조회 실패:', e);
+            lastYearPrices.value = priceResult.value.map(() => null);
+          }
+        } else {
+          lastYearPrices.value = priceResult.value.map(() => null);
+        }
 
         const dateRangeLabel = `${startStr} ~ ${endStr}`;
       } else if (periodType.value === 'week') {
@@ -588,6 +623,8 @@ export function usePriceSearch() {
         });
 
         priceResult.value = normalizeResult(extractPriceList(data), 'week');
+        // 주간은 아직 전년 동기간 비교 미지원: 전년 데이터는 null로 채움
+        lastYearPrices.value = priceResult.value.map(() => null);
 
         const dateRangeLabel = `${startRange.start} ~ ${endRange.end}`;
       } else if (periodType.value === 'month') {
@@ -613,6 +650,8 @@ export function usePriceSearch() {
         });
 
         priceResult.value = normalizeResult(extractPriceList(data), 'month');
+        // 월간은 아직 전년 동기간 비교 미지원: 전년 데이터는 null로 채움
+        lastYearPrices.value = priceResult.value.map(() => null);
 
         const startMonthLabel = `${startD.getFullYear()}-${String(startD.getMonth() + 1).padStart(2, '0')}`;
         const endMonthLabel = `${endD.getFullYear()}-${String(endD.getMonth() + 1).padStart(2, '0')}`;
@@ -633,6 +672,7 @@ export function usePriceSearch() {
 
           const { data } = await fetchYearlyPriceDetailApi(productCode, { year: y });
           priceResult.value = extractPriceList(data);
+          lastYearPrices.value = priceResult.value.map(() => null);
 
           const dateRangeLabel = `${y}년 상세`;
 
@@ -673,6 +713,7 @@ export function usePriceSearch() {
           });
 
           priceResult.value = normalizeResult(extractPriceList(data), 'year');
+          lastYearPrices.value = priceResult.value.map(() => null);
 
           const dateRangeLabel = ys === ye ? `${ys}` : `${ys} ~ ${ye}`;
 
@@ -742,6 +783,7 @@ export function usePriceSearch() {
     itemOptions,
     varietyOptions,
     priceResult,
+    lastYearPrices,
     periodType,
     periodTabs,
     yesterday,
