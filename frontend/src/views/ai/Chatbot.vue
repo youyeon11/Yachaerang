@@ -58,10 +58,12 @@ const aiProfile = reactive({
 const { userProfile, loadUserProfile } = useUserProfile();
 
 const suggestions = [
-  '이번 주 배추 도매 가격이 어떻게 될까요?',
-  '겨울철 딸기 재배 시 주의해야 할 점을 알려줘.',
-  '내 밭 토양에 맞는 작물을 추천해줘.',
+  '방울토마토와 같이 심으면 서로 성장을 돕는 동반 식물에는 어떤 게 있어?',
+  '진딧물이 생겼는데 약을 안 쓰고 없애는 방법이 있을까?',
   '최근 농산물 시장 동향을 요약해줘.',
+  '깻잎 뒷면에 하얀 가루 같은 게 생겼어. 이거 병이야? 친환경적으로 해결할 수 있는 난황유 만드는 법 알려줘.',
+
+  '감자를 수확할 때가 된 것 같은데, 잎이 어떤 상태일 때 캐야 가장 맛있어?',
 ];
 
 const showSuggestions = computed(() => displayMessages.value && displayMessages.value.length === 1);
