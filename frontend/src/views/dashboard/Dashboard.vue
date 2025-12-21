@@ -54,7 +54,7 @@
           <p class="animate-pulse">데이터를 조회 중입니다...</p>
         </div>
 
-        <EmptyResult v-else-if="hasSearched && (!priceResult || priceResult.length === 0)" @reset="resetFilters" />
+        <EmptyResult v-else-if="hasSearched && (!priceResult || priceResult.length === 0)" />
 
         <template v-else>
           <ResultGraph :chartData="formattedChartData" />
