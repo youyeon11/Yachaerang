@@ -141,13 +141,13 @@ export function rank() {
   }
 
   function goFavoriteDetail(fav) {
-    if (!fav || !fav.productCode || !fav.periodType) return;
+    if (!fav || !fav.productCode) return;
 
     router.push({
-      path: '/search',
+      path: '/dashboard',
       query: {
         productCode: fav.productCode,
-        periodType: fav.periodType,
+        source: 'favorite',
       },
     });
   }
@@ -161,10 +161,9 @@ export function rank() {
     if (!productCode) return;
 
     router.push({
-      path: '/search',
+      path: '/dashboard',
       query: {
         productCode,
-        periodType: 'DAILY',
         source: 'rank',
       },
     });
