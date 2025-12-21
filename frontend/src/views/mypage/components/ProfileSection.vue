@@ -193,19 +193,23 @@ const triggerFileSelect = () => {
 
 // 파일 변경 시 바로 업로드
 const handleFileChange = async (event) => {
-  const file = event.target.files?.[0]
-  if (!file) return
+  const file = event.target.files?.[0];
+  if (!file) return;
 
   try {
-    await uploadProfileImage(file)
-    await fetchProfile()
+    await uploadProfileImage(file);
+
+    const { data } = await getMyProfile();
+    if (data.success) {
+      form.imageUrl = data.data.imageUrl || '';
+    }
   } catch (e) {
-    console.error(e)
-    alert('프로필 이미지를 업로드하는 데 실패했습니다.')
+    console.error(e);
+    alert('프로필 이미지를 업로드하는 데 실패했습니다.');
   } finally {
-    event.target.value = ''
+    event.target.value = '';
   }
-}
+};
 
 // 수정 모드 시작
 const startEdit = () => {
