@@ -27,9 +27,7 @@ const router = createRouter({
       meta: { requiresAuth: true },
       children: [
         { path: 'profile', name: 'mypage-profile-confirm', component: () => import('@/views/mypage/ProfilePasswordConfirm.vue') },
-        { path: 'profile/edit', name: 'mypage-profile-edit', component: () => import('@/views/mypage/ProfileEdit.vue') },
         { path: 'password', name: 'mypage-password', component: () => import('@/views/mypage/PasswordChange.vue') },
-        { path: 'items', name: 'mypage-items', component: () => import('@/views/mypage/MyItemsPlaceholder.vue') },
       ],
     },
   ],
