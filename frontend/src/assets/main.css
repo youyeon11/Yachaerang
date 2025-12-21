@@ -6,12 +6,85 @@
 /* ==============================
    Tailwind & Plugin Entry
 ============================== */
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* ==============================
    Custom Variant
 ============================== */
 @custom-variant dark (&:is(.dark *));
+/* ==============================
+   Markdown Styles (GitHub Style)
+============================== */
+@import 'github-markdown-css/github-markdown-light.css';
+
+@layer components {
+  .markdown-body {
+    font-family: var(--font-sans) !important;
+    font-size: 15px !important;
+    line-height: 1.7 !important;
+    color: inherit !important;
+    word-break: break-word;
+  }
+
+  .markdown-body p,
+  .markdown-body ul,
+  .markdown-body ol,
+  .markdown-body blockquote,
+  .markdown-body table,
+  .markdown-body pre {
+    margin-top: 0 !important;
+    margin-bottom: 12px !important;
+  }
+
+  .markdown-body p:last-child,
+  .markdown-body ul:last-child,
+  .markdown-body ol:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  .markdown-body ul,
+  .markdown-body ol {
+    padding-left: 1.5em !important;
+    list-style: disc !important;
+  }
+
+  .markdown-body ol {
+    list-style: decimal !important;
+  }
+
+  .markdown-body code {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    padding: 0.2em 0.4em !important;
+    border-radius: 4px !important;
+    font-size: 85% !important;
+    font-family: var(--font-mono) !important;
+  }
+
+  .markdown-body pre {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+    padding: 16px !important;
+    border-radius: 8px !important;
+    overflow-x: auto !important;
+  }
+
+  .markdown-body table {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    border-spacing: 0;
+    border-collapse: collapse;
+  }
+
+  .markdown-body th,
+  .markdown-body td {
+    padding: 6px 13px !important;
+    border: 1px solid oklch(0.9 0 0) !important;
+  }
+}
+
+.user-message .markdown-body code {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
 
 /* ==============================
    CSS Variables (Light Theme)
@@ -113,8 +186,8 @@
    Tailwind Theme Mapping
 ============================== */
 @theme inline {
-  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -168,8 +241,8 @@
   }
 
   body {
-    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", 
-      "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+      sans-serif;
     @apply bg-background text-foreground;
     line-height: 1.6;
   }
