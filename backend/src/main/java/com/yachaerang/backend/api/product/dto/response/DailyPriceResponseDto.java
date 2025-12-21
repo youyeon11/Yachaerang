@@ -2,6 +2,7 @@ package com.yachaerang.backend.api.product.dto.response;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class DailyPriceResponseDto {
@@ -14,6 +15,8 @@ public class DailyPriceResponseDto {
     public static class PriceRecordDto {
         private LocalDate priceDate;
         private Long price;
+        private Long priceChange;
+        private BigDecimal priceChangeRate;
     }
 
     @Getter
@@ -26,5 +29,7 @@ public class DailyPriceResponseDto {
         private String productCode;
         private String unit;
         private Long price;
+        private Long priceChange;
+        private BigDecimal priceChangeRate;
     }
 }

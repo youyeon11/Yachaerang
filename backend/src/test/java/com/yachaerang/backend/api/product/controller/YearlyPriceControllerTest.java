@@ -16,6 +16,8 @@ import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 
 import org.springframework.http.MediaType;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;
@@ -73,6 +75,8 @@ class YearlyPriceControllerTest extends RestDocsSupport {
                 .maxPrice(110000L)
                 .startPrice(95000L)
                 .endPrice(105000L)
+                .priceChange(1000L)
+                .priceChangeRate(new BigDecimal(1.00))
                 .build();
         priceDto2 = YearlyPriceResponseDto.PriceDto.builder()
                 .priceYear(2021)
@@ -81,6 +85,8 @@ class YearlyPriceControllerTest extends RestDocsSupport {
                 .maxPrice(110000L)
                 .startPrice(95000L)
                 .endPrice(105000L)
+                .priceChange(1000L)
+                .priceChangeRate(new BigDecimal(1.00))
                 .build();
         priceDto3 = YearlyPriceResponseDto.PriceDto.builder()
                 .priceYear(2022)
@@ -89,6 +95,8 @@ class YearlyPriceControllerTest extends RestDocsSupport {
                 .maxPrice(110000L)
                 .startPrice(95000L)
                 .endPrice(105000L)
+                .priceChange(-1000L)
+                .priceChangeRate(new BigDecimal(-1.00))
                 .build();
         priceDto4 = YearlyPriceResponseDto.PriceDto.builder()
                 .priceYear(2023)
@@ -97,6 +105,8 @@ class YearlyPriceControllerTest extends RestDocsSupport {
                 .maxPrice(120000L)
                 .startPrice(105000L)
                 .endPrice(115000L)
+                .priceChange(-1000L)
+                .priceChangeRate(new BigDecimal(-1.00))
                 .build();
     }
 
@@ -135,7 +145,9 @@ class YearlyPriceControllerTest extends RestDocsSupport {
                                         fieldWithPath("minPrice").type(NUMBER).description("최소 가격"),
                                         fieldWithPath("maxPrice").type(NUMBER).description("최대 가격"),
                                         fieldWithPath("startPrice").type(NUMBER).description("연초 가격"),
-                                        fieldWithPath("endPrice").type(NUMBER).description("연말 가격")
+                                        fieldWithPath("endPrice").type(NUMBER).description("연말 가격"),
+                                        fieldWithPath("priceChange").type(NUMBER).description("전년 대비 가격 변화량"),
+                                        fieldWithPath("priceChangeRate").type(NUMBER).description("전년 대비 가격 변화율")
                 )));
     }
 
@@ -165,12 +177,14 @@ class YearlyPriceControllerTest extends RestDocsSupport {
                         responseFields(ENVELOPE_COMMON)
                                 .and(DATA_OBJECT_DESCRIPTOR)
                                 .andWithPrefix("data.",
-                                        fieldWithPath("priceYear").type(NUMBER).description("priceYear"),
-                                        fieldWithPath("avgPrice").type(NUMBER).description("avgPrice"),
-                                        fieldWithPath("minPrice").type(NUMBER).description("minPrice"),
-                                        fieldWithPath("maxPrice").type(NUMBER).description("maxPrice"),
-                                        fieldWithPath("startPrice").type(NUMBER).description("startPrice"),
-                                        fieldWithPath("endPrice").type(NUMBER).description("endPrice")
+                                        fieldWithPath("priceYear").type(NUMBER).description("기록 연도"),
+                                        fieldWithPath("avgPrice").type(NUMBER).description("평균 가격"),
+                                        fieldWithPath("minPrice").type(NUMBER).description("최소 가격"),
+                                        fieldWithPath("maxPrice").type(NUMBER).description("최대 가격"),
+                                        fieldWithPath("startPrice").type(NUMBER).description("연초 가격"),
+                                        fieldWithPath("endPrice").type(NUMBER).description("연말 가격"),
+                                        fieldWithPath("priceChange").type(NUMBER).description("전년 대비 가격 변화량"),
+                                        fieldWithPath("priceChangeRate").type(NUMBER).description("전년 대비 가격 변화율")
                                 )));
     }
 }

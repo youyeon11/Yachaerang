@@ -13,6 +13,8 @@
         <result property="startPrice" column="start_price"/>
         <result property="endPrice" column="end_price"/>
         <result property="price_count" column="price_count"/>
+        <result property="priceChange" column="price_change"/>
+        <result property="priceChangeRate" column="price_change_rate"/>
     </resultMap>
     <!-- PriceDto 매핑용 ResultMap -->
     <resultMap id="priceDtoResultMap"
@@ -23,6 +25,8 @@
         <result property="maxPrice" column="max_price"/>
         <result property="startPrice" column="start_price"/>
         <result property="endPrice" column="end_price"/>
+        <result property="priceChange" column="price_change"/>
+        <result property="priceChangeRate" column="price_change_rate"/>
     </resultMap>
     <!-- getPriceDuration -->
     <select id="getPriceDuration"
@@ -33,7 +37,9 @@
         min_price,
         max_price,
         start_price,
-        end_price
+        end_price,
+        price_change,
+        price_change_rate
         FROM
             yearly_price
         WHERE
@@ -54,7 +60,9 @@
             min_price,
             max_price,
             start_price,
-            end_price
+            end_price,
+            price_change,
+            price_change_rate
         FROM
             yearly_price
         WHERE
