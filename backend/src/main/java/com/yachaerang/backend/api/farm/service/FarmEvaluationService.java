@@ -1,31 +1,26 @@
 package com.yachaerang.backend.api.farm.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yachaerang.backend.api.farm.dto.response.FarmResponseDto;
 import com.yachaerang.backend.api.farm.dto.resquest.FarmRequestDto;
 import com.yachaerang.backend.global.exception.GeneralException;
 import com.yachaerang.backend.global.response.ErrorCode;
 import com.yachaerang.backend.global.util.LogUtil;
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.SystemMessage;
-import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.google.genai.GoogleGenAiChatModel;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @Component
 public class FarmEvaluationService {
 
-    private final GoogleGenAiChatModel googleGenAiChatModel;
-    private final ObjectMapper objectMapper;
+    private final WebClient openAiWebClient;
 
-    public FarmEvaluationService(GoogleGenAiChatModel googleGenAiChatModel, ObjectMapper objectMapper) {
-        this.googleGenAiChatModel = googleGenAiChatModel;
-        this.objectMapper = objectMapper;
+    public FarmEvaluationService(WebClient openAiWebClient) {
+        this.openAiWebClient = openAiWebClient;
     }
 
     /**
@@ -33,7 +28,7 @@ public class FarmEvaluationService {
      */
     @Async("asyncExecutor")
     public CompletableFuture<FarmResponseDto.EvaluateDto> generateGradeAndComment(FarmRequestDto.InfoDto requestDto) {
-        SystemMessage systemMessage = new SystemMessage("""
+        String systemMessage = new String("""
         너는 입력된 농장 정보를 평가해 등급(A/B/C/D)과 코멘트를 남기는 AI야.
 
         중요: 입력값이 부족해도 반드시 등급을 부여해야 한다.
@@ -86,7 +81,7 @@ public class FarmEvaluationService {
         내가 입력해주는 정보들을 기반으로 A, B, C, D 등급을 매기고, 등급에 대한 한마디를 comment 필드에 작성해.
         """);
 
-        String userMessageContent = String.format("""
+        String userMessage = String.format("""
                 인력: %s명, 위치: %s, 경작면적: %s㎡, 평지면적: %s㎡, 주품목: %s
                 (값이 null이거나 0인 항목은 입력되지 않은 것으로 간주)
                 """,
@@ -95,32 +90,27 @@ public class FarmEvaluationService {
                 requestDto.getCultivatedArea() != null ? requestDto.getCultivatedArea() : "없음",
                 requestDto.getFlatArea() != null ? requestDto.getFlatArea() : "없음",
                 requestDto.getMainCrop() != null ? requestDto.getMainCrop() : "없음");
-        UserMessage userMessage = new UserMessage(userMessageContent);
 
-        List<Message> messageList = List.of(systemMessage, userMessage);
+        // Request Body
+        Map<String, Object> request = Map.of(
+                "develop", List.of("role", "developer", "content", systemMessage),
+                "message", List.of("role", "user", "content", userMessage)
+        );
 
-        String response = googleGenAiChatModel.call(new Prompt(messageList))
-                .getResult().getOutput().getText();
-
-        try {
-
-            // JSON 코드 블록 제거
-            String cleanedResponse = response
-                    .replaceAll("```json\\s*", "")
-                    .replaceAll("```\\s*", "")
-                    .trim();
-
-            FarmResponseDto.EvaluateDto responseDto = objectMapper.readValue(
-                    cleanedResponse, FarmResponseDto.EvaluateDto.class);
-            // 유효성 검증
-            if (responseDto.getGrade() == null || !responseDto.getGrade().matches("[ABCD]")) {
-                throw GeneralException.of(ErrorCode.FARM_GRADE_INVALID);
-            }
-            return CompletableFuture.completedFuture(responseDto);
-
-        } catch (Exception e) {
-            LogUtil.error("JSON 파싱 오류: {} JSON 원본 응답 : {}", e.getMessage(), response);
-            return CompletableFuture.failedFuture(GeneralException.of(ErrorCode.FAILED_JSON_PARSING));
-        }
+        return openAiWebClient.post()
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(FarmResponseDto.EvaluateDto.class)
+                .map(responseDto -> {
+                    if (responseDto.getGrade() == null || !responseDto.getGrade().matches("[ABCD]")) {
+                        throw GeneralException.of(ErrorCode.FARM_GRADE_INVALID);
+                    }
+                    return responseDto;
+                })
+                .onErrorResume(e -> {
+                    LogUtil.error("OpenAI API 호출 또는 응답 처리 중 오류: {}", e.getMessage());
+                    return Mono.empty();
+                })
+                .toFuture();
     }
 }
