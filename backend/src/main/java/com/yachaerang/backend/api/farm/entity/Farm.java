@@ -27,6 +27,8 @@ public class Farm extends BaseEntity {
 
     private String grade;
 
+    private String farmType;
+
     private String comment;
 
     private Long memberId;
