@@ -1,12 +1,12 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuth } from '@/stores/auth';
+import { useAuthStore } from '@/stores/auth';
 import { loginApi } from '@/api/auth';
 import apiClient from '@/api/axios';
 
 export function useLoginForm() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login } = useAuthStore();
 
   const email = ref('');
   const password = ref('');
@@ -81,5 +81,3 @@ export function useLoginForm() {
     handleLogin,
   };
 }
-
-

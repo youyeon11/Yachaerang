@@ -1,4 +1,4 @@
-import apiClient from './axios';
+import { apiClient } from './axios';
 
 export function addFavorite(payload) {
   return apiClient.post('/api/v1/favorites', payload);

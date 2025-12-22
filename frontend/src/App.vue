@@ -20,11 +20,11 @@
 
 <script setup>
 import { onMounted } from 'vue'
-import { useAuth } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import SideBar from '@/components/layout/SideBar.vue'
 
-const { checkAuth } = useAuth()
+const { checkAuth } = useAuthStore()
 const toast = useToastStore()
 
 onMounted(() => {
