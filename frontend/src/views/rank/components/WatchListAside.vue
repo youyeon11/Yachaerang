@@ -3,44 +3,38 @@
     <div class="bg-white border border-gray-300 rounded-2xl p-6 sm:p-7 shadow-sm mb-6">
       <div class="flex justify-between items-center mb-8">
         <h2 class="text-xl font-bold text-gray-900">나의 품목정보</h2>
-        <button
-          v-if="isAuthenticated"
-          type="button"
-          class="text-xs font-bold text-gray-500 hover:text-red-500 underline underline-offset-4"
-          @click="$emit('edit')"
-        >
-          편집
-        </button>
       </div>
 
       <div class="min-h-[160px] relative">
-        <div v-if="isAuthenticated" class="space-y-7">
-          <div
-            v-for="fav in items"
-            :key="fav.favoriteId"
-            @click="$emit('select', fav)"
-            class="flex justify-between items-center border-b border-gray-0 pb-4 last:border-0 last:pb-0 cursor-pointer group min-w-0"
-          >
-            <div class="flex-1 min-w-0 mr-4">
-              <p class="text-[13px] font-bold text-gray-600 mb-1">
-                <span class="bg-gray-200 inline-block px-1.5 py-0.5 rounded text-[11px]">{{ fav.periodLabel }}</span>
-              </p>
-              <p
-                class="text-base font-bold text-gray-800 group-hover:text-gray-600 transition-colors truncate"
-                :title="fav.displayName"
-              >
-                {{ fav.displayName }}
-              </p>
-            </div>
-            <button
-              @click.stop="$emit('remove', fav.favoriteId)"
-              class="text-sm text-red-400 hover:text-red-600 flex-shrink-0 p-1 font-bold"
+        <div v-if="isAuthenticated">
+          <div v-if="items && items.length > 0" class="space-y-7 max-h-[480px] overflow-y-auto pr-2 custom-scrollbar">
+            <div
+              v-for="fav in items"
+              :key="fav.favoriteId"
+              @click="$emit('select', fav)"
+              class="flex justify-between items-center border-b border-gray-100 pb-4 last:border-0 last:pb-0 cursor-pointer group min-w-0"
             >
-              ✕
-            </button>
+              <div class="flex-1 min-w-0 mr-4">
+                <p class="text-[13px] font-bold text-gray-600 mb-1">
+                  <span class="bg-gray-200 inline-block px-1.5 py-0.5 rounded text-[11px]">{{ fav.periodLabel }}</span>
+                </p>
+                <p
+                  class="text-base font-bold text-gray-800 group-hover:text-gray-600 transition-colors truncate"
+                  :title="fav.displayName"
+                >
+                  {{ fav.displayName }}
+                </p>
+              </div>
+              <button
+                @click.stop="$emit('remove', fav.favoriteId)"
+                class="text-sm text-red-400 hover:text-red-600 flex-shrink-0 p-1 font-bold"
+              >
+                ✕
+              </button>
+            </div>
           </div>
 
-          <p v-if="!items || items.length === 0" class="text-xs text-gray-400 text-center pt-4">
+          <p v-else class="text-xs text-gray-400 text-center pt-4">
             아직 등록된 관심 품목이 없습니다. 대시보드에서 관심 품목을 추가해 보세요.
           </p>
         </div>
