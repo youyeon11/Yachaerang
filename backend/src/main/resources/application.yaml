@@ -31,9 +31,7 @@ spring:
           model: gemini-2.5-flash-lite
     openai:
       api-key: ${GMS_KEY}
-      chat:
-        options:
-          model: gpt-4o
+      base-url: https://gms.ssafy.io/gmsapi/api.openai.com
 
   mail:
     host: smtp.gmail.com
