@@ -350,7 +350,7 @@ export function usePriceSearch() {
     periodType.value = 'day';
 
     const end = new Date(yesterday);
-    const start = new Date(today);
+    const start = new Date(yesterday);
     start.setMonth(start.getMonth() - 3);
 
     dayStartDate.value = formatDateToString(start);

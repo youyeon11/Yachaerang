@@ -15,12 +15,29 @@ export function rank() {
   const isAuthenticated = computed(() => tokenStorage.hasTokens());
   const popularItems = computed(() => (activeTab.value === 'top' ? topItems.value : bottomItems.value));
 
-  async function loadRanks() {
-    const { data: highData } = await fetchHighPriceRank();
-    const { data: lowData } = await fetchLowPriceRank();
+  const yesterday = computed(() => {
+    const date = new Date();
+    date.setDate(date.getDate() - 1);
 
-    topItems.value = highData.data;
-    bottomItems.value = lowData.data;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  });
+
+  async function loadRanks() {
+    try {
+      const { data: highData } = await fetchHighPriceRank();
+      const { data: lowData } = await fetchLowPriceRank();
+
+      topItems.value = highData.data;
+      bottomItems.value = lowData.data;
+    } catch (error) {
+      console.error('랭킹 데이터 로딩 실패:', error);
+      topItems.value = [];
+      bottomItems.value = [];
+    }
   }
 
   async function loadFavorites() {
@@ -187,6 +204,7 @@ export function rank() {
     popularItems,
     watchList,
     isAuthenticated,
+    yesterday,
     editWatchList,
     goFavoriteDetail,
     goRankDetail,

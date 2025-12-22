@@ -23,7 +23,7 @@
               </button>
             </nav>
 
-            <div class="pb-4 text-[13px] text-gray-400 font-medium">2025-12-21일 기준</div>
+            <div class="pb-4 text-[13px] text-gray-400 font-medium">{{ yesterday }} 기준</div>
           </div>
 
           <div :key="activeTab" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
@@ -59,6 +59,7 @@ const {
   popularItems,
   watchList,
   isAuthenticated,
+  yesterday,
   editWatchList,
   goFavoriteDetail,
   goRankDetail,
@@ -85,18 +86,5 @@ const tabs = [
   height: 3px;
   background: #ef4444;
   border-radius: 2px;
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out forwards;
 }
 </style>
