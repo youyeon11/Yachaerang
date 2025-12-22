@@ -43,8 +43,8 @@ defineEmits(['click']);
 
 const rankBadgeClass = computed(() => {
   if (props.rank === 1) return 'bg-yellow-400 text-white';
-  if (props.rank === 2) return 'bg-gray-400 text-white';
-  if (props.rank === 3) return 'bg-orange-400 text-white';
+  if (props.rank === 2) return 'bg-gray-300 text-white';
+  if (props.rank === 3) return 'bg-orange-300 text-white';
   return 'bg-gray-100 text-gray-600';
 });
 
