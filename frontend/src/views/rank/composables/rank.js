@@ -1,18 +1,19 @@
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { fetchFavorites, removeFavorite } from "@/api/favorite";
-import { fetchItemsApi, fetchSubItemsApi, fetchHighPriceRank, fetchLowPriceRank } from "@/api/price";
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { fetchFavorites, removeFavorite } from '@/api/favorite';
+import { fetchItemsApi, fetchSubItemsApi, fetchHighPriceRank, fetchLowPriceRank } from '@/api/price';
+import { tokenStorage } from '@/utils/storage';
 
 export function rank() {
   const router = useRouter();
-
-  const activeTab = ref("top");
+  const activeTab = ref('top');
 
   const topItems = ref([]);
   const bottomItems = ref([]);
 
   const watchList = ref([]);
-  const popularItems = computed(() => (activeTab.value === "top" ? topItems.value : bottomItems.value));
+  const isAuthenticated = computed(() => tokenStorage.hasTokens());
+  const popularItems = computed(() => (activeTab.value === 'top' ? topItems.value : bottomItems.value));
 
   async function loadRanks() {
     const { data: highData } = await fetchHighPriceRank();
@@ -23,12 +24,19 @@ export function rank() {
   }
 
   async function loadFavorites() {
+    if (!tokenStorage.hasTokens()) {
+      watchList.value = [];
+      return;
+    }
+
     try {
       const { data } = await fetchFavorites();
       const list = Array.isArray(data?.data) ? data.data : [];
 
       const buildProductNameMap = async (favoritesList) => {
-        const productCodes = new Set(favoritesList.map((f) => f.productCode).filter((code) => typeof code === "string" && code.trim() !== ""));
+        const productCodes = new Set(
+          favoritesList.map((f) => f.productCode).filter((code) => typeof code === 'string' && code.trim() !== '')
+        );
         const nameMap = {};
 
         if (productCodes.size === 0) return nameMap;
@@ -41,7 +49,7 @@ export function rank() {
           await Promise.all(
             items.map(async (item) => {
               const itemCode = item.itemCode ?? item.code ?? item.id;
-              const itemName = item.itemName ?? item.name ?? "";
+              const itemName = item.itemName ?? item.name ?? '';
               if (!itemCode) return;
 
               try {
@@ -53,16 +61,16 @@ export function rank() {
                   const productCode = sub.productCode ?? sub.code ?? sub.id;
                   if (!productCodes.has(productCode)) return;
 
-                  const varietyName = sub.subItemName ?? sub.name ?? sub.productName ?? "";
+                  const varietyName = sub.subItemName ?? sub.name ?? sub.productName ?? '';
                   nameMap[productCode] = { itemName, varietyName };
                 });
               } catch (e) {
-                console.error("하위 품목 조회 실패:", e);
+                console.error('하위 품목 조회 실패:', e);
               }
             })
           );
         } catch (e) {
-          console.error("품목/품종 전체 조회 실패:", e);
+          console.error('품목/품종 전체 조회 실패:', e);
         }
 
         return nameMap;
@@ -72,30 +80,36 @@ export function rank() {
 
       const mapPeriodLabel = (periodType) => {
         switch (periodType) {
-          case "DAILY":
-            return "일간";
-          case "WEEKLY":
-            return "주간";
-          case "MONTHLY":
-            return "월간";
-          case "YEARLY":
-            return "연간";
+          case 'DAILY':
+            return '일간';
+          case 'WEEKLY':
+            return '주간';
+          case 'MONTHLY':
+            return '월간';
+          case 'YEARLY':
+            return '연간';
           default:
-            return periodType || "";
+            return periodType || '';
         }
       };
 
       watchList.value = list.map((fav) => {
         const fromMap = nameMap[fav.productCode] || {};
 
-        const itemName = fav.itemName || fav.item?.itemName || fav.item?.name || fromMap.itemName || "";
+        const itemName = fav.itemName || fav.item?.itemName || fav.item?.name || fromMap.itemName || '';
 
-        const varietyName = fav.subItemName || fav.productName || fav.varietyName || fav.product?.productName || fromMap.varietyName || "";
+        const varietyName =
+          fav.subItemName ||
+          fav.productName ||
+          fav.varietyName ||
+          fav.product?.productName ||
+          fromMap.varietyName ||
+          '';
 
-        const codeFallback = fav.productCode ?? "";
+        const codeFallback = fav.productCode ?? '';
         const period = mapPeriodLabel(fav.periodType);
 
-        let mainLabel = "";
+        let mainLabel = '';
         if (itemName && varietyName) {
           mainLabel = `${itemName} - ${varietyName}`;
         } else if (varietyName) {
@@ -120,13 +134,13 @@ export function rank() {
   }
 
   async function handleRemoveFavorite(favoriteId) {
-    if (!confirm("관심 품목에서 삭제하시겠습니까?")) return;
+    if (!confirm('관심 품목에서 삭제하시겠습니까?')) return;
 
     try {
       await removeFavorite(favoriteId);
       await loadFavorites();
     } catch (error) {
-      alert("삭제 중 오류가 발생했습니다.");
+      alert('삭제 중 오류가 발생했습니다.');
     }
   }
 
@@ -136,17 +150,17 @@ export function rank() {
   });
 
   function editWatchList() {
-    router.push("/mypage/items");
+    router.push('/mypage/items');
   }
 
   function goFavoriteDetail(fav) {
     if (!fav || !fav.productCode) return;
 
     router.push({
-      path: "/dashboard",
+      path: '/dashboard',
       query: {
         productCode: fav.productCode,
-        source: "favorite",
+        source: 'favorite',
       },
     });
   }
@@ -160,10 +174,10 @@ export function rank() {
     if (!productCode) return;
 
     router.push({
-      path: "/dashboard",
+      path: '/dashboard',
       query: {
         productCode,
-        source: "rank",
+        source: 'rank',
       },
     });
   }
@@ -172,6 +186,7 @@ export function rank() {
     activeTab,
     popularItems,
     watchList,
+    isAuthenticated,
     editWatchList,
     goFavoriteDetail,
     goRankDetail,
