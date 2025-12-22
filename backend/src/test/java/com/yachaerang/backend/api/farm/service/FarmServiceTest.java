@@ -77,13 +77,13 @@ class FarmServiceTest {
     void 농장정보_저장_성공() {
         // given
         FarmRequestDto.InfoDto requestDto = createRequestDto();
-        FarmResponseDto.EvaluateDto evaluationDto = new FarmResponseDto.EvaluateDto("A", "좋은 농장입니다");
+        FarmResponseDto.EvaluateDto evaluationDto = new FarmResponseDto.EvaluateDto("A", "좋은 유형", "좋은 농장입니다");
         Farm savedFarm = createFarm();
 
         when(farmEvaluationService.generateGradeAndComment(requestDto))
                 .thenReturn(CompletableFuture.completedFuture(evaluationDto));
         when(farmAsyncService.saveFarmWithEvaluation(
-                eq(MEMBER_ID), eq(requestDto), eq("A"), eq("좋은 농장입니다")))
+                eq(MEMBER_ID), eq(requestDto), eq("A"), eq("좋은 유형"), eq("좋은 농장입니다")))
                 .thenReturn(savedFarm);
 
         // when
@@ -94,7 +94,7 @@ class FarmServiceTest {
         assertThat(responseDto).isNotNull();
         assertThat(responseDto.getId()).isEqualTo(FARM_ID);
         verify(farmAsyncService).saveFarmWithEvaluation(
-                eq(MEMBER_ID), eq(requestDto), eq("A"), eq("좋은 농장입니다"));
+                eq(MEMBER_ID), eq(requestDto), eq("A"), eq("좋은 유형"), eq("좋은 농장입니다"));
     }
 
     @Test
@@ -124,11 +124,11 @@ class FarmServiceTest {
     void 농장정보_저장_실패_DB저장_실패() {
         // given
         FarmRequestDto.InfoDto requestDto = createRequestDto();
-        FarmResponseDto.EvaluateDto evaluationDto = new FarmResponseDto.EvaluateDto("A", "좋은 농장입니다");
+        FarmResponseDto.EvaluateDto evaluationDto = new FarmResponseDto.EvaluateDto("A","좋은 유형", "좋은 농장입니다");
 
         when(farmEvaluationService.generateGradeAndComment(requestDto))
                 .thenReturn(CompletableFuture.completedFuture(evaluationDto));
-        when(farmAsyncService.saveFarmWithEvaluation(any(), any(), any(), any()))
+        when(farmAsyncService.saveFarmWithEvaluation(any(), any(), any(), any(), any()))
                 .thenThrow(new RuntimeException("DB 오류"));
 
         // when & then
@@ -174,13 +174,13 @@ class FarmServiceTest {
         FarmRequestDto.InfoDto requestDto = createRequestDto();
         Farm existingFarm = createFarm();
         Farm updatedFarm = createFarm();
-        FarmResponseDto.EvaluateDto evaluationDto = new FarmResponseDto.EvaluateDto("A", "매우 좋은 농장이네요!");
+        FarmResponseDto.EvaluateDto evaluationDto = new FarmResponseDto.EvaluateDto("A", "좋은 유형", "매우 좋은 농장이네요!");
 
         when(farmMapper.findByMemberId(MEMBER_ID)).thenReturn(existingFarm);
         when(farmEvaluationService.generateGradeAndComment(requestDto))
                 .thenReturn(CompletableFuture.completedFuture(evaluationDto));
         when(farmAsyncService.updateFarmWithEvaluation(
-                eq(MEMBER_ID), eq(requestDto), eq("A"), eq("매우 좋은 농장이네요!")))
+                eq(MEMBER_ID), eq(requestDto), eq("A"), eq("좋은 유형"), eq("매우 좋은 농장이네요!")))
                 .thenReturn(updatedFarm);
 
         // when
@@ -190,7 +190,7 @@ class FarmServiceTest {
         // then
         assertThat(responseDto).isNotNull();
         verify(farmAsyncService).updateFarmWithEvaluation(
-                eq(MEMBER_ID), eq(requestDto), eq("A"), eq("매우 좋은 농장이네요!"));
+                eq(MEMBER_ID), eq(requestDto), eq("A"), eq("좋은 유형"), eq("매우 좋은 농장이네요!"));
     }
 
     @Test

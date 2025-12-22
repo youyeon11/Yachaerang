@@ -12,10 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.chat.model.Generation;
-import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.google.genai.GoogleGenAiChatModel;
 
 import java.util.concurrent.CompletableFuture;
@@ -34,23 +32,11 @@ class FarmEvaluationServiceTest {
     private ObjectMapper objectMapper;
     private FarmEvaluationService farmEvaluationService;
 
-    /*
-    외부 AI 응답 Mock 객체로 생성
-     */
     private void mockAiResponse(String response) {
-        ChatResponse chatResponse = mock(ChatResponse.class);
-        Generation generation = mock(Generation.class);
-        AssistantMessage assistantMessage = mock(AssistantMessage.class);
-
-        when(googleGenAiChatModel.call(any(Prompt.class))).thenReturn(chatResponse);
-        when(chatResponse.getResult()).thenReturn(generation);
-        when(generation.getOutput()).thenReturn(assistantMessage);
-        when(assistantMessage.getText()).thenReturn(response);
+        when(googleGenAiChatModel.call(any(SystemMessage.class), any(UserMessage.class)))
+                .thenReturn(response);
     }
 
-    /*
-    DTO 생성 메서드
-     */
     private FarmRequestDto.InfoDto createRequestDto() {
         return FarmRequestDto.InfoDto.builder()
                 .manpower(5)
@@ -74,20 +60,25 @@ class FarmEvaluationServiceTest {
         FarmRequestDto.InfoDto requestDto = createRequestDto();
         String response = """
                 ```json
-                                {
-                                    "grade": "B",
-                                    "comment": "좋은 농장이에요!"
-                                }
+                {
+                  "grade": "B",
+                  "farmType": "집중형 농장",
+                  "comment": "좋은 농장이에요!"
+                }
                 ```
                 """;
         mockAiResponse(response);
 
         // when
-        FarmResponseDto.EvaluateDto resultDto = farmEvaluationService.generateGradeAndComment(requestDto).join();
+        FarmResponseDto.EvaluateDto resultDto =
+                farmEvaluationService.generateGradeAndComment(requestDto).join();
 
         // then
         assertThat(resultDto.getGrade()).isEqualTo("B");
+        assertThat(resultDto.getFarmType()).isEqualTo("집중형 농장");
         assertThat(resultDto.getComment()).isEqualTo("좋은 농장이에요!");
+        verify(googleGenAiChatModel, times(1))
+                .call(any(SystemMessage.class), any(UserMessage.class));
     }
 
     @Test
@@ -99,11 +90,11 @@ class FarmEvaluationServiceTest {
         mockAiResponse(invalidJson);
 
         // when
-        CompletableFuture<FarmResponseDto.EvaluateDto> result =
+        CompletableFuture<FarmResponseDto.EvaluateDto> future =
                 farmEvaluationService.generateGradeAndComment(requestDto);
 
         // then
-        assertThatThrownBy(result::join)
+        assertThatThrownBy(future::join)
                 .isInstanceOf(CompletionException.class)
                 .cause()
                 .isInstanceOf(GeneralException.class)
@@ -114,23 +105,46 @@ class FarmEvaluationServiceTest {
     }
 
     @Test
-    @DisplayName("AI 서비스 예외 발생")
-    void AI서비스_예외_발생() {
-        // given
+    @DisplayName("AI 평가 실패 - grade 값이 A/B/C/D가 아니면 FARM_GRADE_INVALID -> 최종 FAILED_JSON_PARSING")
+    void AI평가_실패_등급_유효성_실패() {
+        // given: JSON은 파싱되지만 grade가 잘못됨
         FarmRequestDto.InfoDto requestDto = createRequestDto();
-        when(googleGenAiChatModel.call(any(Prompt.class))).thenThrow(GeneralException.of(ErrorCode.AI_MODEL_ERROR));
+        String response = """
+                {"grade":"E","farmType":"전통형 농장","comment":"테스트"}
+                """;
+        mockAiResponse(response);
 
-        // when & then
-        assertThatThrownBy(() -> farmEvaluationService.generateGradeAndComment(requestDto))
+        // when
+        CompletableFuture<FarmResponseDto.EvaluateDto> future =
+                farmEvaluationService.generateGradeAndComment(requestDto);
+
+        // then
+        assertThatThrownBy(future::join)
+                .isInstanceOf(CompletionException.class)
+                .cause()
                 .isInstanceOf(GeneralException.class)
                 .satisfies(e -> {
                     GeneralException ge = (GeneralException) e;
-                    assertThat(ge.getErrorCode()).isEqualTo(ErrorCode.AI_MODEL_ERROR);
+                    assertThat(ge.getErrorCode()).isEqualTo(ErrorCode.FAILED_JSON_PARSING);
                 });
     }
 
     @Test
-    @DisplayName("null 입력값 처리 시 '없음'으로 변환")
+    @DisplayName("AI 호출 예외 발생 시 RuntimeException이 그대로 전파(Async 프록시 없음)")
+    void AI호출_예외_전파() {
+        FarmRequestDto.InfoDto requestDto = createRequestDto();
+
+        when(googleGenAiChatModel.call(any(SystemMessage.class), any(UserMessage.class)))
+                .thenThrow(new RuntimeException("boom"));
+
+        assertThatThrownBy(() -> farmEvaluationService.generateGradeAndComment(requestDto))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("boom");
+    }
+
+
+    @Test
+    @DisplayName("null 입력값 처리 시 '없음'으로 변환되어 UserMessage에 포함")
     void null_입력값_처리시_없음으로_변환() {
         // given
         FarmRequestDto.InfoDto requestDto = FarmRequestDto.InfoDto.builder()
@@ -141,10 +155,10 @@ class FarmEvaluationServiceTest {
                 .mainCrop(null)
                 .build();
 
-        String aiResponse = """
-                {"grade": "D", "comment": "정보가 부족해요"}
+        String response = """
+                {"grade":"D","farmType":"개선 필요형","comment":"정보가 부족해요"}
                 """;
-        mockAiResponse(aiResponse);
+        mockAiResponse(response);
 
         // when
         FarmResponseDto.EvaluateDto result =
@@ -152,11 +166,14 @@ class FarmEvaluationServiceTest {
 
         // then
         assertThat(result.getGrade()).isEqualTo("D");
-        // captor로 확인
-        ArgumentCaptor<Prompt> promptCaptor = ArgumentCaptor.forClass(Prompt.class);
-        verify(googleGenAiChatModel).call(promptCaptor.capture());
+        assertThat(result.getFarmType()).isEqualTo("개선 필요형");
 
-        String content = promptCaptor.getValue().getContents().toString();
-        assertThat(content).contains("없음");
+        ArgumentCaptor<SystemMessage> systemCaptor = ArgumentCaptor.forClass(SystemMessage.class);
+        ArgumentCaptor<UserMessage> userCaptor = ArgumentCaptor.forClass(UserMessage.class);
+
+        verify(googleGenAiChatModel).call(systemCaptor.capture(), userCaptor.capture());
+
+        String userPrompt = userCaptor.getValue().toString();
+        assertThat(userPrompt).contains("없음");
     }
 }
