@@ -1,31 +1,51 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { fetchFavorites } from '@/api/favorite';
+import { fetchFavorites, removeFavorite } from '@/api/favorite';
 import { fetchItemsApi, fetchSubItemsApi, fetchHighPriceRank, fetchLowPriceRank } from '@/api/price';
+import { tokenStorage } from '@/utils/storage';
 
 export function rank() {
   const router = useRouter();
-
   const activeTab = ref('top');
 
-  const topItems = ref([]); // 높은 가격
-  const bottomItems = ref([]); // 낮은 가격
+  const topItems = ref([]);
+  const bottomItems = ref([]);
 
   const watchList = ref([]);
+  const isAuthenticated = computed(() => tokenStorage.hasTokens());
   const popularItems = computed(() => (activeTab.value === 'top' ? topItems.value : bottomItems.value));
 
+  const yesterday = computed(() => {
+    const date = new Date();
+    date.setDate(date.getDate() - 1);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  });
+
   async function loadRanks() {
-    const { data: highData } = await fetchHighPriceRank();
-    const { data: lowData } = await fetchLowPriceRank();
+    try {
+      const { data: highData } = await fetchHighPriceRank();
+      const { data: lowData } = await fetchLowPriceRank();
 
-    console.log('TOP 개수:', highData.data?.length);
-    console.log('BOTTOM 개수:', lowData.data?.length);
-
-    topItems.value = highData.data;
-    bottomItems.value = lowData.data;
+      topItems.value = highData.data;
+      bottomItems.value = lowData.data;
+    } catch (error) {
+      console.error('랭킹 데이터 로딩 실패:', error);
+      topItems.value = [];
+      bottomItems.value = [];
+    }
   }
 
   async function loadFavorites() {
+    if (!tokenStorage.hasTokens()) {
+      watchList.value = [];
+      return;
+    }
+
     try {
       const { data } = await fetchFavorites();
       const list = Array.isArray(data?.data) ? data.data : [];
@@ -126,8 +146,18 @@ export function rank() {
         };
       });
     } catch (error) {
-      console.error('관심 품목 목록 조회 실패:', error);
       watchList.value = [];
+    }
+  }
+
+  async function handleRemoveFavorite(favoriteId) {
+    if (!confirm('관심 품목에서 삭제하시겠습니까?')) return;
+
+    try {
+      await removeFavorite(favoriteId);
+      await loadFavorites();
+    } catch (error) {
+      alert('삭제 중 오류가 발생했습니다.');
     }
   }
 
@@ -141,13 +171,13 @@ export function rank() {
   }
 
   function goFavoriteDetail(fav) {
-    if (!fav || !fav.productCode || !fav.periodType) return;
+    if (!fav || !fav.productCode) return;
 
     router.push({
-      path: '/search',
+      path: '/dashboard',
       query: {
         productCode: fav.productCode,
-        periodType: fav.periodType,
+        source: 'favorite',
       },
     });
   }
@@ -161,10 +191,9 @@ export function rank() {
     if (!productCode) return;
 
     router.push({
-      path: '/search',
+      path: '/dashboard',
       query: {
         productCode,
-        periodType: 'DAILY',
         source: 'rank',
       },
     });
@@ -174,8 +203,11 @@ export function rank() {
     activeTab,
     popularItems,
     watchList,
+    isAuthenticated,
+    yesterday,
     editWatchList,
     goFavoriteDetail,
     goRankDetail,
+    handleRemoveFavorite,
   };
 }

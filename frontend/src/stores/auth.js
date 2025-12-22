@@ -1,10 +1,10 @@
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { loginApi, logoutApi } from '@/api/auth';
-import { tokenStorage } from '@/utils/storage';
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import { loginApi } from "@/api/auth";
+import { tokenStorage } from "@/utils/storage";
 
-export const useAuthStore = defineStore('auth', () => {
+export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
 
   // State
@@ -34,16 +34,15 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await authApi.logout();
     } catch (e) {
-      console.error('logout API error', e);
+      console.error("logout API error", e);
     } finally {
       tokenStorage.clear();
       user.value = null;
-      router.push('/login');
+      router.push("/login");
     }
   };
 
   const checkAuth = () => {
-    // 앱 시작 시 토큰 존재 여부 확인
     return tokenStorage.hasTokens();
   };
 
