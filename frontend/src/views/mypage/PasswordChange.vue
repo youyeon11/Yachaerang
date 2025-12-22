@@ -44,42 +44,56 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
 import { changePasswordApi } from '@/api/member';
-import { logout } from '@/stores/auth';
-import apiClient from '@/api/axios';
+import { useAuthStore } from '@/stores/auth';
 
-const router = useRouter();
+const authStore = useAuthStore();
 
 const currentPassword = ref('');
 const newPassword = ref('');
 const newPasswordConfirm = ref('');
 
-const currentPasswordValid = ref(false);
-const currentPasswordMsg = ref('');
-
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$/;
 
+// 현재 비밀번호와 새 비밀번호 동일 여부
+const isSameAsCurrent = computed(() => {
+  if (!currentPassword.value || !newPassword.value) return false;
+  return currentPassword.value === newPassword.value;
+});
+
+// 새 비밀번호 안내 메시지(동일 여부 우선)
 const newPasswordMsg = computed(() => {
-  if (!passwordRegex.test(newPassword.value)) {
-    return '문자, 숫자, 특수문자를 포함한 8~20자여야 합니다.';
-  }
+  if (!newPassword.value) return '';
+  if (isSameAsCurrent.value) return '현재 비밀번호와 다른 비밀번호를 입력해주세요.';
+  if (!passwordRegex.test(newPassword.value)) return '문자, 숫자, 특수문자를 포함한 8~20자여야 합니다.';
   return '사용 가능한 비밀번호입니다.';
 });
 
-const newPasswordClass = computed(() => (passwordRegex.test(newPassword.value) ? 'msg success' : 'msg error'));
+const newPasswordClass = computed(() => {
+  if (!newPassword.value) return 'msg';
+  if (isSameAsCurrent.value) return 'msg error';
+  return passwordRegex.test(newPassword.value) ? 'msg success' : 'msg error';
+});
 
 const confirmMsg = computed(() =>
   newPassword.value === newPasswordConfirm.value ? '비밀번호가 일치합니다.' : '비밀번호가 일치하지 않습니다.'
 );
-
 const confirmClass = computed(() => (newPassword.value === newPasswordConfirm.value ? 'msg success' : 'msg error'));
 
-const currentPasswordClass = computed(() => (currentPasswordValid.value ? 'msg success' : 'msg error'));
-
 const handleSubmit = async () => {
-  if (!currentPasswordValid.value) {
-    alert('현재 비밀번호를 확인해주세요.');
+  if (!currentPassword.value) {
+    alert('현재 비밀번호를 입력해주세요.');
+    return;
+  }
+
+  if (!newPassword.value) {
+    alert('새 비밀번호를 입력해주세요.');
+    return;
+  }
+
+  // 동일하면 요청 자체 차단
+  if (isSameAsCurrent.value) {
+    alert('현재 비밀번호와 다른 비밀번호를 입력해주세요.');
     return;
   }
 
@@ -97,11 +111,22 @@ const handleSubmit = async () => {
     await changePasswordApi(currentPassword.value, newPassword.value);
 
     alert('비밀번호를 수정하였습니다.\n다시 로그인해주세요.');
-
-    logout();
-    router.push('/login');
+    await authStore.logout();
   } catch (error) {
-    alert(error.response?.data?.message || '비밀번호 변경 중 오류가 발생했습니다.');
+    const errorResponse = error.response?.data;
+    const errorCode = errorResponse?.code;
+
+    if (errorCode === 'LOGIN_001') {
+      alert('현재 비밀번호가 올바르지 않습니다.');
+      return;
+    }
+    if (errorCode === 'LOGIN_002') {
+      alert(errorResponse?.message || '비밀번호 변경에 실패했습니다.');
+      return;
+    }
+
+    alert('비밀번호 변경 중 오류가 발생했습니다.');
+    console.error('change password error:', error);
   }
 };
 </script>

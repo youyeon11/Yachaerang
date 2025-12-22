@@ -55,7 +55,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useAuth } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth'
 
 import BrandLogo from '../brand/BrandLogo.vue'
 import logoUrl from '../../assets/logo.svg'
@@ -69,7 +69,7 @@ import IconUser from '../icons/IconUser.vue'
 
 const router = useRouter()
 const route = useRoute()
-const { isLoggedIn } = useAuth()
+const { isLoggedIn } = useAuthStore()
 
 const props = defineProps({
   userAvatar: { type: String, default: '' },

@@ -1,4 +1,4 @@
-import apiClient from './axios';
+import { apiClient } from './axios';
 
 export function startChatSessionApi() {
   return apiClient.post('/api/v1/chat');

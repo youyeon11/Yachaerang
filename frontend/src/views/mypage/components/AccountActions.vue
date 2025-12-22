@@ -5,14 +5,14 @@
       <p class="text-sm text-gray-600">보안 및 계정 설정</p>
     </div>
     <div class="space-y-3">
-      <button 
+      <button
         @click="goToChangePassword"
-        class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-left font-medium text-gray-700 
-               cursor-pointer
-               transition-all duration-200 
-               hover:bg-gray-100 hover:border-gray-400 hover:-translate-y-0.5 hover:shadow-md
-               active:translate-y-0 active:shadow-sm"
-      >
+          class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-left font-medium text-gray-700 
+          cursor-pointer 
+          transition-all duration-200 hover:bg-gray-100 
+          hover:border-gray-400 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 
+          active:shadow-sm" 
+        >
         비밀번호 변경하기
       </button>
       <button 
@@ -32,14 +32,17 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import IconLogout from '@/components/icons/IconLogout.vue';
-import { useAuth } from '@/stores/auth.js';
+import { useAuthStore } from '@/stores/auth';
+import { apiClient } from '@/api/axios';
 
 const router = useRouter();
-const {logout} = useAuth();
+const authStore = useAuthStore();
 
 // 비밀번호 변경 페이지로 이동
-const goToChangePassword = () => {
-  router.push('/mypage/password');
+const goToChangePassword = async () => {
+  console.log('goToChangePassword clicked');
+  await router.push('/mypage/password');
+  console.log('navigated');
 };
 
 const handleLogout = async () => {
@@ -48,7 +51,7 @@ const handleLogout = async () => {
   } catch (e) {
     console.error('logout error', e);
   } finally {
-    logout();
+    authStore.logout();
     router.push('/login');
   }
 };

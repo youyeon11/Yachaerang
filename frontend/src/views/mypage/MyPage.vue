@@ -6,43 +6,35 @@
         <p class="text-gray-600">나의 정보를 관리해보세요.</p>
       </div>
 
-      <ProfileSection 
-        :profile="profile" 
-        @update:profile="handleProfileUpdate" 
-      />
+      <router-view v-if="isChildRoute" />
 
-      <AccountActions 
-        @change-password="handleChangePassword"
-        @logout="handleLogout"
-      />
+      <template v-else>
+        <ProfileSection
+          :profile="profile"
+          @update:profile="handleProfileUpdate"
+        />
 
-      <div class="grid gap-6 md:grid-cols-2">
-        <FavoriteDashboards />
-        <FavoriteArticles />
-      </div>
+        <AccountActions />
+
+        <div class="grid gap-6 md:grid-cols-2">
+          <FavoriteDashboards />
+          <FavoriteArticles />
+        </div>
+      </template>
     </div>
   </main>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-// 컴포넌트 import
-import ProfileSection from './components/ProfileSection.vue'
-import AccountActions from './components/AccountActions.vue'
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+
+import ProfileSection from './components/ProfileSection.vue';
+import AccountActions from './components/AccountActions.vue';
 import FavoriteDashboards from '@/views/mypage/components/FavoriteDashboards.vue';
 import FavoriteArticles from '@/views/mypage/components/FavoriteArticles.vue';
 
-// Handlers
-const handleProfileUpdate = (updatedProfile) => {
-  profile.value = updatedProfile
-  console.log('Profile saved:', updatedProfile)
-}
+const route = useRoute();
 
-const handleChangePassword = () => {
-  console.log('Change password clicked')
-}
-
-const handleLogout = () => {
-  console.log('Logout clicked')
-}
+const isChildRoute = computed(() => route.path !== '/mypage');
 </script>

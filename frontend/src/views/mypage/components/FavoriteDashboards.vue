@@ -52,8 +52,8 @@ const mapPeriodLabel = (periodType) => {
 const loadFavorites = async () => {
   loading.value = true;
   try {
-    const { response } = await fetchFavorites();
-    const list = Array.isArray(response?.data) ? response.data : [];
+    const { data } = await fetchFavorites();
+    const list = Array.isArray(data?.data) ? data.data : [];
     const nameMap = await productNameStore.loadProductNames(list);
 
     favorites.value = list.map((fav) => {
@@ -86,7 +86,7 @@ const loadFavorites = async () => {
 
 const goToDetail = (item) => {
   router.push({
-    path: '/search',
+    path: '/dashboard',
     query: {
       productCode: item.productCode,
       periodType: item.periodType,
