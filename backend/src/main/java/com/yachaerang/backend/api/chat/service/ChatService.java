@@ -12,9 +12,7 @@ import com.yachaerang.backend.global.exception.GeneralException;
 import com.yachaerang.backend.global.response.ErrorCode;
 import com.yachaerang.backend.global.util.LogUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.messages.*;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.google.genai.GoogleGenAiChatModel;
 import org.springframework.stereotype.Service;
@@ -178,7 +176,21 @@ public class ChatService {
      */
     private String call(List<Message> promptMessages) {
         try {
-            return googleGenAiChatModel.call(new Prompt(promptMessages))
+            // 시스템 메시지를 생성
+            SystemMessage systemMessage = new SystemMessage(
+                    """
+                            너는 농업인에게 도우미 봇 '야치'다.
+                            너의 역할은 농업에 관련된 모든 질문에 친절하고 유익하게 답변하는 거야.
+                            말투는 항상 친근하고 귀엽고 존댓말을 써.
+                    """
+            );
+
+            // 시스템 메시지와 사용자 프롬프트 메시지를 하나의 리스트로 결합
+            List<Message> allMessages = new ArrayList<>();
+            allMessages.add(systemMessage);
+            allMessages.addAll(promptMessages);
+
+            return googleGenAiChatModel.call(new Prompt(allMessages))
                     .getResult()
                     .getOutput()
                     .getText();

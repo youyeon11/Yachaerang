@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS farm (
     flat_area DECIMAL(15, 2),
     main_crop VARCHAR(100),
     grade VARCHAR(5),
+    farm_type VARCHAR(50),
     comment VARCHAR(50),
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

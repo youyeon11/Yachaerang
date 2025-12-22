@@ -200,8 +200,8 @@ class ChatServiceTest {
     @DisplayName("이전 대화기록과 함게 채팅 응답 받기 성공")
     void 이전_대화기록과_함께_채팅_응답받기_성공() {
         // given
-        String userMessage = "이전 대화 기록을 참고해서 대답해줘."; // 새로운 메시지
-        String response = "네, 이전 대화 기록을 참고해서 답변 드리겠습니다.";
+        String userMessage = "이전 대화 기록을 참고해서 대답해줘.";
+        String response = "네, 이전 대화 기록을 참고해서 답변 드리겠습니다."; // 새로운 메시지
         ChatRequestDto.MessageDto requestDto = ChatRequestDto.MessageDto.builder()
                 .message(userMessage)
                 .build();
@@ -230,7 +230,7 @@ class ChatServiceTest {
         // then
         assertThat(responseDto.getResponse()).isEqualTo(response);
         verify(googleGenAiChatModel).call(argThat((Prompt prompt) ->
-                prompt.getInstructions().size() == 3 // history 2개 + 현재 새로 보내는 Message
+                prompt.getInstructions().size() == 4 // System 메시지 + history 2개 + 현재 새로 보내는 Message
         ));
     }
 
