@@ -6,6 +6,7 @@ import com.yachaerang.backend.global.auth.jwt.JwtTokenProvider;
 import com.yachaerang.backend.global.response.ErrorCode;
 import com.yachaerang.backend.global.response.ErrorResponse;
 import com.yachaerang.backend.global.util.SecurityPaths;
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,11 +56,17 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagerConfigurer -> {
                     sessionManagerConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 })
+                // 비동기 요청에서도 SecurityContext 유지
+                .securityContext(securityContext ->
+                        securityContext.requireExplicitSave(false))
                 .exceptionHandling(exception -> {
                     exception.authenticationEntryPoint(unauthorizedEntryPoint());
                     exception.accessDeniedHandler(accessDeniedHandler());
                 })
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                        // Async Dispatcher
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
+
                         .requestMatchers(SecurityPaths.PUBLIC).permitAll()
                         .requestMatchers(SecurityPaths.ADMIN).hasRole("ADMIN")
                         .requestMatchers(SecurityPaths.USER).hasAnyRole("USER", "ADMIN")

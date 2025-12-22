@@ -88,6 +88,10 @@ dependencies {
 
     // Spring AI
     implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+
+    // WebFlux
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     // S3
     implementation platform("software.amazon.awssdk:bom:2.25.65")

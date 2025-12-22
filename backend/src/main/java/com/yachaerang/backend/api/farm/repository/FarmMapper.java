@@ -28,6 +28,7 @@ public interface FarmMapper {
     int updateEvaluation(
             @Param("id") Long id,
             @Param("grade") String grade,
+            @Param("farmType") String farmType,
             @Param("comment") String comment
     );
 

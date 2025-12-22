@@ -18,6 +18,7 @@ public class FarmResponseDto {
         private Double flatArea;
         private String mainCrop;
         private String grade;
+        private String farmType;
         private String comment;
     }
 
@@ -28,6 +29,7 @@ public class FarmResponseDto {
     @Builder
     public static class EvaluateDto {
         private String grade;
+        private String farmType;
         private String comment;
     }
 
@@ -43,6 +45,7 @@ public class FarmResponseDto {
                 .flatArea(farm.getFlatArea())
                 .mainCrop(farm.getMainCrop())
                 .grade(farm.getGrade())
+                .farmType(farm.getFarmType())
                 .comment(farm.getComment())
                 .build();
     }

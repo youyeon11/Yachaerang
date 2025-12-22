@@ -53,6 +53,7 @@ class FarmAsyncServiceTest {
                 .flatArea(800.0)
                 .mainCrop("딸기")
                 .grade("B")
+                .farmType("좋은 유형")
                 .comment("좋은 농장입니다")
                 .build();
     }
@@ -63,6 +64,7 @@ class FarmAsyncServiceTest {
         // given
         FarmRequestDto.InfoDto requestDto = createRequestDto();
         String grade = "A";
+        String farmType = "성실한 유형";
         String comment = "훌륭한 농장이네요!";
 
         doAnswer(invocation -> {
@@ -73,7 +75,7 @@ class FarmAsyncServiceTest {
 
         // when
         Farm result = farmAsyncService.saveFarmWithEvaluation(
-                MEMBER_ID, requestDto, grade, comment);
+                MEMBER_ID, requestDto, grade, farmType, comment);
 
         // then
         assertThat(result).isNotNull();
@@ -82,6 +84,7 @@ class FarmAsyncServiceTest {
         assertThat(result.getManpower()).isEqualTo(requestDto.getManpower());
         assertThat(result.getLocation()).isEqualTo(requestDto.getLocation());
         assertThat(result.getGrade()).isEqualTo(grade);
+        assertThat(result.getFarmType()).isEqualTo(farmType);
         assertThat(result.getComment()).isEqualTo(comment);
 
         verify(farmMapper).save(any(Farm.class));
@@ -98,7 +101,7 @@ class FarmAsyncServiceTest {
 
         // when & then
         assertThatThrownBy(() ->
-                farmAsyncService.saveFarmWithEvaluation(MEMBER_ID, requestDto, "A", "좋아요"))
+                farmAsyncService.saveFarmWithEvaluation(MEMBER_ID, requestDto, "A", "좋은 유형","좋아요"))
                 .isInstanceOf(GeneralException.class)
                 .satisfies(e -> {
                     GeneralException ge = (GeneralException) e;
@@ -123,7 +126,7 @@ class FarmAsyncServiceTest {
 
         // when
         Farm result = farmAsyncService.updateFarmWithEvaluation(
-                MEMBER_ID, requestDto, "A", "매우 좋은 농장이에요!");
+                MEMBER_ID, requestDto, "A",  "좋은 유형", "매우 좋은 농장이에요!");
 
         // then
         assertThat(result.getManpower()).isEqualTo(10);
@@ -132,6 +135,7 @@ class FarmAsyncServiceTest {
         assertThat(result.getFlatArea()).isEqualTo(1500.0);
         assertThat(result.getMainCrop()).isEqualTo("토마토");
         assertThat(result.getGrade()).isEqualTo("A");
+        assertThat(result.getFarmType()).isEqualTo("좋은 유형");
         assertThat(result.getComment()).isEqualTo("매우 좋은 농장이에요!");
 
         verify(farmMapper).updateFarm(existingFarm);
@@ -154,7 +158,7 @@ class FarmAsyncServiceTest {
 
         // when
         Farm result = farmAsyncService.updateFarmWithEvaluation(
-                MEMBER_ID, requestDto, "B", "좋아요");
+                MEMBER_ID, requestDto, "B", "좋은 유형","좋아요");
 
         // then
         assertThat(result.getManpower()).isEqualTo(requestDto.getManpower());
@@ -163,6 +167,7 @@ class FarmAsyncServiceTest {
         assertThat(result.getFlatArea()).isEqualTo(farm.getFlatArea());
         assertThat(result.getMainCrop()).isEqualTo(requestDto.getMainCrop());
         assertThat(result.getGrade()).isEqualTo("B");
+        assertThat(result.getFarmType()).isEqualTo("좋은 유형");
         assertThat(result.getComment()).isEqualTo("좋아요");
 
         verify(farmMapper).updateFarm(farm);
@@ -179,7 +184,7 @@ class FarmAsyncServiceTest {
 
         // when & then
         assertThatThrownBy(() ->
-                farmAsyncService.updateFarmWithEvaluation(MEMBER_ID, requestDto, "A", "좋아요"))
+                farmAsyncService.updateFarmWithEvaluation(MEMBER_ID, requestDto, "A", "좋은 유형", "좋아요"))
                 .isInstanceOf(GeneralException.class)
                 .satisfies(e -> {
                     GeneralException ge = (GeneralException) e;
@@ -193,12 +198,12 @@ class FarmAsyncServiceTest {
     @DisplayName("평가만 수정 성공")
     void 평가만_수정_성공() {
         // given
-        when(farmMapper.updateEvaluation(FARM_ID, "A", "훌륭해요")).thenReturn(1);
+        when(farmMapper.updateEvaluation(FARM_ID, "A", "훌륭한 유형","훌륭해요")).thenReturn(1);
 
         // when
-        farmAsyncService.updateEvaluationOnly(FARM_ID, "A", "훌륭해요");
+        farmAsyncService.updateEvaluationOnly(FARM_ID, "A", "훌륭한 유형","훌륭해요");
 
         // then
-        verify(farmMapper).updateEvaluation(FARM_ID, "A", "훌륭해요");
+        verify(farmMapper).updateEvaluation(FARM_ID, "A", "훌륭한 유형","훌륭해요");
     }
 }
