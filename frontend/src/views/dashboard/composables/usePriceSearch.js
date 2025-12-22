@@ -395,7 +395,7 @@ export function usePriceSearch() {
     priceResult.value = [];
     hasSearched.value = false;
   };
-  /* ================= 최근 조회 ================= */
+  /* ================ 최근 조회 ================= */
 
   const saveRecentItem = ({ productCode, itemCode, itemLabel, varietyLabel, periodType, dateRangeLabel }) => {
     if (!productCode) return;
