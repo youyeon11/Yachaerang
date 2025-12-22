@@ -96,6 +96,9 @@ defineEmits(['select', 'remove', 'edit']);
 const router = useRouter();
 
 const goLogin = () => {
-  router.push({ name: 'login' });
+  router.push({
+    name: 'login',
+    query: { redirect: router.currentRoute.value.fullPath },
+  });
 };
 </script>
