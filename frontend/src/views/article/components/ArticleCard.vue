@@ -21,7 +21,7 @@
             </span>
           </div>
 
-          <h3 class="text-2xl font-bold text-gray-900 leading-tight line-clamp-1 pr-12">
+          <h3 class="text-3xl font-bold text-gray-900 leading-tight line-clamp-1 pr-12">
             {{ article.title }}
           </h3>
 
