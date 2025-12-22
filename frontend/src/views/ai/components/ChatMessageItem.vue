@@ -1,5 +1,5 @@
 <template>
-  <div :class="['flex gap-3 max-w-[80%]', isAssistant ? 'self-start' : 'self-end']">
+  <div :class="['flex gap-3 max-w-[70%]', isAssistant ? 'self-start' : 'self-end']">
     <div v-if="isAssistant" class="flex items-center justify-center w-[35px] h-[35px] rounded-lg text-white font-bold text-sm shrink-0 bg-[#10a37f]">
       <img v-if="aiProfile.avatarUrl" :src="aiProfile.avatarUrl" alt="AI 프로필" class="w-full h-full object-cover rounded-lg" />
       <span v-else>{{ (aiProfile.name || "A")[0] }}</span>
