@@ -1,80 +1,116 @@
 <template>
-  <div class="page-container article-detail-page">
-    <header class="page-header">
-      <div class="page-header-left">
-        <h1 class="page-title">기사</h1>
-        <p class="page-subtitle">한눈에 확인하는, 야채랑 PICK 농촌 기사</p>
+  <div class="min-h-screen bg-gray-50 pb-20">
+    <nav class="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-gray-100">
+      <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+        <button type="button" @click="goToList" class="flex items-center text-gray-600 hover:text-black transition-colors font-bold group">
+          <IconChevronLeft class="w-5 h-5 mr-1 group-hover:-translate-x-1 transition-transform" />
+          목록으로
+        </button>
+        <button type="button" @click="handleToggleBookmark" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+          <IconBookmark :active="article.bookmarked" class="w-6 h-6" />
+        </button>
       </div>
-    </header>
+    </nav>
 
-    <article class="article-content">
-      <h1 class="article-title">{{ article.title }}</h1>
-
-      <div class="article-meta">
-        <div class="meta-left">
-          <span>작성일자 : {{ article.date }}</span>
+    <div class="max-w-4xl mx-auto px-6 mt-8">
+      <article class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div v-if="article.image" class="w-full h-[400px] overflow-hidden">
+          <img :src="article.image" :alt="article.title" class="w-full h-full object-cover" />
         </div>
-        <div class="meta-right" v-if="article.sourceUrl">
-          <span>출처: </span>
-          <a :href="article.sourceUrl" target="_blank" class="source-link">기사 원문 바로가기</a>
+
+        <div class="p-8 md:p-12">
+          <header class="mb-10 text-center">
+            <div class="flex justify-center gap-2 mb-4">
+              <span v-for="tag in article.tags" :key="tag" class="px-3 py-1 bg-[#FECC21]/10 text-gray-800 text-sm font-bold rounded-full">#{{ tag }}</span>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-black text-gray-900 leading-tight mb-6">
+              {{ article.title }}
+            </h1>
+            <div class="flex items-center justify-center text-gray-400 text-sm gap-4 border-y border-gray-50 py-4">
+              <div class="flex items-center">
+                <IconCalendar class="w-4 h-4 mr-1" />
+                {{ formattedDate }}
+              </div>
+              <span class="text-gray-200">|</span>
+              <a v-if="article.sourceUrl" :href="article.sourceUrl" target="_blank" rel="noopener noreferrer" class="flex items-center text-[#e5b800] font-bold hover:underline transition-colors">
+                기사 원문 보기
+                <IconExternalLink class="w-4 h-4 ml-1" />
+              </a>
+            </div>
+          </header>
+
+          <div class="prose prose-yellow max-w-none">
+            <p v-for="(paragraph, index) in article.content" :key="index" class="text-gray-700 leading-[1.8] text-lg mb-6 break-all">
+              {{ paragraph }}
+            </p>
+          </div>
         </div>
-      </div>
 
-      <div class="article-image" v-if="article.image">
-        <img :src="article.image" :alt="article.title" />
-      </div>
-
-      <div class="article-body">
-        <p v-for="(paragraph, index) in article.content" :key="index">
-          {{ paragraph }}
-        </p>
-      </div>
-
-      <div class="article-tags" v-if="article.tags && article.tags.length">
-        <span class="tags-label">태그</span>
-        <div class="tags-list">
-          <span v-for="tag in article.tags" :key="tag" class="tag">#{{ tag }}</span>
-        </div>
-      </div>
-    </article>
-
-    <div class="back-to-list">
-      <button class="back-btn" @click="goToList">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="m15 18-6-6 6-6"></path>
-        </svg>
-        목록으로
-      </button>
+        <footer class="bg-gray-50/50 p-8 md:p-12 border-t border-gray-100">
+          <ArticleReactions
+            :reaction-icons="reactionIcons"
+            :reaction-labels="reactionLabels"
+            :reactions="reactions"
+            :my-reaction="myReaction"
+            :all-reactors="allReactors"
+            @toggle-reaction="handleToggleReaction"
+          />
+        </footer>
+      </article>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { fetchArticleDetail } from '@/api/article';
+import { ref, computed, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { fetchArticleDetail } from "@/api/article";
+import { useArticle } from "@/views/article/composables/useArticles";
+import IconChevronLeft from "@/components/icons/IconChevronLeft.vue";
+import IconBookmark from "@/components/icons/IconBookmark.vue";
+import IconCalendar from "@/components/icons/IconCalendar.vue";
+import IconExternalLink from "@/components/icons/IconExternalLink.vue";
+import ArticleReactions from "@/views/article/components/ArticleReactions.vue";
 
 const router = useRouter();
 const route = useRoute();
 
+const myReaction = ref(null);
 const article = ref({
   id: null,
-  title: '',
-  date: '',
-  sourceUrl: '',
-  image: '',
+  title: "",
+  date: "",
+  sourceUrl: "",
+  image: "",
   content: [],
   tags: [],
+  bookmarked: false,
+});
+
+const reactionIcons = { like: "👍", helpful: "💡", suprise: "😲", sad: "🥺", bummer: "💪" };
+const reactionLabels = { like: "좋아요", helpful: "유익해요", suprise: "놀랐어요", sad: "슬퍼요", bummer: "아쉬워요" };
+
+const reactions = ref({
+  like: { count: 24 },
+  helpful: { count: 12 },
+  suprise: { count: 18 },
+  sad: { count: 2 },
+  bummer: { count: 31 },
+});
+
+const allReactors = ref([
+  { nickname: "김야채", profile: "", type: "like" },
+  { nickname: "도시농부", profile: "", type: "helpful" },
+  { nickname: "해피팜", profile: "", type: "suprise" },
+  { nickname: "귀농꿈나무", profile: "", type: "sad" },
+  { nickname: "프레쉬맨", profile: "", type: "like" },
+]);
+
+const { toggleBookmarkAction, toggleReactionAction } = useArticle();
+
+const formattedDate = computed(() => {
+  if (!article.value?.date) return "";
+  return new Date(article.value.date).toLocaleDateString("ko-KR");
 });
 
 const loadArticleDetail = async () => {
@@ -82,193 +118,52 @@ const loadArticleDetail = async () => {
     const articleId = route.params.id;
     const response = await fetchArticleDetail(articleId);
     const data = response.data?.data;
-
     if (data) {
-      let rawContent = data.content || '';
-      rawContent = rawContent.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
-
-      const paragraphs = rawContent
-        .split('\n')
-        .map((p) => p.trim())
-        .filter((p) => p.length > 0);
-
       article.value = {
         id: data.articleId,
         title: data.title,
         date: data.createdAt,
         sourceUrl: data.url,
         image: data.imageUrl,
-        content: paragraphs,
+        content: (data.content || "")
+          .replace(/\\n/g, "\n")
+          .split("\n")
+          .map((p) => p.trim())
+          .filter((p) => p.length > 0),
         tags: data.tagList || [],
+        bookmarked: false,
       };
     }
   } catch (error) {
-    console.error('농촌 기사 상세 조회 실패:', error);
+    console.error("기사 상세 조회 실패:", error);
   }
 };
 
-onMounted(() => {
-  loadArticleDetail();
-});
-
-const goToList = () => {
-  router.push('/articles');
+const handleToggleBookmark = () => {
+  toggleBookmarkAction(article.value);
 };
+
+const handleToggleReaction = (type) => {
+  toggleReactionAction(type, myReaction, reactions);
+};
+
+const goToList = () => router.push("/articles");
+
+onMounted(loadArticleDetail);
 </script>
 
 <style scoped>
-.article-detail-page {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 16px 0 40px;
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
 }
-
-.header-left {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.article-content {
-  padding-bottom: 40px;
-  border-bottom: 1px solid #eee;
-}
-
-.article-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #333;
-  margin: 0 0 20px 0;
-  line-height: 1.4;
-  text-align: center;
-}
-
-.article-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
-  color: #888;
-  margin-bottom: 32px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #eee;
-}
-
-.meta-left {
-  display: flex;
-  gap: 8px;
-}
-
-.meta-left .divider {
-  color: #ddd;
-}
-
-.source-link {
-  color: #888;
-  text-decoration: none;
-}
-
-.source-link:hover {
-  text-decoration: underline;
-}
-
-.article-image {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 32px;
-}
-
-.article-image img {
-  max-width: 100%;
-  max-height: 400px;
-  object-fit: contain;
-  border-radius: 8px;
-}
-
-.article-body {
-  font-size: 15px;
-  line-height: 1.8;
-  color: #333;
-}
-
-.article-body p {
-  margin: 0 0 24px 0;
-}
-
-.article-body p:last-child {
-  margin-bottom: 0;
-}
-
-.article-tags {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 40px;
-  padding-top: 24px;
-  border-top: 1px solid #eee;
-}
-
-.tags-label {
-  font-size: 14px;
-  color: #666;
-  font-weight: 500;
-}
-
-.tags-list {
-  display: flex;
-  gap: 8px;
-}
-
-.tag {
-  padding: 6px 14px;
-  background-color: #f5f5f5;
-  border-radius: 20px;
-  font-size: 13px;
-  color: #555;
-}
-
-.back-to-list {
-  margin-top: 32px;
-}
-
-.back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
-  background: none;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #666;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.back-btn:hover {
-  background-color: #f5f5f5;
-  border-color: #ccc;
-}
-
-@media (max-width: 640px) {
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
   }
-
-  .search-box {
-    width: 100%;
-  }
-
-  .search-input {
-    width: 100%;
-  }
-
-  .article-meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>
