@@ -562,6 +562,8 @@ export function usePriceSearch() {
         return {
           dateLabel: `${item.startDate} ~ ${item.endDate}`,
           priceLabel: item.avgPrice ?? null,
+          minPrice: item.minPrice ?? null,
+          maxPrice: item.maxPrice ?? null,
           priceChange: item.priceChange ?? null,
           priceChangeRate: item.priceChangeRate ?? null,
         };
@@ -571,6 +573,8 @@ export function usePriceSearch() {
         return {
           dateLabel: `${item.priceYear}-${String(item.priceMonth).padStart(2, '0')}`,
           priceLabel: item.avgPrice ?? null,
+          minPrice: item.minPrice ?? null,
+          maxPrice: item.maxPrice ?? null,
           priceChange: item.priceChange ?? null,
           priceChangeRate: item.priceChangeRate ?? null,
         };
@@ -579,6 +583,8 @@ export function usePriceSearch() {
       return {
         dateLabel: `${item.priceYear}`,
         priceLabel: item.avgPrice ?? null,
+        minPrice: item.minPrice ?? null,
+        maxPrice: item.maxPrice ?? null,
         priceChange: item.priceChange ?? null,
         priceChangeRate: item.priceChangeRate ?? null,
       };
@@ -597,6 +603,7 @@ export function usePriceSearch() {
     }
 
     lastYearPrices.value = [];
+    let currentRange;
 
     try {
       if (periodType.value === 'day') {
