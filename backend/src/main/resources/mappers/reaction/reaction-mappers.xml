@@ -37,7 +37,7 @@
     <!-- save -->
     <insert id="save" parameterType="com.yachaerang.backend.api.reaction.entity.Reaction"
             useGeneratedKeys="true" keyProperty="reactionId">
-        INSERT INTO reaction (member_id, article_id, reaction_type, created_at, updated_at)
+        INSERT INTO reactions (member_id, article_id, reaction_type, created_at, updated_at)
         VALUES (#{memberId}, #{articleId},
                 #{reactionType},
                 NOW(), NOW())
@@ -46,7 +46,7 @@
     <!-- findByMemberIdAndArticleIdAndReactionType -->
     <select id="findByMemberIdAndArticleIdAndReactionType" resultMap="reactionResultMap">
         SELECT reaction_id, member_id, article_id, reaction_type, created_at, updated_at
-        FROM reaction
+        FROM reactions
         WHERE member_id = #{memberId}
           AND article_id = #{articleId}
           AND reaction_type = #{reactionType}
@@ -54,7 +54,7 @@
 
     <!-- delete -->
     <delete id="delete">
-        DELETE FROM reaction
+        DELETE FROM reactions
         WHERE member_id = #{memberId}
           AND article_id = #{articleId}
           AND reaction_type = #{reactionType}
@@ -63,8 +63,8 @@
     <!-- findMembersByArticleIdAndReactionType -->
     <select id="findMembersByArticleIdAndReactionType" resultMap="memberReactionResultMap">
         SELECT r.reaction_id, r.member_id, r.article_id, r.reaction_type,
-               m.nickname, m.email
-        FROM reaction r
+               m.nickname, m.image_url
+        FROM reactions r
                  INNER JOIN member m ON r.member_id = m.member_id
         WHERE r.article_id = #{articleId}
           AND r.reaction_type = #{reactionType}
@@ -74,7 +74,7 @@
     <!-- countByArticleId -->
     <select id="countByArticleId" resultMap="reactionCountResultMap">
         SELECT reaction_type, COUNT(*) as count
-        FROM reaction
+        FROM reactions
         WHERE article_id = #{articleId}
         GROUP BY reaction_type
     </select>
