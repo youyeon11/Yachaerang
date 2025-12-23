@@ -89,12 +89,12 @@ const isProfileActive = computed(() => route.path === "/mypage");
 
 // 메인으로 이동
 const goToMain = () => {
-  router.push("/");
+  window.location.href = "/";
 };
 
 // 마이페이지로 이동
 const goToMyPage = () => {
-  router.push("/mypage");
+  window.location.href = "/mypage";
 };
 
 // 로그인 페이지로 이동
@@ -105,6 +105,15 @@ const goToLogin = () => {
 // 로그아웃 처리
 const handleLogout = async () => {
   await authStore.logout();
+  const currentPath = route.path;
+
+  const keepPages = ["/dashboard", "/rank", "/articles"];
+
+  if (keepPages.includes(currentPath)) {
+    window.location.href = currentPath;
+  } else {
+    window.location.href = "/login";
+  }
 };
 
 // 이미지 에러 핸들러
