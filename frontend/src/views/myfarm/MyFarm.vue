@@ -30,7 +30,7 @@
 
       <!-- 로딩 중 -->
       <div v-if="loading" class="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner :isLoading="loading" />
+        <LoadingSpinner />
       </div>
 
       <!-- 메인 컨텐츠 -->
@@ -122,7 +122,7 @@ const handleSubmit = async (payload) => {
     console.log('🔄 농장 정보 재조회 시작...');
     const response = await getMyFarm();
     console.log('📦 조회 응답 원본:', response);
-    
+
     const farmData = unwrapFarmData(response);
     console.log('🎯 unwrap 후 데이터:', farmData);
     console.log('✅ hasFarm 체크:', hasFarm(farmData));
@@ -156,7 +156,6 @@ const handleCancel = () => {
   isEdit.value = false;
   mode.value = farm.value ? 'summary' : 'empty';
 };
-
 </script>
 
 <style scoped>
