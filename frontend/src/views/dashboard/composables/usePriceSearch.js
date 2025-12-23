@@ -629,10 +629,28 @@ export function usePriceSearch() {
               endDate: lastYearRange.endDate,
             });
             const normalizedLast = normalizeResult(extractPriceList(lastData), 'day');
-            lastYearPrices.value = priceResult.value.map((_, idx) => normalizedLast[idx]?.priceLabel ?? null);
+
+            const lastYearMap = new Map();
+            normalizedLast.forEach((item) => {
+              if (item.dateLabel) {
+                const dateParts = item.dateLabel.split('-');
+                if (dateParts.length === 3) {
+                  const nextYear = String(parseInt(dateParts[0]) + 1);
+                  const matchedKey = `${nextYear}-${dateParts[1]}-${dateParts[2]}`;
+                  lastYearMap.set(matchedKey, item.priceLabel);
+                }
+              }
+            });
+
+            lastYearPrices.value = priceResult.value.map((item) => {
+              const matched = lastYearMap.get(item.dateLabel);
+              return matched !== undefined ? matched : null;
+            });
           } catch (e) {
             lastYearPrices.value = priceResult.value.map(() => null);
           }
+        } else {
+          lastYearPrices.value = priceResult.value.map(() => null);
         }
 
         currentRange = { start: startStr, end: endStr };
