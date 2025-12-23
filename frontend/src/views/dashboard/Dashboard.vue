@@ -51,19 +51,21 @@
             v-if="!hasSearched"
             class="bg-white p-20 rounded-xl border border-gray-200 text-center text-gray-400 shadow-sm"
           >
-            <p class="animate-pulse text-lg">데이터를 조회 중입니다...</p>
+            <p class="text-lg">조회하기 버튼을 클릭하여 데이터를 조회하세요.</p>
           </div>
 
-          <EmptyResult v-else-if="hasSearched && (!priceResult || priceResult.length === 0)" />
-
-          <template v-else>
-            <ResultGraph :chartData="formattedChartData" :periodType="periodType" :priceResult="priceResult" />
-            <ResultTable
-              :paginatedData="paginatedData"
-              :totalPages="totalPages"
-              :currentPage="currentPage"
-              @updatePage="(p) => (currentPage = p)"
-            />
+          <template v-else-if="hasSearched">
+            <EmptyResult v-if="!priceResult || priceResult.length === 0" />
+            <template v-else>
+              <ResultGraph :chartData="formattedChartData" :periodType="periodType" :priceResult="priceResult" />
+              <ResultTable
+                :paginatedData="paginatedData"
+                :totalPages="totalPages"
+                :currentPage="currentPage"
+                :periodType="periodType"
+                @updatePage="(p) => (currentPage = p)"
+              />
+            </template>
           </template>
         </div>
       </div>
@@ -186,19 +188,43 @@ const paginatedData = computed(() => {
     const thisPrice = item.priceLabel ?? null;
     const lastPrice = normalizedLastYearPrices.value[globalIndex] ?? null;
 
-    // null 값 처리: null이면 계산하지 않음
-    const yoyDiff = thisPrice !== null && lastPrice !== null && lastPrice > 0 ? thisPrice - lastPrice : null;
-    const yoyRate = thisPrice !== null && lastPrice !== null && lastPrice > 0 ? (yoyDiff / lastPrice) * 100 : null;
+    const hasAggregateFields = item.hasOwnProperty('minPrice') || item.hasOwnProperty('maxPrice');
 
-    return {
-      date: item.dateLabel,
-      thisPrice,
-      prevDiff: item.priceChange ?? null,
-      prevRate: item.priceChangeRate ?? null,
-      lastPrice,
-      yoyDiff,
-      yoyRate,
-    };
+    if (hasAggregateFields && (periodType.value === 'week' || periodType.value === 'month')) {
+      return {
+        date: item.dateLabel,
+        thisPrice,
+        minPrice: item.minPrice ?? null,
+        maxPrice: item.maxPrice ?? null,
+        prevDiff: item.priceChange ?? null,
+        prevRate: item.priceChangeRate ?? null,
+        lastPrice,
+      };
+    } else {
+      // Daily/Yearly format
+      const yoyDiff = thisPrice !== null && lastPrice !== null && lastPrice > 0 ? thisPrice - lastPrice : null;
+      const yoyRate = thisPrice !== null && lastPrice !== null && lastPrice > 0 ? (yoyDiff / lastPrice) * 100 : null;
+
+      const validPrices = priceResult.value
+        .map((r) => r.priceLabel)
+        .filter((p) => p !== null && p !== undefined && typeof p === 'number');
+      const maxVal = validPrices.length ? Math.max(...validPrices) : null;
+      const minVal = validPrices.length ? Math.min(...validPrices) : null;
+      const isMax = thisPrice === maxVal;
+      const isMin = thisPrice === minVal;
+
+      return {
+        date: item.dateLabel,
+        thisPrice,
+        prevDiff: item.priceChange ?? null,
+        prevRate: item.priceChangeRate ?? null,
+        lastPrice,
+        yoyDiff,
+        yoyRate,
+        isMax,
+        isMin,
+      };
+    }
   });
 });
 
@@ -255,13 +281,12 @@ onMounted(async () => {
     yearStart.value = state.yearStart ?? '';
     yearEnd.value = state.yearEnd ?? '';
 
-    if (state.selectedItem && state.selectedVariety) {
+    if (state.selectedItem && state.selectedVariety && state.hasSearched) {
       await handleSearch();
     }
 
     currentPage.value = state.currentPage || 1;
   } else {
-    // 최초 접속 시 기본값 (계란)
     selectedItem.value = '9903';
     selectedVariety.value = 'KM-9903-23-71';
     periodType.value = 'day';
@@ -269,8 +294,6 @@ onMounted(async () => {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     dayEndDate.value = yesterday.toISOString().slice(0, 10);
-
-    await handleSearch();
   }
 });
 
