@@ -1,6 +1,6 @@
-import { ref } from 'vue';
-import { tokenStorage } from '@/utils/storage';
-import { useToastStore } from '@/stores/toast';
+import { ref } from "vue";
+import { tokenStorage } from "@/utils/storage";
+import { useToastStore } from "@/stores/toast";
 
 export function useArticle() {
   const isProcessing = ref(false);
@@ -8,11 +8,10 @@ export function useArticle() {
 
   const checkAuth = () => {
     const accessToken = tokenStorage.getAccessToken();
-    const hasValidToken =
-      accessToken && accessToken.trim() !== '' && accessToken !== 'null' && accessToken !== 'undefined';
+    const hasValidToken = accessToken && accessToken.trim() !== "" && accessToken !== "null" && accessToken !== "undefined";
 
     if (!hasValidToken) {
-      toastStore.show('로그인이 필요한 서비스입니다. 로그인 후 이용해 주세요', 'info');
+      toastStore.show("로그인이 필요한 서비스입니다. 로그인 후 이용해 주세요", "info");
       return false;
     }
 
@@ -28,7 +27,7 @@ export function useArticle() {
       // await api.postBookmark(article.id);
       article.bookmarked = !article.bookmarked;
     } catch (error) {
-      console.error('북마크 처리 중 오류 발생:', error);
+      console.error("북마크 처리 중 오류 발생:", error);
     } finally {
       isProcessing.value = false;
     }
