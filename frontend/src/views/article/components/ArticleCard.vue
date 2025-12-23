@@ -5,11 +5,7 @@
   >
     <div class="flex flex-col md:flex-row items-stretch">
       <div class="relative overflow-hidden md:w-72 h-52 md:h-auto">
-        <img
-          :src="article.thumbnail"
-          :alt="article.title"
-          class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+        <img :src="article.thumbnail" :alt="article.title" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
         <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
       </div>
 
@@ -25,7 +21,7 @@
             </span>
           </div>
 
-          <h3 class="text-3xl font-bold text-gray-900 leading-tight line-clamp-1 pr-12">
+          <h3 class="text-2xl font-bold text-gray-900 leading-tight line-clamp-1 pr-12">
             {{ article.title }}
           </h3>
 
@@ -36,9 +32,7 @@
 
         <div class="mt-8 flex items-center text-gray-900 font-bold text-sm tracking-tight">
           <span class="mr-2">자세히 보기</span>
-          <div
-            class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-50 group-hover:bg-[#FECC21] transition-colors"
-          >
+          <div class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-50 group-hover:bg-[#FECC21] transition-colors">
             <IconArrowRight class="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </div>
         </div>
@@ -48,11 +42,7 @@
           @click.stop="emit('toggle-bookmark', article)"
           class="absolute top-8 right-8 p-3 rounded-2xl bg-white border border-gray-50 shadow-sm transition-all hover:scale-110 active:scale-95 z-10"
         >
-          <IconBookmark
-            :active="article.bookmarked"
-            :class="[article.bookmarked ? 'text-[#F44323]' : 'text-gray-300 group-hover:text-gray-500']"
-            class="w-5 h-5 transition-colors"
-          />
+          <IconBookmark :active="article.bookmarked" :class="[article.bookmarked ? 'text-[#F44323]' : 'text-gray-300 group-hover:text-gray-500']" class="w-5 h-5 transition-colors" />
         </button>
       </div>
     </div>
@@ -60,9 +50,9 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import IconArrowRight from '@/components/icons/IconArrowRight.vue';
-import IconBookmark from '@/components/icons/IconBookmark.vue';
+import { computed } from "vue";
+import IconArrowRight from "@/components/icons/IconArrowRight.vue";
+import IconBookmark from "@/components/icons/IconBookmark.vue";
 
 const props = defineProps({
   article: {
@@ -71,14 +61,14 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['open', 'toggle-bookmark']);
+const emit = defineEmits(["open", "toggle-bookmark"]);
 
 const formattedDate = computed(() => {
-  if (!props.article?.date) return '';
-  return new Date(props.article.date).toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+  if (!props.article?.date) return "";
+  return new Date(props.article.date).toLocaleDateString("ko-KR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 });
 </script>

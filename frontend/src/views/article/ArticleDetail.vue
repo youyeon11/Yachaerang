@@ -2,19 +2,11 @@
   <div class="min-h-screen bg-gray-50 pb-20">
     <nav class="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-gray-100">
       <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-        <button
-          type="button"
-          @click="goToList"
-          class="flex items-center text-gray-600 hover:text-black transition-colors font-bold group"
-        >
+        <button type="button" @click="goToList" class="flex items-center text-gray-600 hover:text-black transition-colors font-bold group">
           <IconChevronLeft class="w-5 h-5 mr-1 group-hover:-translate-x-1 transition-transform" />
           목록으로
         </button>
-        <button
-          type="button"
-          @click="handleToggleBookmark"
-          class="p-2 hover:bg-gray-100 rounded-full transition-colors"
-        >
+        <button type="button" @click="handleToggleBookmark" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
           <IconBookmark :active="article.bookmarked" class="w-6 h-6" />
         </button>
       </div>
@@ -29,13 +21,7 @@
         <div class="p-8 md:p-12">
           <header class="mb-10 text-center">
             <div class="flex justify-center gap-2 mb-4">
-              <span
-                v-for="tag in article.tags"
-                :key="tag"
-                class="px-3 py-1 bg-[#FECC21]/10 text-gray-800 text-sm font-bold rounded-full"
-              >
-                #{{ tag }}
-              </span>
+              <span v-for="tag in article.tags" :key="tag" class="px-3 py-1 bg-[#FECC21]/10 text-gray-800 text-sm font-bold rounded-full">#{{ tag }}</span>
             </div>
             <h1 class="text-3xl md:text-4xl font-black text-gray-900 leading-tight mb-6">
               {{ article.title }}
@@ -46,13 +32,7 @@
                 {{ formattedDate }}
               </div>
               <span class="text-gray-200">|</span>
-              <a
-                v-if="article.sourceUrl"
-                :href="article.sourceUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="flex items-center text-[#e5b800] font-bold hover:underline transition-colors"
-              >
+              <a v-if="article.sourceUrl" :href="article.sourceUrl" target="_blank" rel="noopener noreferrer" class="flex items-center text-[#e5b800] font-bold hover:underline transition-colors">
                 기사 원문 보기
                 <IconExternalLink class="w-4 h-4 ml-1" />
               </a>
@@ -60,11 +40,7 @@
           </header>
 
           <div class="prose prose-yellow max-w-none">
-            <p
-              v-for="(paragraph, index) in article.content"
-              :key="index"
-              class="text-gray-700 leading-[1.8] text-lg mb-6 break-all"
-            >
+            <p v-for="(paragraph, index) in article.content" :key="index" class="text-gray-700 leading-[1.8] text-lg mb-6 break-all">
               {{ paragraph }}
             </p>
           </div>
@@ -86,15 +62,15 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { fetchArticleDetail } from '@/api/article';
-import { useArticle } from '@/views/article/composables/useArticles';
-import IconChevronLeft from '@/components/icons/IconChevronLeft.vue';
-import IconBookmark from '@/components/icons/IconBookmark.vue';
-import IconCalendar from '@/components/icons/IconCalendar.vue';
-import IconExternalLink from '@/components/icons/IconExternalLink.vue';
-import ArticleReactions from '@/views/article/components/ArticleReactions.vue';
+import { ref, computed, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { fetchArticleDetail } from "@/api/article";
+import { useArticle } from "@/views/article/composables/useArticles";
+import IconChevronLeft from "@/components/icons/IconChevronLeft.vue";
+import IconBookmark from "@/components/icons/IconBookmark.vue";
+import IconCalendar from "@/components/icons/IconCalendar.vue";
+import IconExternalLink from "@/components/icons/IconExternalLink.vue";
+import ArticleReactions from "@/views/article/components/ArticleReactions.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -102,39 +78,39 @@ const route = useRoute();
 const myReaction = ref(null);
 const article = ref({
   id: null,
-  title: '',
-  date: '',
-  sourceUrl: '',
-  image: '',
+  title: "",
+  date: "",
+  sourceUrl: "",
+  image: "",
   content: [],
   tags: [],
   bookmarked: false,
 });
 
-const reactionIcons = { like: '👍', cool: '😎', happy: '😄', sad: '😢', cheer: '🙌' };
-const reactionLabels = { like: '좋아요', cool: '멋져요', happy: '기뻐요', sad: '슬퍼요', cheer: '힘내요' };
+const reactionIcons = { like: "👍", helpful: "💡", suprise: "😲", sad: "🥺", bummer: "💪" };
+const reactionLabels = { like: "좋아요", helpful: "유익해요", suprise: "놀랐어요", sad: "슬퍼요", bummer: "아쉬워요" };
 
 const reactions = ref({
   like: { count: 24 },
-  cool: { count: 12 },
-  happy: { count: 18 },
+  helpful: { count: 12 },
+  suprise: { count: 18 },
   sad: { count: 2 },
-  cheer: { count: 31 },
+  bummer: { count: 31 },
 });
 
 const allReactors = ref([
-  { nickname: '김야채', profile: '', type: 'like' },
-  { nickname: '도시농부', profile: '', type: 'cheer' },
-  { nickname: '해피팜', profile: '', type: 'happy' },
-  { nickname: '귀농꿈나무', profile: '', type: 'cool' },
-  { nickname: '프레쉬맨', profile: '', type: 'like' },
+  { nickname: "김야채", profile: "", type: "like" },
+  { nickname: "도시농부", profile: "", type: "helpful" },
+  { nickname: "해피팜", profile: "", type: "suprise" },
+  { nickname: "귀농꿈나무", profile: "", type: "sad" },
+  { nickname: "프레쉬맨", profile: "", type: "like" },
 ]);
 
 const { toggleBookmarkAction, toggleReactionAction } = useArticle();
 
 const formattedDate = computed(() => {
-  if (!article.value?.date) return '';
-  return new Date(article.value.date).toLocaleDateString('ko-KR');
+  if (!article.value?.date) return "";
+  return new Date(article.value.date).toLocaleDateString("ko-KR");
 });
 
 const loadArticleDetail = async () => {
@@ -149,9 +125,9 @@ const loadArticleDetail = async () => {
         date: data.createdAt,
         sourceUrl: data.url,
         image: data.imageUrl,
-        content: (data.content || '')
-          .replace(/\\n/g, '\n')
-          .split('\n')
+        content: (data.content || "")
+          .replace(/\\n/g, "\n")
+          .split("\n")
           .map((p) => p.trim())
           .filter((p) => p.length > 0),
         tags: data.tagList || [],
@@ -159,7 +135,7 @@ const loadArticleDetail = async () => {
       };
     }
   } catch (error) {
-    console.error('기사 상세 조회 실패:', error);
+    console.error("기사 상세 조회 실패:", error);
   }
 };
 
@@ -171,7 +147,7 @@ const handleToggleReaction = (type) => {
   toggleReactionAction(type, myReaction, reactions);
 };
 
-const goToList = () => router.push('/articles');
+const goToList = () => router.push("/articles");
 
 onMounted(loadArticleDetail);
 </script>
@@ -189,10 +165,5 @@ onMounted(loadArticleDetail);
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* 툴팁 애니메이션 */
-.group:hover .group-hover\:opacity-100 {
-  transform: translate(-50%, -5px);
 }
 </style>
