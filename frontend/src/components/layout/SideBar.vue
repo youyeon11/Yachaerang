@@ -31,22 +31,39 @@
 
     <!-- User Profile -->
     <div class="border-t border-gray-200 p-4">
+      <!-- 로그인 상태일 때 -->
+      <template v-if="isLoggedIn">
+        <div
+          @click="goToMyPage"
+          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors cursor-pointer mb-2"
+          :class="isProfileActive 
+            ? 'bg-[#F44323] text-white' 
+            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'"
+        >
+          <img
+            v-if="props.userAvatar"
+            :src="props.userAvatar"
+            class="h-5 w-5 rounded-full object-cover"
+            alt="Profile"
+            @error="handleAvatarError"
+          />
+          <IconUser v-else class="h-5 w-5" />
+          My Page
+        </div>
+        <div
+          @click="handleLogout"
+          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors cursor-pointer text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+        >
+          로그아웃
+        </div>
+      </template>
+      <!-- 로그인 상태가 아닐 때 -->
       <div
-        @click="handleUserClick"
-        class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors cursor-pointer"
-        :class="isProfileActive 
-          ? 'bg-[#F44323] text-white' 
-          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'"
+        v-else
+        @click="goToLogin"
+        class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors cursor-pointer text-gray-600 hover:bg-gray-100 hover:text-gray-900"
       >
-        <img
-          v-if="props.userAvatar"
-          :src="props.userAvatar"
-          class="h-5 w-5 rounded-full object-cover"
-          alt="Profile"
-          @error="handleAvatarError"
-        />
-        <IconUser v-else class="h-5 w-5" />
-        My Page
+        로그인
       </div>
     </div>
   </div>
@@ -56,6 +73,7 @@
 import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { tokenStorage } from '@/utils/storage'
 
 import BrandLogo from '../brand/BrandLogo.vue'
 import logoUrl from '../../assets/logo.svg'
@@ -69,7 +87,7 @@ import IconUser from '../icons/IconUser.vue'
 
 const router = useRouter()
 const route = useRoute()
-const { isLoggedIn } = useAuthStore()
+const authStore = useAuthStore()
 
 const props = defineProps({
   userAvatar: { type: String, default: '' },
@@ -83,6 +101,11 @@ const navigation = [
   { name: '챗봇 야치', href: '/ai-chat', icon: IconMessage },
 ]
 
+// 로그인 상태 확인
+const isLoggedIn = computed(() => {
+  return tokenStorage.hasTokens()
+})
+
 // 프로필 활성화 상태 확인
 const isProfileActive = computed(() => route.path === '/mypage')
 
@@ -91,22 +114,19 @@ const goToMain = () => {
   router.push('/')
 }
 
-// 유저 클릭 핸들러 (로그인 상태에 따라 분기)
-const handleUserClick = () => {
-  const accessToken = localStorage.getItem('accessToken')
+// 마이페이지로 이동
+const goToMyPage = () => {
+  router.push('/mypage')
+}
 
-  const hasValidToken =
-    accessToken &&
-    accessToken !== null &&
-    accessToken.trim() !== '' &&
-    accessToken.trim() !== 'null' &&
-    accessToken.trim() !== 'undefined'
+// 로그인 페이지로 이동
+const goToLogin = () => {
+  router.push('/login')
+}
 
-  if (hasValidToken) {
-    router.push('/mypage')
-  } else {
-    router.push('/login')
-  }
+// 로그아웃 처리
+const handleLogout = async () => {
+  await authStore.logout()
 }
 
 // 이미지 에러 핸들러
