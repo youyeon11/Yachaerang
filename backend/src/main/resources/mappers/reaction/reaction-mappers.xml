@@ -21,7 +21,7 @@
         <result property="reactionType" column="reaction_type"
                 typeHandler="com.yachaerang.backend.global.util.ReactionTypeHandler"/>
         <association property="member" javaType="com.yachaerang.backend.api.member.entity.Member">
-            <id property="memberId" column="member_id"/>
+            <id property="id" column="member_id"/>
             <result property="nickname" column="nickname"/>
             <result property="imageUrl" column="image_url"/>
         </association>
