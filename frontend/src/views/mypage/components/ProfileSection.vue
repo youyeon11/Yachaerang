@@ -183,7 +183,6 @@ const handleFileChange = async (event) => {
       const serverData = data.data;
       form.imageUrl = serverData.imageUrl || '';
       
-      // localStorage의 user 정보 업데이트
       const currentUser = tokenStorage.getUser();
       if (currentUser) {
         const updatedUser = {
@@ -208,21 +207,19 @@ const handleFileChange = async (event) => {
   }
 };
 
-// 수정 모드 시작
+// 수정 모드
 const startEdit = () => {
-  // 현재 값을 백업 (수정 중 취소할 경우를 대비)
   originalForm.name = form.name;
   originalForm.nickname = form.nickname;
   isEditing.value = true;
 };
 
 // 수정 취소
-// 취소 버튼 클릭 → 모달 표시
 const cancelEdit = () => {
   showCancelModal.value = true;
 };
 
-// 모달에서 "확인" → 실제 취소 실행
+// 실제 취소 실행
 const confirmCancel = () => {
   form.name = originalForm.name;
   form.nickname = originalForm.nickname;
@@ -230,7 +227,7 @@ const confirmCancel = () => {
   showCancelModal.value = false;
 };
 
-// 모달에서 "취소" → 모달만 닫기
+// 모달만 닫기
 const closeCancelModal = () => {
   showCancelModal.value = false;
 };
@@ -245,15 +242,12 @@ const handleSubmit = async () => {
 
     const response = await updateProfile(payload);
 
-    // 성공 여부 체크 (API 응답 구조에 따라 수정 필요)
     if (response) {
-      // 서버에서 최신 정보를 다시 가져와서 localStorage에 저장
       try {
         const { data } = await getMyProfile();
         if (data && data.success) {
           const serverData = data.data;
           
-          // localStorage의 user 정보 업데이트
           const currentUser = tokenStorage.getUser();
           if (currentUser) {
             const updatedUser = {
@@ -274,7 +268,6 @@ const handleSubmit = async () => {
             });
           }
           
-          // 폼 데이터도 업데이트
           form.name = serverData.name;
           form.nickname = serverData.nickname;
           form.imageUrl = serverData.imageUrl;
