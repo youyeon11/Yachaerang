@@ -94,14 +94,12 @@ const goToDetail = (item) => {
   });
 };
 
-// articleId로 삭제
+
 const handleRemove = async (articleId) => {
   if (!confirm('북마크에서 삭제하시겠습니까?')) return;
 
   try {
     await removeBookmark(articleId);
-    
-    // 로컬에서 즉시 제거 (API 재호출 없이)
     bookmarks.value = bookmarks.value.filter(item => item.articleId !== articleId);
     
     toastStore.show('북마크에서 삭제되었습니다.', 'success');

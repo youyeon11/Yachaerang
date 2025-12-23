@@ -95,7 +95,7 @@ const handleToggleBookmark = async () => {
   isLoading.value = true;
   const wasBookmarked = isBookmarked.value;
   
-  // 낙관적 업데이트
+
   isBookmarked.value = !wasBookmarked;
   
   try {
@@ -106,14 +106,12 @@ const handleToggleBookmark = async () => {
       await saveBookmark(props.article.id);
       toastStore.show('북마크에 저장되었습니다.', 'success');
     }
-    
-    // 부모에게 상태 변경 알림
+    // 상태 변경
     emit('bookmark-updated', { 
       articleId: props.article.id, 
       bookmarked: isBookmarked.value 
     });
   } catch (error) {
-    // 실패시 롤백
     isBookmarked.value = wasBookmarked;
     console.error('북마크 처리 실패:', error);
     toastStore.show('북마크 처리 중 오류가 발생했습니다.', 'error');
