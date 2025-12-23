@@ -1,5 +1,5 @@
 <template>
-  <main class="min-h-screen bg-gray-50 pb-10">
+  <main class="min-h-screen bg-gray-50 pb-10 text-base">
     <div class="max-w-9xl mx-auto px-4 sm:px-6 pt-4 md:pt-6 w-full">
       <div class="flex justify-between items-center gap-4">
         <div class="min-w-0 flex-1">
@@ -51,13 +51,13 @@
             v-if="!hasSearched"
             class="bg-white p-20 rounded-xl border border-gray-200 text-center text-gray-400 shadow-sm"
           >
-            <p class="animate-pulse">데이터를 조회 중입니다...</p>
+            <p class="animate-pulse text-lg">데이터를 조회 중입니다...</p>
           </div>
 
           <EmptyResult v-else-if="hasSearched && (!priceResult || priceResult.length === 0)" />
 
           <template v-else>
-            <ResultGraph :chartData="formattedChartData" />
+            <ResultGraph :chartData="formattedChartData" :periodType="periodType" :priceResult="priceResult" />
             <ResultTable
               :paginatedData="paginatedData"
               :totalPages="totalPages"
@@ -79,7 +79,7 @@ import DashboardFilter from '@/views/dashboard/components/DashboardFilter.vue';
 import DashboardSummary from '@/views/dashboard/components/DashboardSummary.vue';
 import ResultGraph from '@/views/dashboard/components/ResultGraph.vue';
 import ResultTable from '@/views/dashboard/components/ResultTable.vue';
-import FavoriteButton from '@/views/dashboard/components/FavoriteButton.vue';
+
 import PageHeader from '@/components/layout/PageHeader.vue';
 import EmptyResult from '@/views/dashboard/components/EmptyResult.vue';
 import RecentViewedItems from '@/views/dashboard/components/RecentViewedItems.vue';
@@ -150,10 +150,22 @@ const normalizedLastYearPrices = computed(() => {
 });
 
 const formattedChartData = computed(() => {
+  // day 모드: 기존 방식 유지
+  if (periodType.value === 'day') {
+    return {
+      labels: priceResult.value.map((item) => item.dateLabel),
+      thisPrices: priceResult.value.map((item) => item.priceLabel),
+      lastPrices: normalizedLastYearPrices.value,
+    };
+  }
+
+  // week/month/year 모드: 집계 데이터 포함
   return {
     labels: priceResult.value.map((item) => item.dateLabel),
     thisPrices: priceResult.value.map((item) => item.priceLabel),
     lastPrices: normalizedLastYearPrices.value,
+    minPrices: priceResult.value.map((item) => item.minPrice ?? null),
+    maxPrices: priceResult.value.map((item) => item.maxPrice ?? null),
   };
 });
 
@@ -171,18 +183,18 @@ const paginatedData = computed(() => {
 
   return priceResult.value.slice(start, end).map((item, index) => {
     const globalIndex = start + index;
-    const thisPrice = item.priceLabel || 0;
+    const thisPrice = item.priceLabel ?? null;
+    const lastPrice = normalizedLastYearPrices.value[globalIndex] ?? null;
 
-    const lastPrice = normalizedLastYearPrices.value[globalIndex] || 0;
-
-    const yoyDiff = lastPrice > 0 ? thisPrice - lastPrice : 0;
-    const yoyRate = lastPrice > 0 ? (yoyDiff / lastPrice) * 100 : 0;
+    // null 값 처리: null이면 계산하지 않음
+    const yoyDiff = thisPrice !== null && lastPrice !== null && lastPrice > 0 ? thisPrice - lastPrice : null;
+    const yoyRate = thisPrice !== null && lastPrice !== null && lastPrice > 0 ? (yoyDiff / lastPrice) * 100 : null;
 
     return {
       date: item.dateLabel,
       thisPrice,
-      prevDiff: item.priceChange ?? 0,
-      prevRate: item.priceChangeRate ?? 0,
+      prevDiff: item.priceChange ?? null,
+      prevRate: item.priceChangeRate ?? null,
       lastPrice,
       yoyDiff,
       yoyRate,
