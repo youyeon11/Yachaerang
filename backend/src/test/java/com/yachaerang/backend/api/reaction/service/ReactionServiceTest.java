@@ -23,7 +23,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -203,12 +202,12 @@ class ReactionServiceTest {
         Member member1 = new Member();
         member1.setId(1L);
         member1.setNickname("사용자1");
-        member1.setEmail("user1@example.com");
+        member1.setImageUrl("image1.png");
 
         Member member2 = new Member();
         member2.setId(2L);
         member2.setNickname("사용자2");
-        member2.setEmail("user2@example.com");
+        member2.setImageUrl("image2.png");
 
         MemberReaction memberReaction1 = new MemberReaction();
         memberReaction1.setReactionId(1L);
@@ -235,9 +234,9 @@ class ReactionServiceTest {
         // then
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getNickname()).isEqualTo("사용자1");
-        assertThat(result.get(0).getImageUrl()).isEqualTo("user1@example.com");
+        assertThat(result.get(0).getImageUrl()).isEqualTo("image1.png");
         assertThat(result.get(1).getNickname()).isEqualTo("사용자2");
-        assertThat(result.get(1).getImageUrl()).isEqualTo("user2@example.com");
+        assertThat(result.get(1).getImageUrl()).isEqualTo("image2.png");
 
         verify(reactionMapper).findMembersByArticleIdAndReactionType(
                 testArticleId, ReactionType.HELPFUL);
@@ -301,13 +300,19 @@ class ReactionServiceTest {
                 reactionService.getReactionStatistics(testArticleId);
 
         // then
-        assertThat(result).hasSize(3);
-        assertThat(result.get(0).getReactionType()).isEqualTo(ReactionType.HELPFUL);
-        assertThat(result.get(0).getCount()).isEqualTo(5L);
-        assertThat(result.get(1).getReactionType()).isEqualTo(ReactionType.GOOD);
-        assertThat(result.get(1).getCount()).isEqualTo(3L);
-        assertThat(result.get(2).getReactionType()).isEqualTo(ReactionType.SURPRISED);
-        assertThat(result.get(2).getCount()).isEqualTo(2L);
+        assertThat(result).hasSize(ReactionType.values().length);
+
+        assertThat(result).extracting(
+                        ReactionResponseDto.CountDto::getReactionType,
+                        ReactionResponseDto.CountDto::getCount
+                )
+                .containsExactlyInAnyOrder(
+                        tuple(ReactionType.HELPFUL, 5L),
+                        tuple(ReactionType.GOOD, 3L),
+                        tuple(ReactionType.SAD, 0L),
+                        tuple(ReactionType.BUMMER, 0L),
+                        tuple(ReactionType.SURPRISED, 2L)
+                );
 
         verify(reactionMapper).countByArticleId(testArticleId);
     }
@@ -324,7 +329,15 @@ class ReactionServiceTest {
                 reactionService.getReactionStatistics(testArticleId);
 
         // then
-        assertThat(result).isEmpty();
+        assertThat(result).hasSize(ReactionType.values().length);
+
+        assertThat(result)
+                .allSatisfy(dto -> assertThat(dto.getCount()).isZero());
+
+        assertThat(result)
+                .extracting(ReactionResponseDto.CountDto::getReactionType)
+                .containsExactlyInAnyOrder(ReactionType.values());
+
         verify(reactionMapper).countByArticleId(testArticleId);
     }
 

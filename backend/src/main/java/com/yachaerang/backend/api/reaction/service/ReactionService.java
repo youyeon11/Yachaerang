@@ -12,7 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -83,7 +86,7 @@ public class ReactionService {
         return memberReactionList.stream()
                 .map(memberReaction -> ReactionResponseDto.MemberDto.builder()
                         .nickname(memberReaction.getMember().getNickname())
-                        .imageUrl(memberReaction.getMember().getEmail())
+                        .imageUrl(memberReaction.getMember().getImageUrl())
                         .build())
                 .toList();
     }
@@ -93,10 +96,18 @@ public class ReactionService {
      */
     @Transactional(readOnly = true)
     public List<ReactionResponseDto.CountDto> getReactionStatistics(Long articleId) {
-        return reactionMapper.countByArticleId(articleId).stream()
-                .map(reactionCount -> ReactionResponseDto.CountDto.builder()
-                        .reactionType(reactionCount.getReactionType())
-                        .count(reactionCount.getCount())
+
+        Map<ReactionType, Long> countMap =
+                reactionMapper.countByArticleId(articleId).stream()
+                        .collect(Collectors.toMap(
+                                ReactionResponseDto.CountDto::getReactionType,
+                                ReactionResponseDto.CountDto::getCount
+                        ));
+
+        return Arrays.stream(ReactionType.values())
+                .map(type -> ReactionResponseDto.CountDto.builder()
+                        .reactionType(type)
+                        .count(countMap.getOrDefault(type, 0L))
                         .build())
                 .toList();
     }

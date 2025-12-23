@@ -33,7 +33,6 @@ public class ReactionController {
 
     @GetMapping("/{articleId}")
     public List<ReactionResponseDto.CountDto> getReactionStatistics(
-            @RequestHeader("Authorization") String token,
             @PathVariable("articleId") Long articleId
     ) {
         return reactionService.getReactionStatistics(articleId);
