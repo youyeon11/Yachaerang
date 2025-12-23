@@ -5,11 +5,11 @@ import com.yachaerang.backend.global.response.ErrorCode;
 import com.yachaerang.backend.global.util.LogUtil;
 
 public enum ReactionType implements CodeEnum {
-    GOOD("GOOD"),
-    SAD("SAD"),
-    ANGRY("ANGRY"),
-    HELPFUL("HELPFUL"),
-    EXCITED("EXCITED");
+    HELPFUL("HELPFUL"), // 유익해요
+    GOOD("GOOD"), // 좋아요
+    SURPRISED("SURPRISED"), // 놀랐어요
+    SAD("SAD"), // 슬퍼요
+    BUMMER("BUMMER"); // 아쉬워요
 
     private final String code;
 
