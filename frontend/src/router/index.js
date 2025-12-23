@@ -26,7 +26,6 @@ const router = createRouter({
       component: () => import('@/views/mypage/MyPage.vue'),
       meta: { requiresAuth: true },
       children: [
-        { path: 'profile', name: 'mypage-profile-confirm', component: () => import('@/views/mypage/ProfilePasswordConfirm.vue') },
         { path: 'password', name: 'mypage-password', component: () => import('@/views/mypage/PasswordChange.vue') },
       ],
     },

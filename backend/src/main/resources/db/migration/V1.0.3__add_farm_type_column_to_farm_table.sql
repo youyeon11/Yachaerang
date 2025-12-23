@@ -1,0 +1,2 @@
+ALTER TABLE farm
+    ADD COLUMN farm_type VARCHAR(50) NULL;

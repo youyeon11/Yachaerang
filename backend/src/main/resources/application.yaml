@@ -29,6 +29,10 @@ spring:
         genai:
           api-key: ${GMS_KEY}
           model: gemini-2.5-flash-lite
+    openai:
+      api-key: ${GMS_KEY}
+      base-url: https://gms.ssafy.io/gmsapi/api.openai.com
+
   mail:
     host: smtp.gmail.com
     port: 587

@@ -11,6 +11,7 @@
         <result property="flatArea" column="flat_area"/>
         <result property="mainCrop" column="main_crop"/>
         <result property="grade" column="grade"/>
+        <result property="farmType" column="farm_type"/>
         <result property="comment" column="comment"/>
         <result property="memberId" column="member_id"/>
     </resultMap>
@@ -22,15 +23,14 @@
             keyProperty="id"
             keyColumn="farm_id">
         INSERT INTO farm (
-            manpower, location, cultivated_area, flat_area, main_crop, member_id
+            manpower, location, cultivated_area, flat_area, main_crop, member_id, grade, farm_type, comment
         ) VALUES (
-                  #{manpower}, #{location}, #{cultivatedArea}, #{flatArea}, #{mainCrop}, #{memberId}
-                         )
+            #{manpower}, #{location}, #{cultivatedArea}, #{flatArea}, #{mainCrop}, #{memberId}, #{grade}, #{farmType}, #{comment}
+        )
     </insert>
 
     <!-- findByMemberId -->
-    <select id="findByMemberId" parameterType="java.lang.Long"
-            resultMap="farmResultMap">
+    <select id="findByMemberId" resultMap="farmResultMap">
         SELECT *
         FROM farm
         WHERE member_id = #{memberId}
@@ -58,6 +58,9 @@
             <if test="grade != null and grade != ''">
                 grade = #{grade},
             </if>
+            <if test="grade != null and grade != ''">
+                farm_type = #{farmType},
+            </if>
             <if test="comment != null and comment != ''">
                 comment = #{comment},
             </if>
@@ -68,17 +71,9 @@
     <!-- updateEvaluation -->
     <update id="updateEvaluation">
         UPDATE farm
-        SET grade = #{grade}, comment = #{comment}
+        SET grade = #{grade}, comment = #{comment}, farm_type = #{farmType}
         WHERE farm_id = #{id}
     </update>
-
-    <!-- findFarmsWithMissingEvaluation -->
-    <select id="findFarmsWithMissingEvaluation" resultMap="farmResultMap">
-        SELECT *
-        FROM farm
-        WHERE grade is null OR comment is null
-    </select>
-
 
     <!-- findByMemberIdForUpdate -->
     <select id="findByMemberIdForUpdate" resultMap="farmResultMap">
@@ -90,6 +85,7 @@
                flat_area,
                main_crop,
                grade,
+               farm_type,
                comment
         FROM farm
         WHERE member_id = #{memberId}

@@ -1,12 +1,13 @@
 import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuth } from '@/stores/auth';
+import { useRouter, useRoute } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 import { loginApi } from '@/api/auth';
 import apiClient from '@/api/axios';
 
 export function useLoginForm() {
   const router = useRouter();
-  const { login } = useAuth();
+  const route = useRoute();
+  const { login } = useAuthStore();
 
   const email = ref('');
   const password = ref('');
@@ -24,10 +25,7 @@ export function useLoginForm() {
       const body = res.data;
 
       if (body?.success === true && body?.code === '200') {
-        const {
-          accessToken,
-          refreshToken,
-        } = body.data || {};
+        const { accessToken, refreshToken } = body.data || {};
 
         if (!accessToken) {
           errorMessage.value = '토큰이 응답에 없습니다. 백엔드 응답 data 구조를 확인해주세요.';
@@ -62,7 +60,8 @@ export function useLoginForm() {
         email.value = '';
         password.value = '';
 
-        router.push('/');
+        const targetPath = route.query.redirect || '/';
+        router.push(targetPath);
         return;
       }
 
@@ -81,5 +80,3 @@ export function useLoginForm() {
     handleLogin,
   };
 }
-
-

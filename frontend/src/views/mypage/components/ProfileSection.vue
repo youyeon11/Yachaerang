@@ -105,6 +105,14 @@ import { getMyProfile, updateProfile, uploadProfileImage } from '@/api/member' /
 import IconEdit from '@/components/icons/IconEdit.vue' // 경로 확인 필요
 import ConfirmModal from '@/components/modal/ConfirmModal.vue'
 
+defineProps({
+  profile: {
+    type: Object,
+    required: false,
+    default: null,
+  },
+});
+
 const showCancelModal = ref(false)
 
 const fileInput = ref(null)
@@ -162,29 +170,10 @@ onMounted(async () => {
       originalForm.nickname = form.nickname
     }
   } catch (e) {
-    console.error('서버 연동 실패 (로컬스토리지 데이터 유지):', e)
+    console.error('프로필 불러오기 실패 (로컬스토리지 데이터 유지):', e)
   }
 })
 
-const fetchProfile = async () => {
-  try {
-    const response = await getMyProfile()
-    if (response && response.data) {
-      const userData = response.data 
-      
-      form.email = userData.email
-      form.name = userData.name
-      form.nickname = userData.nickname
-      form.imageUrl = userData.imageUrl || ''
-
-      // 취소 기능
-      originalForm.name = userData.name
-      originalForm.nickname = userData.nickname
-    }
-  } catch (e) {
-    console.error('프로필 정보를 불러오는데 실패했습니다.', e)
-  }
-}
 
 // 파일 선택 창 열기
 const triggerFileSelect = () => {
@@ -193,19 +182,23 @@ const triggerFileSelect = () => {
 
 // 파일 변경 시 바로 업로드
 const handleFileChange = async (event) => {
-  const file = event.target.files?.[0]
-  if (!file) return
+  const file = event.target.files?.[0];
+  if (!file) return;
 
   try {
-    await uploadProfileImage(file)
-    await fetchProfile()
+    await uploadProfileImage(file);
+
+    const { data } = await getMyProfile();
+    if (data.success) {
+      form.imageUrl = data.data.imageUrl || '';
+    }
   } catch (e) {
-    console.error(e)
-    alert('프로필 이미지를 업로드하는 데 실패했습니다.')
+    console.error(e);
+    alert('프로필 이미지를 업로드하는 데 실패했습니다.');
   } finally {
-    event.target.value = ''
+    event.target.value = '';
   }
-}
+};
 
 // 수정 모드 시작
 const startEdit = () => {

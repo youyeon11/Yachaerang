@@ -1,79 +1,90 @@
 <template>
-  <main class="flex flex-1 flex-col gap-6 overflow-y-auto p-8 bg-gray-50">
-    <!-- Header -->
-    <div>
-      <h1 class="text-3xl font-bold tracking-tight text-gray-900">시세 랭킹</h1>
-      <p class="text-gray-600">어제 시세 기준 상위/하위 9개 품목</p>
-    </div>
+  <div class="min-h-screen bg-gray-50 text-[#1f2937] font-sans">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <div class="flex flex-wrap lg:flex-nowrap gap-10 items-start">
+        <div class="flex-1 min-w-0 w-full">
+          <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">시세 랭킹</h1>
+            <p class="text-gray-500 mt-2 text-lg">어제 시세 기준 상위/하위 품목을 확인하세요.</p>
+          </header>
 
-    <!-- Tabs -->
-    <div class="flex gap-2 border-b border-gray-200">
-      <SearchTabs :activeTab="activeTab" @change="activeTab = $event" />
-    </div>
+          <div class="flex justify-between items-end mb-8 border-b border-gray-200">
+            <nav class="flex gap-4 sm:gap-8">
+              <button
+                v-for="tab in tabs"
+                :key="tab.id"
+                @click="activeTab = tab.id"
+                :class="[
+                  'tab-btn pb-4 text-base sm:text-lg transition-all relative flex-shrink',
+                  activeTab === tab.id ? 'active-tab hover:text-red-600' : 'text-gray-400 hover:text-gray-700',
+                ]"
+              >
+                <span class="truncate">{{ tab.label }}</span>
+              </button>
+            </nav>
 
-    <!-- Grid + WatchList (수평 배치) -->
-    <div class="flex flex-1 gap-6">
-      <!-- Left: Product Grid -->
-      <div class="flex-1">
-        <!-- Loading State -->
-        <div v-if="isLoading" class="flex items-center justify-center py-12">
-          <div class="text-gray-500">불러오는 중...</div>
+            <div class="pb-4 text-[13px] text-gray-400 font-medium">{{ yesterday }} 기준</div>
+          </div>
+
+          <div :key="activeTab" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <RankItem
+              v-for="(item, idx) in popularItems"
+              :key="idx"
+              :item="item"
+              :rank="idx + 1"
+              @click="goRankDetail(item)"
+            />
+          </div>
         </div>
 
-        <!-- Empty State -->
-        <div v-else-if="popularItems.length === 0" class="flex items-center justify-center py-12">
-          <p class="text-gray-500">데이터가 없습니다.</p>
-        </div>
-
-        <!-- Product Grid -->
-        <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <ItemCard
-            v-for="(product, idx) in popularItems"
-            :key="product.productCode ?? idx"
-            :item="formatRankItem(product)"
-            @select="goRankDetail(product)"
-          />
-        </div>
+        <WatchListAside
+          :items="watchList"
+          :is-authenticated="isAuthenticated"
+          @edit="editWatchList"
+          @select="goFavoriteDetail"
+          @remove="handleRemoveFavorite"
+        />
       </div>
-
-      <!-- Right: Watch List -->
-      <WatchListBox 
-        :items="watchList" 
-        @select="goFavoriteDetail" 
-        @edit="editWatchList" 
-      />
     </div>
-  </main>
+  </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-
-import SearchTabs from '@/views/rank/components/SearchTab.vue'
-import ItemCard from '@/views/rank/components/ItemCard.vue'
-import WatchListBox from '@/views/rank/components/WatchListBox.vue'
-
-import { rank } from '@/views/rank/composables/rank'
+import { rank } from '@/views/rank/composables/rank';
+import RankItem from './components/RankItem.vue';
+import WatchListAside from './components/WatchListAside.vue';
 
 const {
   activeTab,
   popularItems,
   watchList,
+  isAuthenticated,
+  yesterday,
   editWatchList,
   goFavoriteDetail,
   goRankDetail,
-} = rank()
+  handleRemoveFavorite,
+} = rank();
 
-// 로딩 상태 (필요시 rank.js에서 추가 가능)
-const isLoading = computed(() => popularItems.value === null)
-
-// rank API 응답을 ItemCard 형식으로 변환
-const formatRankItem = (item) => {
-  return {
-    itemName: item.itemName ?? item.productName ?? item.name ?? '품목명 없음',
-    unit: item.unit ?? item.unitName ?? '',
-    price: item.price ?? item.currentPrice ?? item.todayPrice ?? 0,
-    change: item.changeRate ?? item.change ?? item.priceChangeRate ?? undefined,
-  }
-}
+const tabs = [
+  { id: 'top', label: '시세 상위 보기' },
+  { id: 'bottom', label: '시세 하위 보기' },
+];
 </script>
+
+<style scoped>
+.active-tab {
+  color: #ef4444;
+  font-weight: 700;
+}
+.active-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #ef4444;
+  border-radius: 2px;
+}
+</style>

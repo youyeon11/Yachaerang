@@ -75,6 +75,7 @@ class FarmControllerTest extends RestDocsSupport {
                 .flatArea(800.0)
                 .mainCrop("딸기")
                 .grade("A")
+                .farmType("훌륭한 유형")
                 .comment("훌륭한 농장입니다")
                 .build();
     }
@@ -98,7 +99,7 @@ class FarmControllerTest extends RestDocsSupport {
                 .andReturn();
 
         mockMvc.perform(asyncDispatch(mvcResult))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andDo(doc(
                         "save-farm",
                         requestHeaders(
@@ -122,6 +123,7 @@ class FarmControllerTest extends RestDocsSupport {
                                         fieldWithPath("flatArea").type(NUMBER).description("평지 면적"),
                                         fieldWithPath("mainCrop").type(STRING).description("주요 작물"),
                                         fieldWithPath("grade").type(STRING).description("평가 등급"),
+                                        fieldWithPath("farmType").type(STRING).description("농장 유형"),
                                         fieldWithPath("comment").type(STRING).description("평가 코멘트")
                                 )
                 ));
@@ -156,6 +158,7 @@ class FarmControllerTest extends RestDocsSupport {
                                 fieldWithPath("flatArea").type(NUMBER).description("평지 면적"),
                                 fieldWithPath("mainCrop").type(STRING).description("주요 작물"),
                                 fieldWithPath("grade").type(STRING).description("평가 등급"),
+                                fieldWithPath("farmType").type(STRING).description("농장 유형"),
                                 fieldWithPath("comment").type(STRING).description("평가 코멘트")
                         )
                 ));
@@ -180,6 +183,7 @@ class FarmControllerTest extends RestDocsSupport {
                 .flatArea(800.0)
                 .mainCrop("토마토")
                 .grade("A")
+                .farmType("훌륭한 유형")
                 .comment("훌륭한 농장입니다")
                 .build();
 
@@ -195,7 +199,7 @@ class FarmControllerTest extends RestDocsSupport {
                 .andReturn();
 
         mockMvc.perform(asyncDispatch(mvcResult))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andDo(doc(
                         "update-farm",
                         requestHeaders(
@@ -219,6 +223,7 @@ class FarmControllerTest extends RestDocsSupport {
                                         fieldWithPath("flatArea").type(NUMBER).description("평지 면적"),
                                         fieldWithPath("mainCrop").type(STRING).description("주요 작물"),
                                         fieldWithPath("grade").type(STRING).description("평가 등급"),
+                                        fieldWithPath("farmType").type(STRING).description("농장 유형"),
                                         fieldWithPath("comment").type(STRING).description("평가 코멘트")
                                 )
                 ));

@@ -38,7 +38,7 @@ export function usePriceSearch() {
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
 
-  const maxYear = Math.max(2000, yesterday.getFullYear() - 1);
+  const maxYear = yesterday.getFullYear();
   const minYear = 2000;
 
   const yearOptions = computed(() => {
@@ -395,7 +395,7 @@ export function usePriceSearch() {
     priceResult.value = [];
     hasSearched.value = false;
   };
-  /* ================= 최근 조회 ================= */
+  /* ================ 최근 조회 ================= */
 
   const saveRecentItem = ({ productCode, itemCode, itemLabel, varietyLabel, periodType, dateRangeLabel }) => {
     if (!productCode) return;
@@ -508,6 +508,7 @@ export function usePriceSearch() {
   const normalizeResult = (rawList, type) => {
     return rawList.map((item) => {
       if (type === 'day') {
+        // 일별: price, priceChange(전일 대비), priceChangeRate(전일 대비 %)
         return {
           dateLabel: item.priceDate || item.date || '',
           priceLabel: item.price ?? item.avgPrice ?? null,
@@ -517,6 +518,7 @@ export function usePriceSearch() {
       }
 
       if (type === 'week') {
+        // 주간: avgPrice, priceChange(지난주 대비), priceChangeRate(지난주 대비 %)
         return {
           dateLabel: `${item.startDate} ~ ${item.endDate}`,
           priceLabel: item.avgPrice ?? null,
@@ -526,6 +528,7 @@ export function usePriceSearch() {
       }
 
       if (type === 'month') {
+        // 월간: avgPrice, priceChange(전월 대비), priceChangeRate(전월 대비 %)
         return {
           dateLabel: `${item.priceYear}-${String(item.priceMonth).padStart(2, '0')}`,
           priceLabel: item.avgPrice ?? null,
@@ -534,6 +537,7 @@ export function usePriceSearch() {
         };
       }
 
+      // year(연별): avgPrice, priceChange(전년 대비), priceChangeRate(전년 대비 %)
       return {
         dateLabel: `${item.priceYear}`,
         priceLabel: item.avgPrice ?? null,
@@ -559,10 +563,12 @@ export function usePriceSearch() {
       return;
     }
 
+    // 검색 시마다 전년 데이터 초기화
     lastYearPrices.value = [];
 
     try {
       if (periodType.value === 'day') {
+        // 일별
         if (!dayStartDate.value || !dayEndDate.value) {
           toastStore.show('시작일과 종료일을 모두 선택해 주세요', 'info');
           return;
@@ -576,6 +582,7 @@ export function usePriceSearch() {
           return;
         }
 
+        // 1) 금년 데이터 조회
         const { data } = await fetchDailyPricesApi(productCode, {
           startDate: startStr,
           endDate: endStr,
@@ -583,6 +590,7 @@ export function usePriceSearch() {
 
         priceResult.value = normalizeResult(extractPriceList(data), 'day');
 
+        // 2) 전년 동기간 범위 계산 및 조회
         const lastYearRange = getLastYearDateRange(startStr, endStr);
 
         if (lastYearRange) {
@@ -594,6 +602,7 @@ export function usePriceSearch() {
 
             const normalizedLast = normalizeResult(extractPriceList(lastData), 'day');
 
+            // 인덱스 기준 매칭 (길이가 다르면 모자라는 부분은 null)
             lastYearPrices.value = priceResult.value.map((_, idx) => normalizedLast[idx]?.priceLabel ?? null);
           } catch (e) {
             console.error('전년 동기간 일별 가격 조회 실패:', e);
@@ -605,6 +614,7 @@ export function usePriceSearch() {
 
         const dateRangeLabel = `${startStr} ~ ${endStr}`;
       } else if (periodType.value === 'week') {
+        // 주간
         if (!weekStartDate.value || !weekEndDate.value) {
           toastStore.show('시작 주와 종료 주를 모두 선택해 주세요', 'info');
           return;
@@ -618,38 +628,18 @@ export function usePriceSearch() {
           return;
         }
 
-        const lastWeekSundayStr = formatDateToString(lastWeekSunday);
-        if (endRange.end > lastWeekSundayStr) {
-          toastStore.show('완전히 끝난 지난 주까지만 조회할 수 있습니다', 'info');
-          return;
-        }
-
         const { data } = await fetchWeeklyPricesApi(productCode, {
           startDate: startRange.start,
           endDate: endRange.end,
         });
 
         priceResult.value = normalizeResult(extractPriceList(data), 'week');
-
-        const lastYearRange = getLastYearDateRange(startRange.start, endRange.end);
-        if (lastYearRange) {
-          try {
-            const { data: lastData } = await fetchWeeklyPricesApi(productCode, {
-              startDate: lastYearRange.startDate,
-              endDate: lastYearRange.endDate,
-            });
-            const normalizedLast = normalizeResult(extractPriceList(lastData), 'week');
-            lastYearPrices.value = priceResult.value.map((_, idx) => normalizedLast[idx]?.priceLabel ?? null);
-          } catch (e) {
-            console.error('전년 동기간 주간 가격 조회 실패:', e);
-            lastYearPrices.value = priceResult.value.map(() => null);
-          }
-        } else {
-          lastYearPrices.value = priceResult.value.map(() => null);
-        }
+        // 주간은 아직 전년 동기간 비교 미지원: 전년 데이터는 null로 채움
+        lastYearPrices.value = priceResult.value.map(() => null);
 
         const dateRangeLabel = `${startRange.start} ~ ${endRange.end}`;
       } else if (periodType.value === 'month') {
+        // 월간
         if (!monthStartDate.value || !monthEndDate.value) {
           toastStore.show('시작 월과 종료 월을 모두 선택해 주세요', 'info');
           return;
@@ -663,56 +653,22 @@ export function usePriceSearch() {
           return;
         }
 
-        const lastCompletedMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        const endLimitYear = lastCompletedMonth.getFullYear();
-        const endLimitMonth = lastCompletedMonth.getMonth() + 1;
-        const endYearVal = endD.getFullYear();
-        const endMonthVal = endD.getMonth() + 1;
-
-        if (endYearVal > endLimitYear || (endYearVal === endLimitYear && endMonthVal > endLimitMonth)) {
-          toastStore.show('완전히 끝난 지난 달까지만 조회할 수 있습니다', 'info');
-          return;
-        }
-
-        const startYear = startD.getFullYear();
-        const startMonth = startD.getMonth() + 1;
-        const endYear = endYearVal;
-        const endMonth = endMonthVal;
-
         const { data } = await fetchMonthlyPricesApi(productCode, {
-          startYear,
-          startMonth,
-          endYear,
-          endMonth,
+          startYear: startD.getFullYear(),
+          startMonth: startD.getMonth() + 1,
+          endYear: endD.getFullYear(),
+          endMonth: endD.getMonth() + 1,
         });
 
         priceResult.value = normalizeResult(extractPriceList(data), 'month');
+        // 월간은 아직 전년 동기간 비교 미지원: 전년 데이터는 null로 채움
+        lastYearPrices.value = priceResult.value.map(() => null);
 
-        const lastStartYear = startYear - 1;
-        const lastEndYear = endYear - 1;
-
-        if (lastStartYear >= minYear && lastEndYear >= minYear) {
-          try {
-            const { data: lastData } = await fetchMonthlyPricesApi(productCode, {
-              startYear: lastStartYear,
-              startMonth,
-              endYear: lastEndYear,
-              endMonth,
-            });
-            const normalizedLast = normalizeResult(extractPriceList(lastData), 'month');
-            lastYearPrices.value = priceResult.value.map((_, idx) => normalizedLast[idx]?.priceLabel ?? null);
-          } catch (e) {
-            console.error('전년 동기간 월간 가격 조회 실패:', e);
-            lastYearPrices.value = priceResult.value.map(() => null);
-          }
-        } else {
-          lastYearPrices.value = priceResult.value.map(() => null);
-        }
-
-        const startMonthLabel = `${startYear}-${String(startMonth).padStart(2, '0')}`;
-        const endMonthLabel = `${endYear}-${String(endMonth).padStart(2, '0')}`;
+        const startMonthLabel = `${startD.getFullYear()}-${String(startD.getMonth() + 1).padStart(2, '0')}`;
+        const endMonthLabel = `${endD.getFullYear()}-${String(endD.getMonth() + 1).padStart(2, '0')}`;
         const dateRangeLabel = `${startMonthLabel} ~ ${endMonthLabel}`;
       } else if (periodType.value === 'year') {
+        // 연간
         if (isYearDetail.value) {
           if (!yearDetail.value) {
             toastStore.show('조회할 연도를 선택해 주세요', 'info');
@@ -768,11 +724,7 @@ export function usePriceSearch() {
           });
 
           priceResult.value = normalizeResult(extractPriceList(data), 'year');
-
-          lastYearPrices.value = priceResult.value.map((row) => {
-            if (row.priceLabel == null || row.priceChange == null) return null;
-            return row.priceLabel - row.priceChange;
-          });
+          lastYearPrices.value = priceResult.value.map(() => null);
 
           const dateRangeLabel = ys === ye ? `${ys}` : `${ys} ~ ${ye}`;
 
@@ -793,33 +745,25 @@ export function usePriceSearch() {
         toastStore.show('잘못된 기간 유형입니다', 'error');
         return;
       }
-      const generateDateRangeLabel = () => {
-        if (periodType.value === 'day') {
-          const startStr = formatDateToString(dayStartDate.value);
-          const endStr = formatDateToString(dayEndDate.value);
-          return `${startStr} ~ ${endStr}`;
-        } else if (periodType.value === 'week') {
-          const startRange = getWeekRangeFromDate(weekStartDate.value);
-          const endRange = getWeekRangeFromDate(weekEndDate.value);
-          return `${startRange.start} ~ ${endRange.end}`;
-        } else if (periodType.value === 'month') {
-          const startD = new Date(monthStartDate.value);
-          const endD = new Date(monthEndDate.value);
-          const startMonthLabel = `${startD.getFullYear()}-${String(startD.getMonth() + 1).padStart(2, '0')}`;
-          const endMonthLabel = `${endD.getFullYear()}-${String(endD.getMonth() + 1).padStart(2, '0')}`;
-          return `${startMonthLabel} ~ ${endMonthLabel}`;
-        } else if (periodType.value === 'year') {
-          if (isYearDetail.value) {
-            return `${yearDetail.value}년 상세`;
-          }
-          const ys = Number(yearStart.value);
-          const ye = Number(yearEnd.value);
-          return ys === ye ? `${ys}` : `${ys} ~ ${ye}`;
-        }
-        return '';
-      };
 
-      const dateRangeLabel = generateDateRangeLabel();
+      let dateRangeLabel = '';
+
+      if (periodType.value === 'day') {
+        const startStr = formatDateToString(dayStartDate.value);
+        const endStr = formatDateToString(dayEndDate.value);
+        dateRangeLabel = `${startStr} ~ ${endStr}`;
+      } else if (periodType.value === 'week') {
+        const startRange = getWeekRangeFromDate(weekStartDate.value);
+        const endRange = getWeekRangeFromDate(weekEndDate.value);
+        dateRangeLabel = `${startRange.start} ~ ${endRange.end}`;
+      } else if (periodType.value === 'month') {
+        const startD = new Date(monthStartDate.value);
+        const endD = new Date(monthEndDate.value);
+        const startMonthLabel = `${startD.getFullYear()}-${String(startD.getMonth() + 1).padStart(2, '0')}`;
+        const endMonthLabel = `${endD.getFullYear()}-${String(endD.getMonth() + 1).padStart(2, '0')}`;
+        dateRangeLabel = `${startMonthLabel} ~ ${endMonthLabel}`;
+      }
+
       saveRecentItem({
         productCode,
         itemCode: selectedItem.value,

@@ -120,8 +120,8 @@ class FarmMapperTest {
         assertThat(found.getCultivatedArea()).isEqualTo(farm.getCultivatedArea());
         assertThat(found.getFlatArea()).isEqualTo(farm.getFlatArea());
         assertThat(found.getMainCrop()).isEqualTo(farm.getMainCrop());
-        assertThat(found.getGrade()).isNull();
-        assertThat(found.getComment()).isNull();
+        assertThat(found.getGrade()).isEqualTo(farm.getGrade());
+        assertThat(found.getComment()).isEqualTo(farm.getComment());
     }
 
     @Test
@@ -189,19 +189,21 @@ class FarmMapperTest {
                 .flatArea(800.0)
                 .mainCrop("딸기")
                 .grade("B")
+                .farmType("좋은 유형")
                 .comment("좋은 농장입니다")
                 .build();
         farmMapper.save(farm);
         Long farmId = farm.getId();
 
         // when
-        int result = farmMapper.updateEvaluation(farmId, "D", "좀만 더 가꿔봐요!");
+        int result = farmMapper.updateEvaluation(farmId, "D", "부족한 유형", "좀만 더 가꿔봐요!");
 
         // then
         assertThat(result).isEqualTo(1);
 
         Farm updated = farmMapper.findByMemberId(memberId);
         assertThat(updated.getGrade()).isEqualTo("D");
+        assertThat(updated.getFarmType()).isEqualTo("부족한 유형");
         assertThat(updated.getComment()).isEqualTo("좀만 더 가꿔봐요!");
         // 다른 필드는 변경되지 않음
         assertThat(updated.getManpower()).isEqualTo(farm.getManpower());
