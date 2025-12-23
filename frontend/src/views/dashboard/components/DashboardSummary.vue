@@ -38,16 +38,16 @@
         <div
           class="flex flex-col items-center justify-center gap-1 bg-gray-50 px-4 py-3 md:px-5 md:py-4 rounded-xl border border-gray-100 shadow-inner min-w-[90px]"
         >
-          <span class="text-xs font-bold text-gray-400 mb-0.5">금년</span>
+          <span class="text-m font-semibold text-gray-400 mb-0.5">금년</span>
           <div class="flex items-center gap-3">
             <div class="flex flex-col items-center min-w-[45px]">
-              <span class="text-xs text-gray-400 font-bold mb-0.5">최고</span>
-              <span class="text-sm md:text-lg font-black text-slate-700">{{ maxPrice.toLocaleString() }}</span>
+              <span class="text-m text-gray-400 font-medium mb-0.5">최고</span>
+              <span class="text-sm md:text-base font-bold text-slate-600">{{ maxPrice.toLocaleString() }}</span>
             </div>
             <div class="w-[1px] h-5 bg-gray-200"></div>
             <div class="flex flex-col items-center min-w-[45px]">
-              <span class="text-xs text-gray-400 font-bold mb-0.5">최저</span>
-              <span class="text-sm md:text-lg font-black text-slate-700">{{ minPrice.toLocaleString() }}</span>
+              <span class="text-m text-gray-400 font-medium mb-0.5">최저</span>
+              <span class="text-sm md:text-base font-bold text-slate-600">{{ minPrice.toLocaleString() }}</span>
             </div>
           </div>
         </div>
@@ -56,16 +56,16 @@
           v-if="hasLastYearData"
           class="flex flex-col items-center justify-center gap-1 bg-gray-50 px-4 py-3 md:px-5 md:py-4 rounded-xl border border-gray-100 shadow-inner min-w-[90px]"
         >
-          <span class="text-xs font-bold text-gray-400 mb-0.5">전년</span>
+          <span class="text-m font-semibold text-gray-400 mb-0.5">전년</span>
           <div class="flex items-center gap-3">
             <div class="flex flex-col items-center min-w-[45px]">
-              <span class="text-xs text-gray-400 font-bold mb-0.5">최고</span>
-              <span class="text-sm md:text-lg font-black text-slate-700">{{ lastMaxPrice.toLocaleString() }}</span>
+              <span class="text-m text-gray-400 font-medium mb-0.5">최고</span>
+              <span class="text-sm md:text-base font-bold text-slate-600">{{ lastMaxPrice.toLocaleString() }}</span>
             </div>
             <div class="w-[1px] h-5 bg-gray-200"></div>
             <div class="flex flex-col items-center min-w-[45px]">
-              <span class="text-xs text-gray-400 font-bold mb-0.5">최저</span>
-              <span class="text-sm md:text-lg font-black text-slate-700">{{ lastMinPrice.toLocaleString() }}</span>
+              <span class="text-m text-gray-400 font-medium mb-0.5">최저</span>
+              <span class="text-sm md:text-base font-bold text-slate-600">{{ lastMinPrice.toLocaleString() }}</span>
             </div>
           </div>
         </div>
