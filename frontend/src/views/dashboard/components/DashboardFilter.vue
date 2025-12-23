@@ -34,9 +34,7 @@
       </div>
 
       <div>
-        <label class="text-xs font-bold text-gray-400 block mb-2 uppercase tracking-tighter"
-          >기간 기준 선택</label
-        >
+        <label class="text-xs font-bold text-gray-400 block mb-2 uppercase tracking-tighter">기간 기준 선택</label>
         <div class="grid grid-cols-4 gap-1 bg-gray-100 p-1 rounded-lg font-bold">
           <button
             v-for="tab in periodTabs"
@@ -127,7 +125,7 @@
                 ? 'border-red-500 bg-red-50 text-red-600 shadow-sm ring-1 ring-red-100'
                 : 'border-gray-100 bg-gray-50/60 text-gray-600 hover:bg-gray-100'
             "
-            class="py-3.5 px-3 border rounded-xl text-sm font-semibold truncate transition-all flex items-center justify-center text-center"
+            class="py-3 px-2.5 border rounded-xl text-s font-semibold truncate transition-all flex items-center justify-center text-center"
           >
             {{ item.label }}
           </button>
