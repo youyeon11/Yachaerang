@@ -1,4 +1,4 @@
-package com.yachaerang.backend.api.reactions.entity;
+package com.yachaerang.backend.api.reaction.entity;
 
 import com.yachaerang.backend.api.common.BaseEntity;
 import com.yachaerang.backend.api.common.ReactionType;
