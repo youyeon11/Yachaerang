@@ -134,8 +134,15 @@ class ReactionControllerTest extends RestDocsSupport {
                 ReactionResponseDto.CountDto.builder()
                         .reactionType(ReactionType.SURPRISED)
                         .count(3L)
-                        .build()
-        );
+                        .build(),
+                ReactionResponseDto.CountDto.builder()
+                        .reactionType(ReactionType.BUMMER)
+                        .count(0L)
+                        .build(),
+                ReactionResponseDto.CountDto.builder()
+                        .reactionType(ReactionType.SAD)
+                        .count(0L)
+                        .build());
 
         when(reactionService.getReactionStatistics(TEST_ARTICLE_ID)).thenReturn(statistics);
 
@@ -146,7 +153,7 @@ class ReactionControllerTest extends RestDocsSupport {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data.length()").value(3))
+                .andExpect(jsonPath("$.data.length()").value(5))
                 .andDo(doc(
                         "reaction-getStatistics",
                         requestHeaders(

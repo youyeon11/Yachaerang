@@ -1091,6 +1091,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#reaction-delete-success_http_request">HTTP request</a></li>
 <li><a href="#reaction-delete-success_http_response">HTTP response</a></li>
 <li><a href="#reaction-delete-success_httpie_request">HTTPie request</a></li>
+<li><a href="#reaction-delete-success_path_parameters">Path parameters</a></li>
+<li><a href="#reaction-delete-success_query_parameters">Query parameters</a></li>
 <li><a href="#reaction-delete-success_request_body">Request body</a></li>
 <li><a href="#reaction-delete-success_request_headers">Request headers</a></li>
 <li><a href="#reaction-delete-success_response_body">Response body</a></li>
@@ -8414,6 +8416,47 @@ Content-Length: 158
 </div>
 </div>
 <div class="sect3">
+<h4 id="reaction-delete-success_path_parameters"><a class="link" href="#reaction-delete-success_path_parameters">Path parameters</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. /api/v1/articles/reactions</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+</table>
+</div>
+<div class="sect3">
+<h4 id="reaction-delete-success_query_parameters"><a class="link" href="#reaction-delete-success_query_parameters">Query parameters</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>articleId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">게시글 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>reactionType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">삭제할 리액션 타입</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
 <h4 id="reaction-delete-success_request_body"><a class="link" href="#reaction-delete-success_request_body">Request body</a></h4>
 <div class="listingblock">
 <div class="content">
@@ -8742,7 +8785,7 @@ Host: localhost:8080</code></pre>
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Content-Type: application/json;charset=UTF-8
-Content-Length: 309
+Content-Length: 414
 
 {
   "httpStatus" : "OK",
@@ -8758,6 +8801,12 @@ Content-Length: 309
   }, {
     "reactionType" : "SURPRISED",
     "count" : 3
+  }, {
+    "reactionType" : "BUMMER",
+    "count" : 0
+  }, {
+    "reactionType" : "SAD",
+    "count" : 0
   } ]
 }</code></pre>
 </div>
@@ -8858,6 +8907,12 @@ Content-Length: 309
   }, {
     "reactionType" : "SURPRISED",
     "count" : 3
+  }, {
+    "reactionType" : "BUMMER",
+    "count" : 0
+  }, {
+    "reactionType" : "SAD",
+    "count" : 0
   } ]
 }</code></pre>
 </div>
