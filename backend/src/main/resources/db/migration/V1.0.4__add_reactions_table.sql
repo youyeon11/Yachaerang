@@ -9,5 +9,5 @@ CREATE TABLE IF NOT EXISTS reactions (
 
     PRIMARY KEY (reaction_id),
     UNIQUE KEY uk_reactions_member_article (member_id, article_id),
-    KEY idx_reactions_article_member (article_id, member_id)
+    KEY idx_reactions_article_member (member_id, article_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
