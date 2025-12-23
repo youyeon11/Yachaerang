@@ -45,12 +45,13 @@
 
         <button
           type="button"
-          @click.stop="emit('toggle-bookmark', article)"
-          class="absolute top-6 right-6 p-3 rounded-2xl bg-white border border-gray-50 shadow-sm transition-all hover:scale-110 active:scale-95 z-10"
+          @click.stop="handleToggleBookmark"
+          :disabled="isLoading"
+          class="absolute top-6 right-6 p-3 rounded-2xl bg-white border border-gray-50 shadow-sm transition-all hover:scale-110 active:scale-95 z-10 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <IconBookmark
-            :active="article.bookmarked"
-            :class="[article.bookmarked ? 'text-[#F44323]' : 'text-gray-300 group-hover:text-gray-500']"
+            :active="isBookmarked"
+            :class="[isBookmarked ? 'text-[#F44323]' : 'text-gray-300 group-hover:text-gray-500']"
             class="w-5 h-5 transition-colors"
           />
         </button>
@@ -60,7 +61,9 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
+import { saveBookmark, removeBookmark } from '@/api/article';
+import { useToastStore } from '@/stores/toast';
 import IconArrowRight from '@/components/icons/IconArrowRight.vue';
 import IconBookmark from '@/components/icons/IconBookmark.vue';
 
@@ -71,7 +74,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['open', 'toggle-bookmark']);
+const emit = defineEmits(['open', 'bookmark-updated']);
 
 const formattedDate = computed(() => {
   if (!props.article?.date) return '';
@@ -81,4 +84,41 @@ const formattedDate = computed(() => {
     day: 'numeric',
   });
 });
+
+const toastStore = useToastStore();
+const isLoading = ref(false);
+const isBookmarked = ref(props.article.bookmarked ?? false);
+
+const handleToggleBookmark = async () => {
+  if (isLoading.value) return;
+  
+  isLoading.value = true;
+  const wasBookmarked = isBookmarked.value;
+  
+  // 낙관적 업데이트
+  isBookmarked.value = !wasBookmarked;
+  
+  try {
+    if (wasBookmarked) {
+      await removeBookmark(props.article.id);
+      toastStore.show('북마크가 해제되었습니다.', 'success');
+    } else {
+      await saveBookmark(props.article.id);
+      toastStore.show('북마크에 저장되었습니다.', 'success');
+    }
+    
+    // 부모에게 상태 변경 알림
+    emit('bookmark-updated', { 
+      articleId: props.article.id, 
+      bookmarked: isBookmarked.value 
+    });
+  } catch (error) {
+    // 실패시 롤백
+    isBookmarked.value = wasBookmarked;
+    console.error('북마크 처리 실패:', error);
+    toastStore.show('북마크 처리 중 오류가 발생했습니다.', 'error');
+  } finally {
+    isLoading.value = false;
+  }
+};
 </script>

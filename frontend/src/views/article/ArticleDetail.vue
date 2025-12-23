@@ -6,8 +6,13 @@
           <IconChevronLeft class="w-5 h-5 mr-1 group-hover:-translate-x-1 transition-transform" />
           목록으로
         </button>
-        <button type="button" @click="handleToggleBookmark" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
-          <IconBookmark :active="article.bookmarked" class="w-6 h-6" />
+        <button 
+          type="button" 
+          @click="handleToggleBookmark" 
+          :disabled="isBookmarkLoading"
+          class="p-2 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
+        >
+          <IconBookmark :active="isBookmarked" class="w-6 h-6" />
         </button>
       </div>
     </nav>
@@ -64,7 +69,8 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { fetchArticleDetail } from "@/api/article";
+import { fetchArticleDetail, saveBookmark, removeBookmark } from "@/api/article";
+import { useToastStore } from '@/stores/toast';
 import { useArticle } from "@/views/article/composables/useArticles";
 import IconChevronLeft from "@/components/icons/IconChevronLeft.vue";
 import IconBookmark from "@/components/icons/IconBookmark.vue";
@@ -72,8 +78,13 @@ import IconCalendar from "@/components/icons/IconCalendar.vue";
 import IconExternalLink from "@/components/icons/IconExternalLink.vue";
 import ArticleReactions from "@/views/article/components/ArticleReactions.vue";
 
+const toastStore = useToastStore();
+
 const router = useRouter();
 const route = useRoute();
+
+const isBookmarked = ref(false);
+const isBookmarkLoading = ref(false);
 
 const myReaction = ref(null);
 const article = ref({
@@ -139,8 +150,30 @@ const loadArticleDetail = async () => {
   }
 };
 
-const handleToggleBookmark = () => {
-  toggleBookmarkAction(article.value);
+
+const handleToggleBookmark = async () => {
+  if (isBookmarkLoading.value) return;
+  
+  isBookmarkLoading.value = true;
+  const wasBookmarked = isBookmarked.value;
+  
+  isBookmarked.value = !wasBookmarked;
+  
+  try {
+    if (wasBookmarked) {
+      await removeBookmark(article.value.id);
+      toastStore.show('북마크가 해제되었습니다.', 'success');
+    } else {
+      await saveBookmark(article.value.id);
+      toastStore.show('북마크에 저장되었습니다.', 'success');
+    }
+  } catch (error) {
+    isBookmarked.value = wasBookmarked;
+    console.error('북마크 처리 실패:', error);
+    toastStore.show('북마크 처리 중 오류가 발생했습니다.', 'error');
+  } finally {
+    isBookmarkLoading.value = false;
+  }
 };
 
 const handleToggleReaction = (type) => {
