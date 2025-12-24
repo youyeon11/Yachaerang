@@ -17,6 +17,14 @@
         </div>
       </footer>
     </div>
+
+    <ConfirmModal
+      :show="showEndChatConfirm"
+      title="대화 종료"
+      message="대화를 종료하시겠습니까?"
+      @confirm="handleEndChatConfirm"
+      @cancel="showEndChatConfirm = false"
+    />
   </div>
 </template>
 
@@ -29,6 +37,7 @@ import ChatMessageList from "@/views/ai/components/ChatMessageList.vue";
 import ChatNewMessageButton from "@/views/ai/components/ChatNewMessageButton.vue";
 import ChatSuggestions from "@/views/ai/components/ChatSuggestions.vue";
 import ChatInputBar from "@/views/ai/components/ChatInputBar.vue";
+import ConfirmModal from "@/components/modal/ConfirmModal.vue";
 
 import { useChat } from "@/views/ai/composables/useChat";
 import { useUserProfile } from "@/views/ai/composables/useUserProfile";
@@ -84,13 +93,18 @@ const handleSuggestionClick = async (text) => {
   await handleSend();
 };
 
+const showEndChatConfirm = ref(false);
+
 const endChat = async () => {
-  if (confirm("대화를 종료하시겠습니까?")) {
-    await resetChat();
-    showNewMsgBtn.value = false;
-    await nextTick();
-    scrollToBottom(true);
-  }
+  showEndChatConfirm.value = true;
+};
+
+const handleEndChatConfirm = async () => {
+  await resetChat();
+  showNewMsgBtn.value = false;
+  await nextTick();
+  scrollToBottom(true);
+  showEndChatConfirm.value = false;
 };
 
 const scrollToBottom = (force = false, smooth = false) => {

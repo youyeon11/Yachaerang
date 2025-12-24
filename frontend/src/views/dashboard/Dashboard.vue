@@ -33,7 +33,7 @@
             @add-favorite="handleAddFavorite"
           />
 
-          <RecentViewedItems :items="recentItems" @select="handleRecentSelect" @clear="clearRecentSearches" />
+          <RecentViewedItems :items="recentItems" @select="handleRecentSelect" @clear="handleClearRecent" />
         </div>
 
         <div class="col-span-12 lg:col-span-9 order-2 lg:order-1 flex flex-col gap-4">
@@ -61,6 +61,14 @@
         </div>
       </div>
     </div>
+
+    <ConfirmModal
+      :show="showClearConfirm"
+      title="최근 조회 기록 삭제"
+      message="최근 조회 기록을 모두 삭제하시겠습니까?"
+      @confirm="handleClearConfirm"
+      @cancel="showClearConfirm = false"
+    />
   </main>
 </template>
 
@@ -76,6 +84,7 @@ import ResultTable from "@/views/dashboard/components/ResultTable.vue";
 import PageHeader from "@/components/layout/PageHeader.vue";
 import EmptyResult from "@/views/dashboard/components/EmptyResult.vue";
 import RecentViewedItems from "@/views/dashboard/components/RecentViewedItems.vue";
+import ConfirmModal from "@/components/modal/ConfirmModal.vue";
 
 const {
   selectedItem,
@@ -294,5 +303,14 @@ const triggerSearch = async () => {
 const handleRecentSelect = async (item) => {
   currentPage.value = 1;
   await applyRecentItem(item);
+};
+
+const showClearConfirm = ref(false);
+const handleClearRecent = () => {
+  showClearConfirm.value = true;
+};
+const handleClearConfirm = () => {
+  clearRecentSearches();
+  showClearConfirm.value = false;
 };
 </script>
