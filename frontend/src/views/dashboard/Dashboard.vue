@@ -10,7 +10,7 @@
 
     <div class="max-w-9xl mx-auto px-4 sm:px-6 pt-2 w-full">
       <div class="grid grid-cols-12 gap-4 md:gap-6 pt-2">
-        <div class="col-span-12 lg:col-span-3 lg:col-start-10 order-1 lg:order-2 flex flex-col gap-4">
+        <div class="w-full max-w-[320px] col-span-12 lg:col-span-3 lg:col-start-10 order-1 lg:order-2 flex flex-col gap-4">
           <DashboardFilter
             v-model:selectedItem="selectedItem"
             v-model:selectedVariety="selectedVariety"
@@ -47,10 +47,7 @@
             :dateRangeLabel="currentDateRangeLabel"
           />
 
-          <div
-            v-if="!hasSearched"
-            class="bg-white p-20 rounded-xl border border-gray-200 text-center text-gray-400 shadow-sm"
-          >
+          <div v-if="!hasSearched" class="bg-white p-20 rounded-xl border border-gray-200 text-center text-gray-400 shadow-sm">
             <p class="text-lg">조회하기 버튼을 클릭하여 데이터를 조회하세요.</p>
           </div>
 
@@ -58,13 +55,7 @@
             <EmptyResult v-if="!priceResult || priceResult.length === 0" />
             <template v-else>
               <ResultGraph :chartData="formattedChartData" :periodType="periodType" :priceResult="priceResult" />
-              <ResultTable
-                :paginatedData="paginatedData"
-                :totalPages="totalPages"
-                :currentPage="currentPage"
-                :periodType="periodType"
-                @updatePage="(p) => (currentPage = p)"
-              />
+              <ResultTable :paginatedData="paginatedData" :totalPages="totalPages" :currentPage="currentPage" :periodType="periodType" @updatePage="(p) => (currentPage = p)" />
             </template>
           </template>
         </div>
@@ -74,17 +65,17 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue';
-import { useRoute } from 'vue-router';
-import { usePriceSearch } from '@/views/dashboard/composables/usePriceSearch';
-import DashboardFilter from '@/views/dashboard/components/DashboardFilter.vue';
-import DashboardSummary from '@/views/dashboard/components/DashboardSummary.vue';
-import ResultGraph from '@/views/dashboard/components/ResultGraph.vue';
-import ResultTable from '@/views/dashboard/components/ResultTable.vue';
+import { ref, computed, watch, onMounted, nextTick } from "vue";
+import { useRoute } from "vue-router";
+import { usePriceSearch } from "@/views/dashboard/composables/usePriceSearch";
+import DashboardFilter from "@/views/dashboard/components/DashboardFilter.vue";
+import DashboardSummary from "@/views/dashboard/components/DashboardSummary.vue";
+import ResultGraph from "@/views/dashboard/components/ResultGraph.vue";
+import ResultTable from "@/views/dashboard/components/ResultTable.vue";
 
-import PageHeader from '@/components/layout/PageHeader.vue';
-import EmptyResult from '@/views/dashboard/components/EmptyResult.vue';
-import RecentViewedItems from '@/views/dashboard/components/RecentViewedItems.vue';
+import PageHeader from "@/components/layout/PageHeader.vue";
+import EmptyResult from "@/views/dashboard/components/EmptyResult.vue";
+import RecentViewedItems from "@/views/dashboard/components/RecentViewedItems.vue";
 
 const {
   selectedItem,
@@ -117,29 +108,29 @@ const {
 const route = useRoute();
 
 const selectedItemLabel = computed(() => {
-  if (!selectedItem.value) return '품목 선택';
+  if (!selectedItem.value) return "품목 선택";
   const target = itemOptions.value.find((opt) => opt.value === selectedItem.value);
-  return target ? target.label : '품목 선택';
+  return target ? target.label : "품목 선택";
 });
 
 const selectedVarietyLabel = computed(() => {
-  if (!selectedVariety.value) return '품종 선택';
+  if (!selectedVariety.value) return "품종 선택";
   const target = varietyOptions.value.find((o) => o.value === selectedVariety.value);
-  const label = target ? target.label : '품종 선택';
-  return label.replace(/-/g, ', ');
+  const label = target ? target.label : "품종 선택";
+  return label.replace(/-/g, ", ");
 });
 
 const currentDateRangeLabel = computed(() => {
-  if (periodType.value === 'day') {
-    return `${dayStartDate.value || ''} ~ ${dayEndDate.value || ''}`;
-  } else if (periodType.value === 'week') {
-    return `${weekStartDate.value || ''} ~ ${weekEndDate.value || ''}`;
-  } else if (periodType.value === 'month') {
-    return `${monthStartDate.value || ''} ~ ${monthEndDate.value || ''}`;
-  } else if (periodType.value === 'year') {
-    return `${yearStart.value || ''}년 ~ ${yearEnd.value || ''}년`;
+  if (periodType.value === "day") {
+    return `${dayStartDate.value || ""} ~ ${dayEndDate.value || ""}`;
+  } else if (periodType.value === "week") {
+    return `${weekStartDate.value || ""} ~ ${weekEndDate.value || ""}`;
+  } else if (periodType.value === "month") {
+    return `${monthStartDate.value || ""} ~ ${monthEndDate.value || ""}`;
+  } else if (periodType.value === "year") {
+    return `${yearStart.value || ""}년 ~ ${yearEnd.value || ""}년`;
   }
-  return '';
+  return "";
 });
 
 // --- Computed: 차트 데이터 포맷팅 ---
@@ -148,12 +139,12 @@ const normalizedLastYearPrices = computed(() => {
     return priceResult.value.map(() => null);
   }
 
-  return lastYearPrices.value.map((val) => (typeof val === 'number' ? val : null));
+  return lastYearPrices.value.map((val) => (typeof val === "number" ? val : null));
 });
 
 const formattedChartData = computed(() => {
   // day 모드: 기존 방식 유지
-  if (periodType.value === 'day') {
+  if (periodType.value === "day") {
     return {
       labels: priceResult.value.map((item) => item.dateLabel),
       thisPrices: priceResult.value.map((item) => item.priceLabel),
@@ -188,9 +179,9 @@ const paginatedData = computed(() => {
     const thisPrice = item.priceLabel ?? null;
     const lastPrice = normalizedLastYearPrices.value[globalIndex] ?? null;
 
-    const hasAggregateFields = item.hasOwnProperty('minPrice') || item.hasOwnProperty('maxPrice');
+    const hasAggregateFields = item.hasOwnProperty("minPrice") || item.hasOwnProperty("maxPrice");
 
-    if (hasAggregateFields && (periodType.value === 'week' || periodType.value === 'month')) {
+    if (hasAggregateFields && (periodType.value === "week" || periodType.value === "month")) {
       return {
         date: item.dateLabel,
         thisPrice,
@@ -205,9 +196,7 @@ const paginatedData = computed(() => {
       const yoyDiff = thisPrice !== null && lastPrice !== null && lastPrice > 0 ? thisPrice - lastPrice : null;
       const yoyRate = thisPrice !== null && lastPrice !== null && lastPrice > 0 ? (yoyDiff / lastPrice) * 100 : null;
 
-      const validPrices = priceResult.value
-        .map((r) => r.priceLabel)
-        .filter((p) => p !== null && p !== undefined && typeof p === 'number');
+      const validPrices = priceResult.value.map((r) => r.priceLabel).filter((p) => p !== null && p !== undefined && typeof p === "number");
       const maxVal = validPrices.length ? Math.max(...validPrices) : null;
       const minVal = validPrices.length ? Math.min(...validPrices) : null;
       const isMax = thisPrice === maxVal;
@@ -228,7 +217,7 @@ const paginatedData = computed(() => {
   });
 });
 
-const STORAGE_KEY = 'price-search-state';
+const STORAGE_KEY = "price-search-state";
 
 watch(
   () => ({
@@ -257,7 +246,7 @@ watch(
 onMounted(async () => {
   const { productCode, source } = route.query || {};
 
-  if (productCode && (source === 'rank' || source === 'favorite')) {
+  if (productCode && (source === "rank" || source === "favorite")) {
     await initializeFromRank(productCode);
     await handleSearch();
     return;
@@ -268,9 +257,9 @@ onMounted(async () => {
   if (saved) {
     const state = JSON.parse(saved);
 
-    selectedItem.value = state.selectedItem || '';
-    selectedVariety.value = state.selectedVariety || '';
-    periodType.value = state.periodType || 'year';
+    selectedItem.value = state.selectedItem || "";
+    selectedVariety.value = state.selectedVariety || "";
+    periodType.value = state.periodType || "year";
 
     dayStartDate.value = state.dayStartDate ?? null;
     dayEndDate.value = state.dayEndDate ?? null;
@@ -278,8 +267,8 @@ onMounted(async () => {
     weekEndDate.value = state.weekEndDate ?? null;
     monthStartDate.value = state.monthStartDate ?? null;
     monthEndDate.value = state.monthEndDate ?? null;
-    yearStart.value = state.yearStart ?? '';
-    yearEnd.value = state.yearEnd ?? '';
+    yearStart.value = state.yearStart ?? "";
+    yearEnd.value = state.yearEnd ?? "";
 
     if (state.selectedItem && state.selectedVariety && state.hasSearched) {
       await handleSearch();
@@ -287,10 +276,10 @@ onMounted(async () => {
 
     currentPage.value = state.currentPage || 1;
   } else {
-    selectedItem.value = '9903';
-    selectedVariety.value = 'KM-9903-23-71';
-    periodType.value = 'day';
-    dayStartDate.value = '2025-11-01';
+    selectedItem.value = "9903";
+    selectedVariety.value = "KM-9903-23-71";
+    periodType.value = "day";
+    dayStartDate.value = "2025-11-01";
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     dayEndDate.value = yesterday.toISOString().slice(0, 10);
