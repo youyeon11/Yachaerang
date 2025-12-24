@@ -23,12 +23,19 @@
               <span class="text-sm font-black text-slate-700 group-hover:text-slate-900 truncate">
                 {{ item.displayName }}
               </span>
-              <span class="flex-shrink-0 px-1.5 py-0.5 bg-white border border-slate-200 text-[10px] font-black text-slate-500 rounded text-center ml-2">
+              <span
+                class="flex-shrink-0 px-1.5 py-0.5 bg-white border border-slate-200 text-[10px] font-black text-slate-500 rounded text-center ml-2"
+              >
                 {{ item.periodLabel }}
               </span>
             </div>
           </div>
-          <button @click.stop="handleRemove(item.favoriteId)" class="text-sm text-red-400 hover:text-red-600 flex-shrink-0 p-1 font-bold transition-colors">✕</button>
+          <button
+            @click.stop="handleRemove(item.favoriteId)"
+            class="text-sm text-red-400 hover:text-red-600 flex-shrink-0 p-1 font-bold transition-colors"
+          >
+            ✕
+          </button>
         </div>
       </li>
     </ul>
@@ -37,19 +44,25 @@
       <p class="text-sm font-bold text-slate-300">등록한 관심 품목이 없습니다.</p>
     </div>
 
-    <ConfirmModal :show="showRemoveConfirm" title="관심품목 삭제" message="등록한 관심품목에서 삭제하시겠습니까?" @confirm="handleRemoveConfirm" @cancel="showRemoveConfirm = false" />
+    <ConfirmModal
+      :show="showRemoveConfirm"
+      title="관심품목 삭제"
+      message="등록한 관심품목에서 삭제하시겠습니까?"
+      @confirm="handleRemoveConfirm"
+      @cancel="showRemoveConfirm = false"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { fetchFavorites, removeFavorite } from "@/api/favorite";
-import { useProductNameStore } from "@/stores/productNameStore";
-import IconHeart from "@/components/icons/IconHeart.vue";
-import { useToastStore } from "@/stores/toast";
-import LoadingSpinner from "@/components/spinner/LoadingSpinner.vue";
-import ConfirmModal from "@/components/modal/ConfirmModal.vue";
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { fetchFavorites, removeFavorite } from '@/api/favorite';
+import { useProductNameStore } from '@/stores/productNameStore';
+import IconHeart from '@/components/icons/IconHeart.vue';
+import { useToastStore } from '@/stores/toast';
+import LoadingSpinner from '@/components/spinner/LoadingSpinner.vue';
+import ConfirmModal from '@/components/modal/ConfirmModal.vue';
 
 const router = useRouter();
 const productNameStore = useProductNameStore();
@@ -60,12 +73,12 @@ const loading = ref(false);
 
 const mapPeriodLabel = (periodType) => {
   const labels = {
-    DAILY: "일간",
-    WEEKLY: "주간",
-    MONTHLY: "월간",
-    YEARLY: "연간",
+    DAILY: '일간',
+    WEEKLY: '주간',
+    MONTHLY: '월간',
+    YEARLY: '연간',
   };
-  return labels[periodType] || periodType || "";
+  return labels[periodType] || periodType || '';
 };
 
 const loadFavorites = async () => {
@@ -77,14 +90,14 @@ const loadFavorites = async () => {
 
     favorites.value = list.map((fav) => {
       const fromMap = nameMap[fav.productCode] || {};
-      const itemName = fav.itemName || fav.item?.itemName || fromMap.itemName || "";
-      const varietyName = fav.subItemName || fav.productName || fromMap.varietyName || "";
+      const itemName = fav.itemName || fav.item?.itemName || fromMap.itemName || '';
+      const varietyName = fav.subItemName || fav.productName || fromMap.varietyName || '';
 
-      let displayName = "";
+      let displayName = '';
       if (itemName && varietyName) {
         displayName = `${itemName} - ${varietyName}`;
       } else {
-        displayName = varietyName || itemName || fav.productCode || "";
+        displayName = varietyName || itemName || fav.productCode || '';
       }
 
       return {
@@ -96,7 +109,7 @@ const loadFavorites = async () => {
       };
     });
   } catch (error) {
-    console.error("등록한 관심품목 조회 실패:", error);
+    console.error('등록한 관심품목 조회 실패:', error);
     favorites.value = [];
   } finally {
     loading.value = false;
@@ -104,11 +117,17 @@ const loadFavorites = async () => {
 };
 
 const goToDetail = (item) => {
+  if (!item.productCode) {
+    toastStore.show('상품 코드가 없습니다.', 'error');
+    return;
+  }
   router.push({
-    path: "/dashboard",
+    path: '/dashboard',
     query: {
       productCode: item.productCode,
       periodType: item.periodType,
+      source: 'favorite',
+      t: Date.now(),
     },
   });
 };
@@ -127,10 +146,10 @@ const handleRemoveConfirm = async () => {
   try {
     await removeFavorite(selectedFavoriteId.value);
     await loadFavorites();
-    toastStore.show("등록한 관심품목에서 삭제되었습니다.", "success");
+    toastStore.show('등록한 관심품목에서 삭제되었습니다.', 'success');
   } catch (error) {
-    console.error("삭제 실패:", error);
-    toastStore.show("삭제 중 오류가 발생했습니다.", "error");
+    console.error('삭제 실패:', error);
+    toastStore.show('삭제 중 오류가 발생했습니다.', 'error');
   } finally {
     showRemoveConfirm.value = false;
     selectedFavoriteId.value = null;
