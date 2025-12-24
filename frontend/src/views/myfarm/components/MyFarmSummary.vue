@@ -108,7 +108,7 @@
           <div class="absolute top-0 left-0 w-full h-2 bg-[#F44323]"></div>
           
           <div class="flex flex-col items-center justify-center pt-4">
-            <p class="text-gray-500 font-medium mb-2 uppercase tracking-widest text-xs">Farm Grade</p>
+            <p class="text-gray-500 font-medium mb-2 uppercase tracking-widest text-xs">농장 등급 정보</p>
             
             <div 
               :class="gradeCircleClass(farm.grade)"
@@ -138,12 +138,15 @@
               :class="currentTypeConfig.color"
               :style="iconStyle"
             >
-              <div 
-                class="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center shadow-sm"
-                :class="currentTypeConfig.iconBg"
-              >
-                <i class="fa-solid text-xl" :class="currentTypeConfig.icon"></i>
-              </div>
+            <div
+              class="flex-shrink-0 w-12 h-12 rounded-lg shadow-sm overflow-hidden"
+            >
+              <img
+                :src="currentTypeConfig.image"
+                :alt="currentTypeConfig.label"
+                class="w-full h-full object-cover"
+              />
+            </div>
 
               <div>
                 <h4 class="font-bold text-base mb-1" :class="currentTypeConfig.textClass">
@@ -197,6 +200,16 @@
 <script setup>
 import { computed } from 'vue'
 
+// 사진 import
+import efficientFarm from '@/assets/images/efficient.png'
+import experimentalFarm from '@/assets/images/experimental.png'
+import focusedFarm from '@/assets/images/focused.png'
+import improvementFarm from '@/assets/images/improvement.png'
+import laborFarm from '@/assets/images/labor.png'
+import traditionalFarm from '@/assets/images/traditional.png'
+import urbanFarm from '@/assets/images/urban.png'
+import defaultFarm from '@/assets/images/default.png'
+
 const props = defineProps({
   farm: {
     type: Object,
@@ -219,109 +232,80 @@ const gradeCircleClass = (grade) => {
 
 const gradeTitle = (grade) => {
   const map = {
-    'A': 'Excellent',
-    'B': 'Good',
-    'C': 'Average',
-    'D': 'Bad',
+    'A': '매우 우수',
+    'B': '양호',
+    'C': '보통',
+    'D': '개선 필요',
   };
   return map[grade] || 'Unknown';
 };
 
-// 농장 유형 정의 - #F44323 기반 색상 체계
+// 농장 유형 정의
 const TYPE_DEFINITIONS = {
-  // 효율형
   'Efficiency-Oriented': {
     label: '효율형 농장 (Efficiency)',
     desc: '평지 비율이 높고 노동력 활용이 효율적인 구조입니다.',
-    icon: 'fa-chart-line',
-    iconBg: 'bg-green-100',
     textClass: 'text-green-800',
-    imageUrl: '@/assets/efficiency-oriented'
+    image: efficientFarm,
   },
   '효율형 농장': 'Efficiency-Oriented',
 
-  // 노동집약형 - 오렌지 (#F44323과 유사한 계열)
   'Labor-Intensive': {
     label: '노동집약형 농장 (Labor)',
     desc: '지형적 불리함을 높은 노동 투입으로 극복하는 구조입니다.',
-    icon: 'fa-users-gear',
-    color: 'bg-orange-50 text-orange-700 border-orange-200',
-    iconBg: 'bg-orange-100',
-    textClass: 'text-orange-800'
+    textClass: 'text-orange-800',
+    image: laborFarm,
   },
   '노동집약형 농장': 'Labor-Intensive',
 
-  // 집중형 - 블루 (집중/전문성)
   'Focused': {
     label: '집중형 농장 (Focused)',
     desc: '특정 핵심 작물에 역량을 집중하는 전문화된 구조입니다.',
-    icon: 'fa-bullseye',
-    color: 'bg-blue-50 text-blue-700 border-blue-200',
-    iconBg: 'bg-blue-100',
-    textClass: 'text-blue-800'
+    textClass: 'text-blue-800',
+    image: focusedFarm,
   },
   '집중형 농장': 'Focused',
 
-  // 실험형 - 퍼플 (창의성/실험)
   'Experimental': {
     label: '실험형 농장 (Experimental)',
     desc: '미래 방향성을 탐색하기 위해 다품종 소량 생산을 시도합니다.',
-    icon: 'fa-flask',
-    color: 'bg-purple-50 text-purple-700 border-purple-200',
-    iconBg: 'bg-purple-100',
-    textClass: 'text-purple-800'
+    textClass: 'text-purple-800',
+    image: experimentalFarm,
   },
   '실험형 농장': 'Experimental',
 
-  // 도시형 - 시안/틸 (현대성/도시)
   'Urban': {
     label: '도시형 농장 (Urban)',
     desc: '도심 인근에 위치하여 접근성과 유통에 강점이 있는 구조입니다.',
-    icon: 'fa-city',
-    color: 'bg-cyan-50 text-cyan-700 border-cyan-200',
-    iconBg: 'bg-cyan-100',
-    textClass: 'text-cyan-800'
+    textClass: 'text-cyan-800',
+    image: urbanFarm,
   },
   '도시형 농장': 'Urban',
 
-  // 전통형 - 앰버 (전통/안정)
   'Traditional': {
     label: '전통형 농장 (Traditional)',
     desc: '전체적인 운영 구조가 균형 잡혀 있고 안정적인 형태입니다.',
-    icon: 'fa-tractor',
-    color: 'bg-amber-50 text-amber-700 border-amber-200',
-    iconBg: 'bg-amber-100',
-    textClass: 'text-amber-800'
+    textClass: 'text-amber-800',
+    image: traditionalFarm,
   },
   '전통형 농장': 'Traditional',
 
-  // 개선 필요 - 레드 (#F44323 메인 컬러 계열)
   'Needs Improvement': {
     label: '개선 필요형 (Needs Improv.)',
     desc: '현재 운영상 부담이 있으나, 명확한 개선 잠재력을 가지고 있습니다.',
-    icon: 'fa-hammer',
-    color: 'bg-red-50 text-[#F44323] border-red-200',
-    iconBg: 'bg-red-100',
-    textClass: 'text-[#F44323]'
+    textClass: 'text-[#F44323]',
+    image: improvementFarm,
   },
-  '개선 필요형': 'Needs Improvement'
-};
+  '개선 필요형': 'Needs Improvement',
+}
 
 const DEFAULT_TYPE_CONFIG = {
   label: '유형 미지정',
   desc: '아직 농장 유형이 분석되지 않았습니다.',
-  icon: 'fa-circle-question',
-  color: 'bg-gray-50 text-gray-600 border-gray-100',
-  iconBg: 'bg-white',
-  textClass: 'text-gray-700'
+  textClass: 'text-gray-700',
+  image: defaultFarm,
 };
 
-const currentTypeConfig = computed(() => ({
-  iconBg: 'bg-emerald-500',           // 기존 프레임 배경
-  imageUrl: '/images/farm.png',       // 넣고 싶은 이미지
-  label: '농장',
-  fallbackText: '🌱',
-}))
 
 const iconStyle = computed(() => {
   if (!currentTypeConfig.value.imageUrl) return {}
@@ -342,7 +326,6 @@ const currentTypeConfig = computed(() => {
   const config = TYPE_DEFINITIONS[typeKey];
 
   if (typeof config === 'string') {
-    // Alias인 경우 (예: '효율형 농장' -> 'Efficiency-Oriented' -> 객체)
     return TYPE_DEFINITIONS[config] || DEFAULT_TYPE_CONFIG;
   }
   
