@@ -169,15 +169,17 @@ const mapAggregateData = (src) => {
 
   // 데이터 1개일 때 처리
   if (labels.length === 1) {
-    labels = ['', labels[0], ''];
-    const mainThis = thisPrices[0] ?? null;
-    const mainLast = lastPrices[0] ?? null;
-    const mainMin = minPrices[0] ?? null;
-    const mainMax = maxPrices[0] ?? null;
-    thisPrices = [null, mainThis, null];
-    lastPrices = [null, typeof mainLast === 'number' ? mainLast : null, null];
-    minPrices = [null, mainMin, null];
-    maxPrices = [null, mainMax, null];
+    const label = labels[0];
+    const val = thisPrices[0];
+    const min = minPrices[0];
+    const max = maxPrices[0];
+    const last = lastPrices[0];
+
+    labels = ['', label, ' ']; // 뒤쪽 공백은 중복 방지용
+    thisPrices = [val, val, val]; // 같은 값을 채워 수평선 형성
+    minPrices = [min, min, min];
+    maxPrices = [max, max, max];
+    lastPrices = [last, last, last];
   }
 
   // 평균 계산 (null 제외)

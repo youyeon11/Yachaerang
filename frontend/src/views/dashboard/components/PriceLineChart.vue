@@ -148,14 +148,17 @@ const initChart = () => {
       }
     );
   } else {
-    // week/month/year 모드: min~max 밴드 + avg 라인
+    // week/month/year 모드
     const minPrices = props.minPrices || [];
     const maxPrices = props.maxPrices || [];
+
+    // 데이터가 1개일 때를 위한 특별 처리
+    const isSingleData = props.labels.filter((l) => l !== '').length === 1;
 
     datasets.push({
       label: '최소',
       data: minPrices,
-      borderColor: 'rgba(148, 163, 184, 0.4)',
+      borderColor: isSingleData ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.4)',
       backgroundColor: 'rgba(148, 163, 184, 0.12)',
       borderWidth: 1,
       pointRadius: 0,
@@ -168,8 +171,9 @@ const initChart = () => {
     datasets.push({
       label: '최대',
       data: maxPrices,
-      borderColor: 'rgba(148, 163, 184, 0.4)',
-      backgroundColor: 'rgba(148, 163, 184, 0.12)',
+      borderColor: isSingleData ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.4)',
+      // 데이터가 1개일 때 더 진한 색상의 구간 배경색 적용
+      backgroundColor: isSingleData ? 'rgba(71, 85, 105, 0.15)' : 'rgba(148, 163, 184, 0.12)',
       borderWidth: 1,
       pointRadius: 0,
       tension: 0,
@@ -189,15 +193,19 @@ const initChart = () => {
       data: props.thisPrices,
       borderColor: '#475569',
       borderWidth: 3,
-      pointRadius: props.thisPrices.map((_, i) => (i === maxAvgIdx || i === minAvgIdx ? 7 : 4)),
-      pointBackgroundColor: props.thisPrices.map((_, i) => {
+      // 데이터가 1개일 때는 항상 포인트를 크게 표시
+      pointRadius: props.thisPrices.map((p, i) => {
+        if (p === null) return 0;
+        return isSingleData || i === maxAvgIdx || i === minAvgIdx ? 7 : 4;
+      }),
+      pointBackgroundColor: props.thisPrices.map((p, i) => {
+        if (isSingleData && p !== null) return '#475569';
         if (i === maxAvgIdx) return '#f43f5e';
         if (i === minAvgIdx) return '#3b82f6';
         return '#475569';
       }),
       pointBorderColor: '#fff',
-      pointBorderWidth: props.thisPrices.map((_, i) => (i === maxAvgIdx || i === minAvgIdx ? 3 : 2)),
-      pointHoverRadius: props.thisPrices.map((_, i) => (i === maxAvgIdx || i === minAvgIdx ? 9 : 6)),
+      pointBorderWidth: 3,
       tension: 0,
       fill: false,
       spanGaps: true,
@@ -209,7 +217,7 @@ const initChart = () => {
       datasets.push({
         label: '전년',
         data: props.lastPrices,
-        borderColor: 'rgba(226, 232, 240, 0.8)',
+        borderColor: 'rgba(170, 182, 198, 1)',
         borderWidth: 2,
         borderDash: [5, 5],
         pointRadius: 0,
