@@ -8,7 +8,7 @@
       <router-view v-if="isChildRoute" />
 
       <template v-else>
-        <ProfileSection :profile="profile" @update:profile="handleProfileUpdate" />
+        <ProfileSection />
 
         <AccountActions />
 
