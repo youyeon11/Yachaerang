@@ -4,7 +4,7 @@
       
       <div v-if="farm" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
         <h2 class="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
-          <span class="w-1 h-6 bg-[#F44323] rounded-full block"></span>
+          <span class="w-1 h-6 bg-[#FECC21] rounded-full block"></span>
           농장 정보
         </h2>
 
@@ -63,7 +63,7 @@
 
           <button
             @click="$emit('edit')"
-            class="w-full bg-[#F44323] text-white font-bold py-4 rounded-lg shadow-md hover:bg-[#d63a1f] transform active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            class="w-full bg-[#FECC21] text-white font-bold py-4 rounded-lg shadow-md hover:bg-[#FFB900] transform active:scale-[0.98] transition-all flex items-center justify-center gap-2"
           >
             <i class="fa-solid fa-pen-to-square"></i>
             농장 정보 수정하기
@@ -105,7 +105,7 @@
       <div v-if="farm && (farm.grade || farm.comment)" class="h-fit">
         
         <div class="bg-white p-6 pb-2 rounded-t-xl shadow-sm border border-gray-100 border-b-0 relative overflow-hidden z-10">
-          <div class="absolute top-0 left-0 w-full h-2 bg-[#F44323]"></div>
+          <div class="absolute top-0 left-0 w-full h-2 bg-[#FECC21]"></div>
           
           <div class="flex flex-col items-center justify-center pt-4">
             <p class="text-gray-500 font-medium mb-2 uppercase tracking-widest text-xs">농장 등급 정보</p>
@@ -163,13 +163,13 @@
         <div class="bg-amber-50 p-6 rounded-b-xl border border-gray-200 border-t-gray-100">
           <div class="flex gap-4">
             <div class="flex-shrink-0">
-              <div class="w-10 h-10 rounded-full bg-[#F44323] text-white flex items-center justify-center shadow-sm">
+              <div class="w-10 h-10 rounded-full bg-[#FECC21] text-white flex items-center justify-center shadow-sm">
                 <i class="fa-solid fa-robot"></i>
               </div>
             </div>
             <div class="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 flex-1">
               <p class="text-gray-700 text-sm leading-relaxed">
-                <span class="font-bold text-[#F44323] block mb-1">AI 분석 리포트:</span> 
+                <span class="font-bold text-[#F57C00] block mb-1">AI 분석 리포트:</span> 
                 {{ farm.comment ?? '평가 내용이 없습니다.' }}
               </p>
             </div>
