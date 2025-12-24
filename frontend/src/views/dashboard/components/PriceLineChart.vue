@@ -153,7 +153,11 @@ const initChart = () => {
     const maxPrices = props.maxPrices || [];
 
     // 데이터가 1개일 때를 위한 특별 처리
-    const isSingleData = props.labels.filter((l) => l !== '').length === 1;
+    const nonEmptyCount = (props.labels || []).filter((l) => String(l ?? '').trim() !== '').length;
+    const isSingleData = nonEmptyCount === 1;
+    
+    // 단일 데이터일 때 중간 인덱스 찾기 (labels가 ['', label, ' '] 형태이므로 인덱스 1)
+    const centerIdx = isSingleData ? (props.labels || []).findIndex((l) => String(l ?? '').trim() !== '') : -1;
 
     datasets.push({
       label: '최소',
@@ -161,7 +165,16 @@ const initChart = () => {
       borderColor: isSingleData ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.4)',
       backgroundColor: 'rgba(148, 163, 184, 0.12)',
       borderWidth: 1,
-      pointRadius: 0,
+      // 단일 데이터일 때 중간 인덱스에만 파란 점 표시 (박스의 제일 아래)
+      pointRadius: isSingleData && centerIdx >= 0 
+        ? minPrices.map((p, i) => (i === centerIdx && p !== null && p !== undefined ? 7 : 0))
+        : 0,
+      pointHoverRadius: isSingleData && centerIdx >= 0
+        ? minPrices.map((p, i) => (i === centerIdx && p !== null && p !== undefined ? 9 : 0))
+        : 0,
+      pointBackgroundColor: isSingleData && centerIdx >= 0 ? '#3b82f6' : 'transparent',
+      pointBorderColor: '#fff',
+      pointBorderWidth: 3,
       tension: 0,
       fill: false,
       spanGaps: true,
@@ -175,7 +188,16 @@ const initChart = () => {
       // 데이터가 1개일 때 더 진한 색상의 구간 배경색 적용
       backgroundColor: isSingleData ? 'rgba(71, 85, 105, 0.15)' : 'rgba(148, 163, 184, 0.12)',
       borderWidth: 1,
-      pointRadius: 0,
+      // 단일 데이터일 때 중간 인덱스에만 빨간 점 표시 (박스의 제일 위)
+      pointRadius: isSingleData && centerIdx >= 0
+        ? maxPrices.map((p, i) => (i === centerIdx && p !== null && p !== undefined ? 7 : 0))
+        : 0,
+      pointHoverRadius: isSingleData && centerIdx >= 0
+        ? maxPrices.map((p, i) => (i === centerIdx && p !== null && p !== undefined ? 9 : 0))
+        : 0,
+      pointBackgroundColor: isSingleData && centerIdx >= 0 ? '#f43f5e' : 'transparent',
+      pointBorderColor: '#fff',
+      pointBorderWidth: 3,
       tension: 0,
       fill: '-1',
       spanGaps: true,
@@ -193,13 +215,23 @@ const initChart = () => {
       data: props.thisPrices,
       borderColor: '#475569',
       borderWidth: 3,
-      // 데이터가 1개일 때는 항상 포인트를 크게 표시
+      // 단일 데이터일 때는 중간 인덱스에만 검정 점 표시, 다중 데이터일 때는 기존 로직
       pointRadius: props.thisPrices.map((p, i) => {
         if (p === null) return 0;
-        return isSingleData || i === maxAvgIdx || i === minAvgIdx ? 7 : 4;
+        if (isSingleData) {
+          return i === centerIdx ? 7 : 0; // 중간 인덱스에만 표시
+        }
+        return i === maxAvgIdx || i === minAvgIdx ? 7 : 4;
+      }),
+      pointHoverRadius: props.thisPrices.map((p, i) => {
+        if (p === null) return 0;
+        if (isSingleData) {
+          return i === centerIdx ? 9 : 0; // 중간 인덱스에만 호버 표시
+        }
+        return i === maxAvgIdx || i === minAvgIdx ? 9 : 6;
       }),
       pointBackgroundColor: props.thisPrices.map((p, i) => {
-        if (isSingleData && p !== null) return '#475569';
+        if (isSingleData && i === centerIdx && p !== null) return '#475569'; // 검정색
         if (i === maxAvgIdx) return '#f43f5e';
         if (i === minAvgIdx) return '#3b82f6';
         return '#475569';
@@ -291,6 +323,15 @@ const initChart = () => {
           }
         }
       } else {
+        // week/month/year 모드
+        // 단일 데이터일 때는 라벨 표시하지 않음
+        const nonEmptyCount = (props.labels || []).filter((l) => String(l ?? '').trim() !== '').length;
+        const isSingleData = nonEmptyCount === 1;
+        
+        if (isSingleData) {
+          return; // 단일 데이터일 때는 라벨 표시 안 함
+        }
+
         const avgDatasetIndex = 2;
         const avgMeta = chart.getDatasetMeta(avgDatasetIndex);
 
