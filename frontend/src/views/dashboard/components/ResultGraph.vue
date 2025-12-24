@@ -38,7 +38,7 @@
       />
     </div>
 
-    <div class="pt-10 border-t border-slate-50 space-y-5">
+    <div class="pt-10 border-t border-slate-50 space-y-5 relative">
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-3">
         <div>
           <h3 class="text-lg md:text-xl font-black text-slate-800 flex items-center gap-2">
@@ -57,7 +57,21 @@
         </div>
       </div>
 
-      <PriceBarChart :labels="processedData.labels" :diffData="processedData.diffData" />
+      <div
+        v-if="shouldBlurChart"
+        class="absolute inset-x-0 bottom-0 top-[60px] z-10 flex items-center justify-center bg-white/10 backdrop-blur-[1px]"
+      >
+        <div class="bg-white/90 px-5 py-3 rounded-lg shadow-md border border-slate-200 flex items-center gap-3">
+          <IconInfo class="h-5 w-5 text-red-500" />
+          <p class="text-slate-600 text-sm font-semibold">
+            조회된 데이터가 1개이므로 평균 대비 등락 그래프가 제공되지 않습니다.
+          </p>
+        </div>
+      </div>
+
+      <div :class="['transition-all', { 'blur-md opacity-40 grayscale': shouldBlurChart }]">
+        <PriceBarChart :labels="processedData.labels" :diffData="processedData.diffData" />
+      </div>
     </div>
   </div>
 </template>
@@ -66,6 +80,7 @@
 import { computed } from 'vue';
 import PriceLineChart from './PriceLineChart.vue';
 import PriceBarChart from './PriceBarChart.vue';
+import IconInfo from '@/components/icons/IconInfo.vue';
 
 const props = defineProps({
   chartData: {
@@ -81,6 +96,30 @@ const props = defineProps({
   priceResult: {
     type: Array,
     default: () => [],
+  },
+  weekStartDate: {
+    type: String,
+    default: null,
+  },
+  weekEndDate: {
+    type: String,
+    default: null,
+  },
+  monthStartDate: {
+    type: String,
+    default: null,
+  },
+  monthEndDate: {
+    type: String,
+    default: null,
+  },
+  yearStart: {
+    type: String,
+    default: null,
+  },
+  yearEnd: {
+    type: String,
+    default: null,
   },
 });
 
@@ -160,7 +199,7 @@ const mapAggregateData = (src) => {
 // 모든 계산 로직을 부모에서 통합 관리
 const processedData = computed(() => {
   const src = props.chartData;
-  
+
   // periodType에 따라 다른 매핑 함수 사용
   const baseData = props.periodType === 'day' ? mapDayData(src) : mapAggregateData(src);
 
@@ -181,5 +220,19 @@ const processedData = computed(() => {
     ...baseData,
     diffData,
   };
+});
+
+// 주간/월간/연간일 때 시작일과 끝일이 같으면 블러 처리
+const shouldBlurChart = computed(() => {
+  if (props.periodType === 'week') {
+    return props.weekStartDate && props.weekEndDate && props.weekStartDate === props.weekEndDate;
+  }
+  if (props.periodType === 'month') {
+    return props.monthStartDate && props.monthEndDate && props.monthStartDate === props.monthEndDate;
+  }
+  if (props.periodType === 'year') {
+    return props.yearStart && props.yearEnd && props.yearStart === props.yearEnd;
+  }
+  return false;
 });
 </script>

@@ -59,7 +59,17 @@
           <template v-else-if="hasSearched">
             <EmptyResult v-if="!priceResult || priceResult.length === 0" />
             <template v-else>
-              <ResultGraph :chartData="formattedChartData" :periodType="periodType" :priceResult="priceResult" />
+              <ResultGraph
+                :chartData="formattedChartData"
+                :periodType="periodType"
+                :priceResult="priceResult"
+                :weekStartDate="weekStartDate"
+                :weekEndDate="weekEndDate"
+                :monthStartDate="monthStartDate"
+                :monthEndDate="monthEndDate"
+                :yearStart="yearStart"
+                :yearEnd="yearEnd"
+              />
               <ResultTable
                 :paginatedData="paginatedData"
                 :totalPages="totalPages"
