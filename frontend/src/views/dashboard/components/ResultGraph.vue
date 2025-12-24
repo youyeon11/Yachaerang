@@ -90,7 +90,6 @@ const props = defineProps({
   },
   periodType: {
     type: String,
-    required: true,
     default: 'day',
   },
   priceResult: {
