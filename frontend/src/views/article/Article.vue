@@ -62,7 +62,7 @@ const loadArticles = async (page = 1, keyword = '') => {
         tags: item.tagList || [],
         date: item.createdAt,
         thumbnail: item.imageUrl,
-        bookmarked: false,
+        isBookmarked: item.isBookmarked,
       }));
     }
   } catch (error) {

@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { saveBookmark, removeBookmark } from '@/api/article';
 import { useToastStore } from '@/stores/toast';
 import IconArrowRight from '@/components/icons/IconArrowRight.vue';
@@ -87,7 +87,12 @@ const formattedDate = computed(() => {
 
 const toastStore = useToastStore();
 const isLoading = ref(false);
-const isBookmarked = ref(props.article.bookmarked ?? false);
+const isBookmarked = ref(props.article.isBookmarked ?? false);
+
+// propts 변경 동기화
+watch(() => props.article.isBookmarked, (newVal) => {
+  isBookmarked.value = newVal ?? false;
+});
 
 const handleToggleBookmark = async () => {
   if (isLoading.value) return;
