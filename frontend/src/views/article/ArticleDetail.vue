@@ -132,14 +132,14 @@ watch(
   { immediate: true }
 );
 
-const reactionIcons = { like: '👍', helpful: '💡', suprise: '😲', sad: '🥺', bummer: '💪' };
-const reactionLabels = { like: '좋아요', helpful: '유익해요', suprise: '놀랐어요', sad: '슬퍼요', bummer: '아쉬워요' };
+const reactionIcons = { like: '👍', helpful: '💡', surprise: '😲', sad: '🥺', bummer: '💪' };
+const reactionLabels = { like: '좋아요', helpful: '유익해요', surprise: '놀랐어요', sad: '슬퍼요', bummer: '아쉬워요' };
 
 // 리액션 타입 역매핑
 const REACTION_TYPE_REVERSE_MAP = {
   GOOD: 'like',
   HELPFUL: 'helpful',
-  SURPRISED: 'suprise',
+  SURPRISED: 'surprise',
   SAD: 'sad',
   BUMMER: 'bummer',
 };
@@ -147,7 +147,7 @@ const REACTION_TYPE_REVERSE_MAP = {
 const reactions = ref({
   like: { count: 0 },
   helpful: { count: 0 },
-  suprise: { count: 0 },
+  surprise: { count: 0 },
   sad: { count: 0 },
   bummer: { count: 0 },
 });
@@ -170,7 +170,7 @@ const loadReactionStatistics = async (articleId) => {
     reactions.value = {
       like: { count: 0 },
       helpful: { count: 0 },
-      suprise: { count: 0 },
+      surprise: { count: 0 },
       sad: { count: 0 },
       bummer: { count: 0 },
     };

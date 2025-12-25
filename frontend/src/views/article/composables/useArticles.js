@@ -5,7 +5,7 @@ import { addReaction, removeReaction } from '@/api/article';
 const REACTION_TYPE_MAP = {
   like: 'GOOD',
   helpful: 'HELPFUL',
-  suprise: 'SURPRISED',
+  surprise: 'SURPRISED',
   sad: 'SAD',
   bummer: 'BUMMER',
 };

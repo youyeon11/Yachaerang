@@ -154,10 +154,6 @@ const closeModal = () => {
   showModal.value = false;
   selectedReactionType.value = null;
 };
-
-const handleImageError = (event) => {
-  event.target.src = '/default.png';
-};
 </script>
 
 <style scoped>
