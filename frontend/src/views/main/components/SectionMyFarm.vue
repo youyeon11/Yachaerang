@@ -17,12 +17,12 @@
       <div class="marquee-container">
         <div class="marquee-track">
           <img 
-            :src="imageSrc" 
+            :src="'https://yachaerang-s3-bucket.s3.ap-northeast-2.amazonaws.com/images/mock4.png'"
             alt="나의농장 서비스 미리보기" 
             class="marquee-image" 
           />
           <img 
-            :src="imageSrc" 
+            :src="'https://yachaerang-s3-bucket.s3.ap-northeast-2.amazonaws.com/images/mock4.png'"
             alt="나의농장 서비스 미리보기" 
             class="marquee-image" 
           />
