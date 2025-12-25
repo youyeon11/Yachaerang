@@ -10,14 +10,6 @@ const REACTION_TYPE_MAP = {
   bummer: 'BUMMER',
 };
 
-const REACTION_TYPE_REVERSE_MAP = {
-  GOOD: 'like',
-  HELPFUL: 'helpful',
-  SURPRISED: 'suprise',
-  SAD: 'sad',
-  BUMMER: 'bummer',
-};
-
 export function useArticle() {
   const toastStore = useToastStore();
 
@@ -33,7 +25,6 @@ export function useArticle() {
 
     return true;
   };
-
 
   const toggleReactionAction = async (articleId, type, myReaction, reactions) => {
     if (!checkAuth()) return;

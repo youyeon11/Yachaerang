@@ -135,7 +135,7 @@ watch(
 const reactionIcons = { like: '👍', helpful: '💡', suprise: '😲', sad: '🥺', bummer: '💪' };
 const reactionLabels = { like: '좋아요', helpful: '유익해요', suprise: '놀랐어요', sad: '슬퍼요', bummer: '아쉬워요' };
 
-// 리액션 타입 역매핑 (백엔드 → 프론트엔드)
+// 리액션 타입 역매핑
 const REACTION_TYPE_REVERSE_MAP = {
   GOOD: 'like',
   HELPFUL: 'helpful',
@@ -256,9 +256,9 @@ const loadArticleDetail = async () => {
 const handleToggleBookmark = async () => {
   if (isBookmarkLoading.value) return;
 
-  // 로그인 상태 확인
   const accessToken = tokenStorage.getAccessToken();
-  const hasValidToken = accessToken && accessToken.trim() !== '' && accessToken !== 'null' && accessToken !== 'undefined';
+  const hasValidToken =
+    accessToken && accessToken.trim() !== '' && accessToken !== 'null' && accessToken !== 'undefined';
 
   if (!hasValidToken) {
     toastStore.show('로그인이 필요한 서비스입니다. 로그인 후 이용해 주세요', 'info');
@@ -268,7 +268,6 @@ const handleToggleBookmark = async () => {
   isBookmarkLoading.value = true;
   const wasBookmarked = isBookmarked.value;
 
-  // 낙관적 업데이트
   isBookmarked.value = !wasBookmarked;
 
   try {
@@ -303,4 +302,3 @@ const goToList = () => router.push('/articles');
 
 onMounted(loadArticleDetail);
 </script>
-

@@ -80,14 +80,10 @@
                 <IconX class="w-5 h-5" />
               </button>
             </div>
-            
+
             <div class="modal-content">
               <div v-if="getReactorsByType(selectedReactionType).length > 0" class="reactor-list">
-                <div
-                  v-for="user in getReactorsByType(selectedReactionType)"
-                  :key="user.nickname"
-                  class="reactor-item"
-                >
+                <div v-for="user in getReactorsByType(selectedReactionType)" :key="user.nickname" class="reactor-item">
                   <img
                     :src="user.profile || '/default.png'"
                     :alt="user.nickname"
@@ -165,7 +161,6 @@ const handleImageError = (event) => {
 </script>
 
 <style scoped>
-/* 모달 스타일 */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -299,7 +294,6 @@ const handleImageError = (event) => {
   color: #9ca3af;
 }
 
-/* 모달 애니메이션 */
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.3s ease;
@@ -321,7 +315,6 @@ const handleImageError = (event) => {
   opacity: 0;
 }
 
-/* 스크롤바 스타일 */
 .reactor-list::-webkit-scrollbar {
   width: 6px;
 }
