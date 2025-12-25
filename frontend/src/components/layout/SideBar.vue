@@ -50,7 +50,7 @@
             @error="handleAvatarError"
           />
           <IconUser v-else class="h-5 w-5" />
-          My Page
+          마이페이지
         </div>
         <div
           @click="handleLogout"
