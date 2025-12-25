@@ -5,7 +5,7 @@
     :class="cardRankClass"
   >
     <div class="flex justify-between items-start">
-      <span class="text-xs font-bold px-2 py-1 rounded w-fit border" :class="rankBadgeClass"> {{ rank }}위 </span>
+      <span class="text-xs font-bold px-2 py-1 rounded w-fit" :class="rankBadgeClass"> {{ rank }}위 </span>
       <span class="text-sm font-bold" :class="priceColorClass"> {{ arrow }} {{ formattedRate }} </span>
     </div>
 
