@@ -19,12 +19,16 @@
         @click="$emit('select', item)"
         class="group flex flex-col p-4 border border-slate-50 bg-slate-50/50 rounded-xl cursor-pointer hover:bg-white hover:border-slate-300 hover:shadow-md transition-all active:scale-[0.98]"
       >
-        <div class="flex justify-between items-start mb-1.5">
-          <span class="text-lg font-black text-slate-800 group-hover:text-slate-900">
-            {{ item.itemLabel }}
-            <span class="text-slate-500 font-bold ml-1 text-sm">{{ item.varietyLabel }}</span>
-          </span>
-          <span class="px-2 py-1 bg-white border border-slate-200 text-sm font-black text-slate-500 rounded text-center">
+        <div class="flex justify-between items-start mb-1.5 gap-2 flex-nowrap">
+          <div class="flex-1 min-w-0">
+            <span class="text-lg font-black text-slate-800 group-hover:text-slate-900 truncate block">
+              {{ item.itemLabel }}
+            </span>
+            <span class="text-slate-500 font-bold text-sm truncate block">
+              {{ item.varietyLabel }}
+            </span>
+          </div>
+          <span class="px-2 py-1 bg-white border border-slate-200 text-sm font-black text-slate-500 rounded text-center whitespace-nowrap flex-shrink-0">
             {{ periodMap[item.periodType] }}
           </span>
         </div>
