@@ -36,7 +36,7 @@
           v-for="tag in article.tags"
           :key="tag"
           @click.stop="handleTagClick(tag)"
-          class="px-3 py-1 bg-[#FECC21]/10 text-gray-800 text-xs font-bold rounded-full border border-[#FECC21]/20 group-hover:bg-[#FECC21]/25 group-hover:border-[#FECC21]/50 group-hover:text-gray-900 transition-all duration-300 cursor-pointer hover:bg-[#FECC21]/30 hover:border-[#FECC21]/60"
+          class="px-3 py-1 bg-[#FECC21]/10 text-gray-800 text-xs font-bold rounded-full border border-[#FECC21]/20 group-hover:bg-[#FECC21]/25 group-hover:border-[#FECC21]/50 group-hover:text-gray-900 transition-all duration-300 cursor-pointer hover:bg-[#FECC21] hover:border-[#FECC21] hover:text-gray-900 hover:shadow-md"
         >
           #{{ tag }}
         </span>
