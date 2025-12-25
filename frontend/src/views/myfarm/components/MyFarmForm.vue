@@ -19,45 +19,31 @@
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-4">
-          <div class="grid gap-4 md:grid-cols-2">
-            <!-- 인력 -->
+          <!-- 농장 위치 (전체 너비) -->
+          <div class="space-y-2">
+            <label for="location" class="text-sm font-medium text-gray-900">농장 위치</label>
+            <input
+              id="location"
+              v-model="formData.location"
+              type="text"
+              placeholder="예: 충남 논산의 평지"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#FECC21] focus:outline-none focus:ring-2 focus:ring-[#FECC21]/20"
+            />
+          </div>
+
+          <!-- 경작면적 / 평지면적 / 농장 인력 (3열 그리드) -->
+          <div class="grid gap-4 md:grid-cols-3">
             <div class="space-y-2">
-              <label for="manpower" class="text-sm font-medium text-gray-900">인력</label>
+              <label for="cultivatedArea" class="text-sm font-medium text-gray-900">경작면적 (㎡)</label>
               <input
-                id="manpower"
-                v-model.number="formData.manpower"
+                id="cultivatedArea"
+                v-model.number="formData.cultivatedArea"
                 type="number"
                 min="0"
-                placeholder="예: 3"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
+                placeholder="예: 800"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#FECC21] focus:outline-none focus:ring-2 focus:ring-[#FECC21]/20"
               />
             </div>
-
-            <!-- 농장위치 -->
-            <div class="space-y-2">
-              <label for="location" class="text-sm font-medium text-gray-900">농장 위치</label>
-              <input
-                id="location"
-                v-model="formData.location"
-                type="text"
-                placeholder="예: 경기도 양평군"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
-              />
-            </div>
-
-            <!-- 주품목 -->
-            <div class="space-y-2">
-              <label for="mainCrop" class="text-sm font-medium text-gray-900">주품목</label>
-              <input
-                id="mainCrop"
-                v-model="formData.mainCrop"
-                type="text"
-                placeholder="예: 토마토"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
-              />
-            </div>
-
-            <!-- 평지면적 -->
             <div class="space-y-2">
               <label for="flatArea" class="text-sm font-medium text-gray-900">평지면적 (㎡)</label>
               <input
@@ -66,29 +52,44 @@
                 type="number"
                 min="0"
                 placeholder="예: 1000"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#FECC21] focus:outline-none focus:ring-2 focus:ring-[#FECC21]/20"
               />
+            </div>
+            <div class="space-y-2">
+              <label for="manpower" class="text-sm font-medium text-gray-900">농장 인력</label>
+              <div class="relative">
+                <i class="fa-solid fa-user absolute left-3 top-3 text-gray-400"></i>
+                <input
+                  id="manpower"
+                  v-model.number="formData.manpower"
+                  type="number"
+                  min="0"
+                  placeholder="예: 3"
+                  class="w-full pl-10 pr-12 rounded-lg border border-gray-300 px-3 py-2 focus:border-[#FECC21] focus:outline-none focus:ring-2 focus:ring-[#FECC21]/20"
+                />
+                <span class="absolute right-3 top-3 text-gray-500 text-sm font-medium">명</span>
+              </div>
             </div>
           </div>
 
-          <!-- 경작면적 (전체 너비) -->
+          <!-- 주품목 (전체 너비) -->
           <div class="space-y-2">
-            <label for="cultivatedArea" class="text-sm font-medium text-gray-900">경작면적 (㎡)</label>
-            <input
-              id="cultivatedArea"
-              v-model.number="formData.cultivatedArea"
-              type="number"
-              min="0"
-              placeholder="예: 800"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
-            />
+            <label for="mainCrop" class="text-sm font-medium text-gray-900">주품목</label>
+            <button
+              type="button"
+              @click="isCropModalOpen = true"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-left text-base font-semibold text-gray-800 flex items-center justify-between bg-white hover:border-[#FECC21] transition-all focus:border-[#FECC21] focus:outline-none focus:ring-2 focus:ring-[#FECC21]/20"
+            >
+              <span class="truncate">{{ selectedCropLabel || '품목을 선택하세요' }}</span>
+              <i class="fa-solid fa-chevron-down text-gray-400 ml-2"></i>
+            </button>
           </div>
 
           <!-- 버튼 그룹 -->
           <div class="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               type="submit"
-              class="flex-1 rounded-lg bg-[#F44323] px-4 py-2 font-medium text-white transition-colors hover:bg-[#d63a1f]"
+              class="flex-1 rounded-lg bg-[#FECC21] px-4 py-2 font-medium text-white transition-colors hover:bg-[#FFB900]"
             >
               {{ isEdit ? '수정 완료' : '등록하기' }}
             </button>
@@ -111,13 +112,54 @@
         @confirm="handleCancelConfirm"
         @cancel="showCancelModal = false"
       />
+
+      <!-- 작물 선택 모달 -->
+      <div
+        v-if="isCropModalOpen"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+      >
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in">
+          <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <h3 class="text-lg font-bold">주품목 선택 (중복 가능)</h3>
+            <button @click="isCropModalOpen = false" class="text-gray-400 hover:text-[#FECC21] text-2xl font-light">
+              ×
+            </button>
+          </div>
+
+          <div class="p-5 grid grid-cols-3 md:grid-cols-4 gap-2 max-h-[50vh] overflow-y-auto">
+            <button
+              v-for="item in itemOptions"
+              :key="item.value"
+              @click="toggleCrop(item.label)"
+              :class="
+                isSelected(item.label)
+                  ? 'border-[#FECC21] bg-[#FECC21]/10 text-[#F57C00] shadow-sm ring-1 ring-[#FECC21]/30'
+                  : 'border-gray-100 bg-gray-50/60 text-gray-600 hover:bg-gray-100 hover:border-[#FECC21]/30'
+              "
+              class="py-3 px-2.5 border rounded-xl text-sm font-semibold truncate transition-all flex items-center justify-center text-center"
+            >
+              {{ item.label }}
+            </button>
+          </div>
+
+          <div class="p-4 bg-gray-50 border-t flex justify-end">
+            <button
+              @click="isCropModalOpen = false"
+              class="bg-[#FECC21] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#FFB900] transition-colors"
+            >
+              선택 완료
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import ConfirmModal from '@/components/modal/ConfirmModal.vue';
+import { fetchItemsApi } from '@/api/price';
 
 const props = defineProps({
   initialFarm: {
@@ -141,6 +183,51 @@ const formData = reactive({
 });
 
 const showCancelModal = ref(false);
+const isCropModalOpen = ref(false);
+const itemOptions = ref([]);
+
+const selectedCropLabel = computed(() => {
+  if (!formData.mainCrop) return '';
+  return formData.mainCrop;
+});
+
+const fetchItems = async () => {
+  try {
+    const res = await fetchItemsApi();
+    const body = res.data;
+    const list = Array.isArray(body) ? body : Array.isArray(body?.data) ? body.data : [];
+    itemOptions.value = list.map((item) => ({
+      value: String(item.itemCode ?? item.code ?? item.id),
+      label: item.itemName ?? item.name ?? '',
+    }));
+  } catch (error) {
+    console.error('품목 목록 조회 실패:', error);
+    itemOptions.value = [];
+  }
+};
+
+const toggleCrop = (itemLabel) => {
+  let selectedArray = formData.mainCrop ? formData.mainCrop.split(',').filter((item) => item.trim() !== '') : [];
+
+  const index = selectedArray.indexOf(itemLabel);
+
+  if (index > -1) {
+    selectedArray.splice(index, 1);
+  } else {
+    selectedArray.push(itemLabel);
+  }
+
+  formData.mainCrop = selectedArray.join(',');
+};
+
+const isSelected = (itemLabel) => {
+  if (!formData.mainCrop) return false;
+  return formData.mainCrop.split(',').includes(itemLabel);
+};
+
+onMounted(() => {
+  fetchItems();
+});
 
 const handleSubmit = () => {
   const payload = {

@@ -1,57 +1,85 @@
-import { ref } from "vue";
-import { tokenStorage } from "@/utils/storage";
-import { useToastStore } from "@/stores/toast";
+import { tokenStorage } from '@/utils/storage';
+import { useToastStore } from '@/stores/toast';
+import { addReaction, removeReaction } from '@/api/article';
+
+const REACTION_TYPE_MAP = {
+  like: 'GOOD',
+  helpful: 'HELPFUL',
+  surprise: 'SURPRISED',
+  sad: 'SAD',
+  bummer: 'BUMMER',
+};
 
 export function useArticle() {
-  const isProcessing = ref(false);
   const toastStore = useToastStore();
 
   const checkAuth = () => {
     const accessToken = tokenStorage.getAccessToken();
-    const hasValidToken = accessToken && accessToken.trim() !== "" && accessToken !== "null" && accessToken !== "undefined";
+    const hasValidToken =
+      accessToken && accessToken.trim() !== '' && accessToken !== 'null' && accessToken !== 'undefined';
 
     if (!hasValidToken) {
-      toastStore.show("로그인이 필요한 서비스입니다. 로그인 후 이용해 주세요", "info");
+      toastStore.show('로그인이 필요한 서비스입니다. 로그인 후 이용해 주세요', 'info');
       return false;
     }
 
     return true;
   };
 
-  const toggleBookmarkAction = async (article) => {
+  const toggleReactionAction = async (articleId, type, myReaction, reactions) => {
     if (!checkAuth()) return;
 
-    isProcessing.value = true;
-    try {
-      // TODO: 실제 API 연동 (privateClient 사용)
-      // await api.postBookmark(article.id);
-      article.bookmarked = !article.bookmarked;
-    } catch (error) {
-      console.error("북마크 처리 중 오류 발생:", error);
-    } finally {
-      isProcessing.value = false;
+    const backendType = REACTION_TYPE_MAP[type];
+    if (!backendType) {
+      console.error('알 수 없는 리액션 타입:', type);
+      return;
     }
-  };
 
-  const toggleReactionAction = async (type, myReaction, reactions) => {
-    if (!checkAuth()) return;
+    const wasMyReaction = myReaction.value === type;
+    const previousReaction = myReaction.value;
 
-    if (myReaction.value === type) {
+    if (wasMyReaction) {
       reactions.value[type].count--;
       myReaction.value = null;
     } else {
-      if (myReaction.value) reactions.value[myReaction.value].count--;
+      if (previousReaction) {
+        reactions.value[previousReaction].count--;
+      }
       reactions.value[type].count++;
       myReaction.value = type;
     }
 
-    // TODO: api.postReaction(articleId, type);
+    try {
+      if (wasMyReaction) {
+        // 리액션 삭제
+        await removeReaction(articleId, backendType);
+      } else {
+        // 리액션 추가
+        if (previousReaction) {
+          // 기존 리액션 삭제
+          const previousBackendType = REACTION_TYPE_MAP[previousReaction];
+          await removeReaction(articleId, previousBackendType);
+        }
+        await addReaction(articleId, backendType);
+      }
+    } catch (error) {
+      // 실패 시 롤백
+      if (wasMyReaction) {
+        reactions.value[type].count++;
+        myReaction.value = type;
+      } else {
+        if (previousReaction) {
+          reactions.value[previousReaction].count++;
+        }
+        reactions.value[type].count--;
+        myReaction.value = previousReaction;
+      }
+      console.error('리액션 처리 중 오류 발생:', error);
+      toastStore.show('리액션 처리 중 오류가 발생했습니다.', 'error');
+    }
   };
 
   return {
-    isProcessing,
-    checkAuth,
-    toggleBookmarkAction,
     toggleReactionAction,
   };
 }

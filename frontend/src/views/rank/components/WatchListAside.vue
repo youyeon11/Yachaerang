@@ -34,8 +34,8 @@
             </div>
           </div>
 
-          <p v-else class="text-xs text-gray-400 text-center pt-4">
-            아직 등록된 관심 품목이 없습니다. 대시보드에서 관심 품목을 추가해 보세요.
+          <p v-else class="text-sm text-gray-400 text-center pt-4">
+            아직 등록된 나의 품목이 없습니다. <br />대시보드에서 나의 품목을 추가해 보세요.
           </p>
         </div>
 
@@ -52,7 +52,7 @@
 
           <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
             <p class="text-sm text-gray-800 font-semibold mb-2">
-              로그인 후 관심 품목을 등록하면<br />
+              로그인 후 나의 품목을 등록하면<br />
               자주 보는 품목을 볼 수 있어요.
             </p>
             <button
