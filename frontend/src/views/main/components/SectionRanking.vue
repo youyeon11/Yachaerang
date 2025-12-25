@@ -4,13 +4,13 @@
       <!-- 마키 이미지 영역 (left) -->
       <div class="marquee-container">
         <div class="marquee-track">
-          <img 
-            :src="imageSrc" 
-            alt="시세 랭킹 미리보기" 
-            class="marquee-image" 
+          <img
+            :src="'https://yachaerang-s3-bucket.s3.ap-northeast-2.amazonaws.com/images/mock4.png'"
+            alt="대시보드 서비스 미리보기"
+            class="marquee-image"
           />
           <img 
-            :src="imageSrc" 
+           :src="'https://yachaerang-s3-bucket.s3.ap-northeast-2.amazonaws.com/images/mock4.png'"
             alt="시세 랭킹 미리보기" 
             class="marquee-image" 
           />
