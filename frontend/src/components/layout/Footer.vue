@@ -6,14 +6,14 @@
           <img src="@/assets/logo.svg" alt="Logo" @error="handleLogoError" />
         </div>
         <div class="brand-info">
-          <strong class="brand-name">Yachaerang</strong>
-          <p class="brand-desc">실시간 농산품 가격 및 유용한 정보 제공 플랫폼, 야채랑</p>
+          <strong class="brand-name">야채랑</strong>
+          <p class="brand-desc">농수산물 가격 제공 및 농업 도우미 플랫폼, 야채랑</p>
         </div>
       </div>
 
       <div class="footer-right">
         <nav class="legal-links">
-          <a href="#">이용약관</a>
+          <a href="/about">사이트 소개</a>
           <span class="dot">•</span>
           <a href="#">개인정보처리방침</a>
         </nav>
