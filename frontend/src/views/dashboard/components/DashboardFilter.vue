@@ -51,7 +51,7 @@
 
         <div v-if="currentPeriod === 'day'" class="space-y-1.5">
           <input type="date" v-model="modelDayStart" :max="maxDate" class="date-input" />
-          <input type="date" v-model="modelDayEnd" :max="maxDate" class="date-input" />
+          <input type="date" v-model="modelDayEnd" :min="modelDayStart" :max="maxDate" class="date-input" />
         </div>
 
         <div v-else-if="currentPeriod === 'week'" class="space-y-1.5">
@@ -59,14 +59,14 @@
             <input type="date" v-model="modelWeekStart" :max="maxWeekDate" @change="handleWeekStartChange" class="date-input" />
           </div>
           <div class="relative">
-            <input type="date" v-model="modelWeekEnd" :max="maxWeekDate" @change="handleWeekEndChange" class="date-input" />
+            <input type="date" v-model="modelWeekEnd" :min="modelWeekStart" :max="maxWeekDate" @change="handleWeekEndChange" class="date-input" />
           </div>
           <p v-if="modelWeekStart && modelWeekEnd" class="text-xs text-gray-500 font-medium">선택된 주: {{ modelWeekStart }} ~ {{ modelWeekEnd }}</p>
         </div>
 
         <div v-else-if="currentPeriod === 'month'" class="space-y-1.5">
           <input type="month" v-model="modelMonthStart" :max="maxMonth" class="date-input" />
-          <input type="month" v-model="modelMonthEnd" :max="maxMonth" class="date-input" />
+          <input type="month" v-model="modelMonthEnd" :min="modelMonthStart" :max="maxMonth" class="date-input" />
         </div>
 
         <div v-else-if="currentPeriod === 'year'" class="grid grid-cols-2 gap-2">

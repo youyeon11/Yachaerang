@@ -11,9 +11,9 @@
 
     <div class="flex justify-between items-end gap-3">
       <div class="flex-1 min-w-0">
-        <h2 class="text-2xl md:text-3xl font-black text-slate-800 leading-tight truncate">
-          {{ itemName }}
-          <span class="text-base md:text-xl font-bold text-slate-400 ml-1">{{ varietyName }}</span>
+        <h2 class="text-2xl md:text-3xl font-black text-slate-800 leading-tight">
+          <span class="truncate block">{{ itemName }}</span>
+          <span class="text-base md:text-xl font-bold text-slate-400 truncate block">{{ varietyName }}</span>
         </h2>
 
         <div class="mt-3 flex flex-col gap-1.5">
@@ -35,7 +35,7 @@
         </div>
       </div>
 
-      <div class="flex items-stretch gap-2 text-xs md:text-sm text-slate-600">
+      <div class="hidden md:flex items-stretch gap-2 text-xs md:text-sm text-slate-600">
         <div class="flex flex-col items-center justify-center gap-1 bg-gray-50 px-4 py-3 md:px-5 md:py-4 rounded-xl border border-gray-100 shadow-inner min-w-[90px]">
           <span class="text-base font-semibold text-gray-400 mb-0.5">금년</span>
           <div class="flex items-center gap-3">
