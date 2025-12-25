@@ -182,7 +182,7 @@ const handleFileChange = async (event) => {
     if (data.success) {
       const serverData = data.data;
       form.imageUrl = serverData.imageUrl || '';
-      
+
       const currentUser = tokenStorage.getUser();
       if (currentUser) {
         const updatedUser = {
@@ -191,7 +191,7 @@ const handleFileChange = async (event) => {
         };
         tokenStorage.setUser(updatedUser);
       }
-      
+
       toastStore.show('프로필 이미지가 변경되었습니다.', 'success');
     }
   } catch (e) {
@@ -247,7 +247,7 @@ const handleSubmit = async () => {
         const { data } = await getMyProfile();
         if (data && data.success) {
           const serverData = data.data;
-          
+
           const currentUser = tokenStorage.getUser();
           if (currentUser) {
             const updatedUser = {
@@ -267,7 +267,7 @@ const handleSubmit = async () => {
               imageUrl: serverData.imageUrl,
             });
           }
-          
+
           form.name = serverData.name;
           form.nickname = serverData.nickname;
           form.imageUrl = serverData.imageUrl;
@@ -276,7 +276,7 @@ const handleSubmit = async () => {
         console.error('최신 프로필 정보 가져오기 실패:', profileError);
         // 프로필 정보 가져오기 실패해도 수정은 완료된 것으로 처리
       }
-      
+
       originalForm.name = form.name;
       originalForm.nickname = form.nickname;
       isEditing.value = false;
@@ -316,19 +316,14 @@ const handleSubmit = async () => {
 
 /* Primary 버튼 (저장) */
 .btn-primary {
-  background: linear-gradient(135deg, #e53935 0%, #ef5350 100%);
+  background: linear-gradient(135deg, #fecc21 0%, #ffb900 100%);
   color: white;
   border: none;
-  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.3);
+  box-shadow: 0 2px 8px rgba(254, 204, 33, 0.3);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #c62828 0%, #e53935 100%);
-  box-shadow: 0 4px 12px rgba(229, 57, 53, 0.4);
-}
-
-.btn-primary:focus {
-  box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.4);
+  background: linear-gradient(135deg, #ffb900 0%, #fecc21 100%);
 }
 
 .btn-primary:disabled {

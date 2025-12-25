@@ -33,7 +33,8 @@
               <span
                 v-for="tag in article.tags"
                 :key="tag"
-                class="px-3 py-1 bg-[#FECC21]/10 text-gray-800 text-sm font-bold rounded-full"
+                @click="handleTagClick(tag)"
+                class="px-3 py-1 bg-[#FECC21]/10 text-gray-800 text-sm font-bold rounded-full border border-[#FECC21]/20 cursor-pointer hover:bg-[#FECC21] hover:border-[#FECC21] hover:text-gray-900 hover:shadow-md transition-all duration-300"
                 >#{{ tag }}</span
               >
             </div>
@@ -59,15 +60,10 @@
             </div>
           </header>
 
-          <div class="prose prose-yellow max-w-none">
-            <p
-              v-for="(paragraph, index) in article.content"
-              :key="index"
-              class="text-gray-700 leading-[1.8] text-lg mb-6 break-all"
-            >
-              {{ paragraph }}
-            </p>
-          </div>
+          <div
+            class="markdown-body text-gray-700 leading-[1.8] text-lg prose prose-yellow max-w-none"
+            v-html="renderedContent"
+          ></div>
         </div>
 
         <footer class="bg-gray-50/50 p-8 md:p-12 border-t border-gray-100">
@@ -98,6 +94,7 @@ import {
 import { useToastStore } from '@/stores/toast';
 import { useArticle } from '@/views/article/composables/useArticles';
 import { tokenStorage } from '@/utils/storage';
+import { useMarkdown } from '@/views/ai/composables/useMarkdown';
 import IconChevronLeft from '@/components/icons/IconChevronLeft.vue';
 import IconBookmark from '@/components/icons/IconBookmark.vue';
 import IconCalendar from '@/components/icons/IconCalendar.vue';
@@ -105,6 +102,7 @@ import IconExternalLink from '@/components/icons/IconExternalLink.vue';
 import ArticleReactions from '@/views/article/components/ArticleReactions.vue';
 
 const toastStore = useToastStore();
+const { render: renderMarkdown } = useMarkdown();
 
 const router = useRouter();
 const route = useRoute();
@@ -132,7 +130,7 @@ watch(
   { immediate: true }
 );
 
-const reactionIcons = { like: '👍', helpful: '💡', surprise: '😲', sad: '🥺', bummer: '💪' };
+const reactionIcons = { like: '👍', helpful: '💡', surprise: '😲', sad: '🥺', bummer: '😥' };
 const reactionLabels = { like: '좋아요', helpful: '유익해요', surprise: '놀랐어요', sad: '슬퍼요', bummer: '아쉬워요' };
 
 // 리액션 타입 역매핑
@@ -155,6 +153,8 @@ const reactions = ref({
 const allReactors = ref([]);
 
 const { toggleReactionAction } = useArticle();
+
+const renderedContent = ref('');
 
 const formattedDate = computed(() => {
   if (!article.value?.date) return '';
@@ -230,20 +230,21 @@ const loadArticleDetail = async () => {
     const response = await fetchArticleDetail(articleId);
     const data = response.data?.data;
     if (data) {
+      const contentText = (data.content || '').replace(/\\n/g, '\n').trim();
+
       article.value = {
         id: data.articleId,
         title: data.title,
         date: data.createdAt,
         sourceUrl: data.url,
         image: data.imageUrl,
-        content: (data.content || '')
-          .replace(/\\n/g, '\n')
-          .split('\n')
-          .map((p) => p.trim())
-          .filter((p) => p.length > 0),
+        content: contentText.split('\n').map((p) => p.trim()).filter((p) => p.length > 0),
         tags: data.tagList || [],
         isBookmarked: data.isBookmarked,
       };
+
+      // 마크다운 렌더링
+      renderedContent.value = renderMarkdown(contentText);
 
       // 리액션 통계 및 멤버 조회
       await Promise.all([loadReactionStatistics(articleId), loadReactionMembers(articleId)]);
@@ -299,6 +300,10 @@ const handleToggleReaction = async (type) => {
 };
 
 const goToList = () => router.push('/articles');
+
+const handleTagClick = (tag) => {
+  router.push({ path: '/articles', query: { keyword: tag } });
+};
 
 onMounted(loadArticleDetail);
 </script>

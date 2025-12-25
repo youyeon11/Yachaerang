@@ -5,15 +5,15 @@
     :class="cardRankClass"
   >
     <div class="flex justify-between items-start">
-      <span class="text-xs font-bold px-2 py-1 rounded w-fit border" :class="rankBadgeClass"> {{ rank }}위 </span>
+      <span class="text-xs font-bold px-2 py-1 rounded w-fit" :class="rankBadgeClass"> {{ rank }}위 </span>
       <span class="text-sm font-bold" :class="priceColorClass"> {{ arrow }} {{ formattedRate }} </span>
     </div>
 
     <div class="flex-1 flex flex-col justify-center min-w-0 overflow-hidden">
-      <h3 class="text-xl font-extrabold text-gray-900 leading-tight mb-1 break-keep">
+      <h3 class="text-2xl font-extrabold text-gray-900 leading-tight mb-1 break-keep">
         {{ itemCategoryName }}
       </h3>
-      <h3 class="text-sm font-bold text-gray-500 leading-tight mb-1 break-keep">
+      <h3 class="text-base font-bold text-gray-500 leading-tight mb-1 break-keep">
         {{ displayName }}
       </h3>
       <p class="text-xs text-gray-400 font-medium">{{ item.unit || '단위 정보 없음' }}</p>

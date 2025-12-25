@@ -162,7 +162,7 @@ const initChart = () => {
     datasets.push({
       label: '최소',
       data: minPrices,
-      borderColor: isSingleData ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.4)',
+      borderColor: 'rgba(148, 163, 184, 0.2)',
       backgroundColor: 'rgba(148, 163, 184, 0.12)',
       borderWidth: 1,
       // 단일 데이터일 때 중간 인덱스에만 파란 점 표시 (박스의 제일 아래)
@@ -184,9 +184,8 @@ const initChart = () => {
     datasets.push({
       label: '최대',
       data: maxPrices,
-      borderColor: isSingleData ? 'rgba(148, 163, 184, 0.2)' : 'rgba(148, 163, 184, 0.4)',
-      // 데이터가 1개일 때 더 진한 색상의 구간 배경색 적용
-      backgroundColor: isSingleData ? 'rgba(71, 85, 105, 0.15)' : 'rgba(148, 163, 184, 0.12)',
+      borderColor: 'rgba(148, 163, 184, 0.2)',
+      backgroundColor: 'rgba(148, 163, 184, 0.12)',
       borderWidth: 1,
       // 단일 데이터일 때 중간 인덱스에만 빨간 점 표시 (박스의 제일 위)
       pointRadius: isSingleData && centerIdx >= 0

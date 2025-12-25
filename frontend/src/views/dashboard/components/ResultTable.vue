@@ -231,43 +231,24 @@
 
     <div
       v-if="totalPages > 1"
-      class="p-5 flex justify-center items-center gap-2 bg-slate-50/50 font-sans border-t border-slate-100"
+      class="p-5 bg-gray-50/50 font-sans border-t border-gray-100"
     >
-      <button
-        @click="$emit('updatePage', Math.max(1, currentPage - 1))"
-        :disabled="currentPage === 1"
-        class="page-nav-btn"
-      >
-        이전
-      </button>
-
-      <button
-        v-for="p in visiblePages"
-        :key="p"
-        @click="$emit('updatePage', p)"
-        :class="
-          currentPage === p
-            ? 'bg-slate-800 text-white shadow-md border-slate-800'
-            : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'
-        "
-        class="w-9 h-9 rounded-lg text-base font-bold border transition-all hover:scale-105 active:scale-95 flex items-center justify-center"
-      >
-        {{ p }}
-      </button>
-
-      <button
-        @click="$emit('updatePage', Math.min(totalPages, currentPage + 1))"
-        :disabled="currentPage === totalPages"
-        class="page-nav-btn"
-      >
-        다음
-      </button>
+      <Pagination
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        :max-visible-pages="10"
+        prev-next-type="text"
+        button-size="lg"
+        wrapper-class=""
+        @change-page="$emit('updatePage', $event)"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
+import Pagination from '@/components/common/Pagination.vue';
 
 const props = defineProps({
   paginatedData: Array,
@@ -301,25 +282,10 @@ const formatPeriodLabel = (label) => {
   return label;
 };
 
-const visiblePages = computed(() => {
-  const range = 10;
-  const currentGroup = Math.ceil(props.currentPage / range);
-  const startPage = (currentGroup - 1) * range + 1;
-  const endPage = Math.min(startPage + range - 1, props.totalPages);
-
-  const pages = [];
-  for (let i = startPage; i <= endPage; i++) {
-    pages.push(i);
-  }
-  return pages;
-});
 </script>
 
 <style scoped>
 @import '../../../assets/main.css';
-.page-nav-btn {
-  @apply w-12 h-9 flex items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 text-sm font-bold transition-all hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white;
-}
 div {
   scrollbar-width: thin;
   scrollbar-color: #e2e8f0 transparent;

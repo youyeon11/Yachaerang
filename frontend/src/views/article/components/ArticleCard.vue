@@ -35,7 +35,8 @@
         <span
           v-for="tag in article.tags"
           :key="tag"
-          class="px-3 py-1 bg-[#FECC21]/10 text-gray-800 text-xs font-bold rounded-full border border-[#FECC21]/20 group-hover:bg-[#FECC21]/25 group-hover:border-[#FECC21]/50 group-hover:text-gray-900 transition-all duration-300"
+          @click.stop="handleTagClick(tag)"
+          class="px-3 py-1 bg-[#FECC21]/10 text-gray-800 text-xs font-bold rounded-full border border-[#FECC21]/20 group-hover:bg-[#FECC21]/25 group-hover:border-[#FECC21]/50 group-hover:text-gray-900 transition-all duration-300 cursor-pointer hover:bg-[#FECC21] hover:border-[#FECC21] hover:text-gray-900 hover:shadow-md"
         >
           #{{ tag }}
         </span>
@@ -68,7 +69,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['open', 'bookmark-updated']);
+const emit = defineEmits(['open', 'bookmark-updated', 'search-by-keyword']);
 
 const formattedDate = computed(() => {
   if (!props.article?.date) return '';
@@ -89,6 +90,10 @@ watch(
     isBookmarked.value = newVal ?? false;
   }
 );
+
+const handleTagClick = (tag) => {
+  emit('search-by-keyword', tag);
+};
 
 const handleToggleBookmark = async () => {
   if (isLoading.value) return;

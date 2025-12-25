@@ -2,7 +2,7 @@
   <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
     <div class="flex items-center justify-between">
       <h2 class="text-base font-black text-slate-800 flex items-center gap-2">
-        <IconHeart class="h-5 w-5 fill-[#F44323] text-[#F44323]" />
+        <IconHeart class="h-5 w-5 fill-[#FECC21] text-[#FECC21]" />
         등록한 관심 품목
       </h2>
     </div>

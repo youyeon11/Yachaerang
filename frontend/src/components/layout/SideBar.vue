@@ -7,16 +7,16 @@
     <!-- Navigation -->
     <nav class="flex-1 flex flex-col p-4">
       <div class="space-y-1">
-        <router-link v-for="item in navigation" :key="item.name" :to="item.href" custom v-slot="{ navigate, isActive }">
-          <div
-            @click="navigate"
-            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors cursor-pointer"
-            :class="isActive ? 'bg-[#F44323] text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'"
-          >
-            <component :is="item.icon" class="h-5 w-5" />
-            {{ item.name }}
-          </div>
-        </router-link>
+        <div
+          v-for="item in navigation"
+          :key="item.name"
+          @click="navigateTo(item.href)"
+          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors cursor-pointer"
+          :class="isNavActive(item.href) ? 'bg-[#F44323] text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'"
+        >
+          <component :is="item.icon" class="h-5 w-5" />
+          {{ item.name }}
+        </div>
       </div>
 
       <div class="mt-auto pt-4">
@@ -50,7 +50,7 @@
             @error="handleAvatarError"
           />
           <IconUser v-else class="h-5 w-5" />
-          My Page
+          마이페이지
         </div>
         <div
           @click="handleLogout"
@@ -115,6 +115,19 @@ const isLoggedIn = computed(() => {
 
 // 프로필 활성화 상태 확인
 const isProfileActive = computed(() => route.path === '/mypage');
+
+// 네비게이션 활성화 상태 확인 (기사는 목록과 상세 모두 활성화)
+const isNavActive = (href) => {
+  if (href === '/articles') {
+    return route.path === '/articles' || route.path.startsWith('/articles/');
+  }
+  return route.path === href;
+};
+
+// 네비게이션 이동
+const navigateTo = (href) => {
+  router.push(href);
+};
 
 // 메인으로 이동
 const goToMain = () => {
