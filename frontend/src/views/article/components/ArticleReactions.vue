@@ -56,10 +56,10 @@
             v-if="reactions[type]?.count > 0"
             type="button"
             @click.stop="showReactorModal(type)"
-            class="mt-2 text-sm font-black text-gray-900 hover:text-[#FECC21] transition-colors cursor-pointer flex items-center gap-1"
+            class="mt-2 text-lg font-black text-gray-900 hover:text-[#FECC21] transition-colors cursor-pointer flex items-center gap-1"
           >
             <span>{{ reactions[type]?.count || 0 }}</span>
-            <span class="text-xs text-gray-400">명</span>
+            <span class="text-lg text-gray-400">명</span>
           </button>
           <span v-else class="mt-2 text-sm font-black text-gray-300">0</span>
         </div>
