@@ -31,10 +31,8 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           cd frontend
-          docker build -t ghcr.io/${{ secrets.ORG_NAME }}/frontend:latest .
+          docker build --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} -t ghcr.io/${{ secrets.ORG_NAME }}/frontend:latest .
           docker push ghcr.io/${{ secrets.ORG_NAME }}/frontend:latest
-        build-args: |
-          VITE_API_URL=${{ secrets.VITE_API_URL }}
 
   transfer:
     name: Transfer
@@ -66,6 +64,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             mkdir -p /home/ubuntu/frontend
+            mv /home/ubuntu/frontend/docker-compose.dev.yaml /home/ubuntu/frontend/
             cd /home/ubuntu/frontend
 
             # GHCR 로그인
@@ -75,11 +74,8 @@ jobs:
             export ORG_NAME=${{ secrets.ORG_NAME }}
 
             # 이미지 pull & 재시작
-            docker compose pull
-            docker compose up -d --force-recreate
-
-            # Nginx 설정 리로드
-            docker exec nginx nginx -s reload
+            docker compose -f docker-compose.dev.yaml pull
+            docker compose -f docker-compose.dev.yaml up -d --force-recreate
 
             # 사용하지 않는 이미지 정리
             docker image prune -f
