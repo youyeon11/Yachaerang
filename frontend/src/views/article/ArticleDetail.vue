@@ -133,7 +133,7 @@ watch(
   { immediate: true }
 );
 
-const reactionIcons = { like: '👍', helpful: '💡', surprise: '😲', sad: '🥺', bummer: '💪' };
+const reactionIcons = { like: '👍', helpful: '💡', surprise: '😲', sad: '🥺', bummer: '😥' };
 const reactionLabels = { like: '좋아요', helpful: '유익해요', surprise: '놀랐어요', sad: '슬퍼요', bummer: '아쉬워요' };
 
 // 리액션 타입 역매핑
