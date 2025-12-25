@@ -76,6 +76,48 @@
     padding: 6px 13px !important;
     border: 1px solid oklch(0.9 0 0) !important;
   }
+
+  .markdown-body h1,
+  .markdown-body h2,
+  .markdown-body h3,
+  .markdown-body h4,
+  .markdown-body h5,
+  .markdown-body h6 {
+    margin-top: 24px !important;
+    margin-bottom: 16px !important;
+    font-weight: bold !important;
+    line-height: 1.25 !important;
+    scroll-margin-top: 100px;
+  }
+
+  .markdown-body h1 {
+    font-size: 2em !important;
+    border-bottom: 1px solid #eaecef !important;
+    padding-bottom: 0.3em !important;
+  }
+
+  .markdown-body h2 {
+    font-size: 1.5em !important;
+    border-bottom: 1px solid #eaecef !important;
+    padding-bottom: 0.3em !important;
+  }
+
+  .markdown-body h3 {
+    font-size: 1.25em !important;
+  }
+
+  .markdown-body h4 {
+    font-size: 1em !important;
+  }
+
+  .markdown-body h5 {
+    font-size: 0.875em !important;
+  }
+
+  .markdown-body h6 {
+    font-size: 0.85em !important;
+    color: #6a737d !important;
+  }
 }
 
 .user-message .markdown-body code {

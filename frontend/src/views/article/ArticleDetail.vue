@@ -60,15 +60,10 @@
             </div>
           </header>
 
-          <div class="prose prose-yellow max-w-none">
-            <p
-              v-for="(paragraph, index) in article.content"
-              :key="index"
-              class="text-gray-700 leading-[1.8] text-lg mb-6 break-all"
-            >
-              {{ paragraph }}
-            </p>
-          </div>
+          <div
+            class="markdown-body text-gray-700 leading-[1.8] text-lg prose prose-yellow max-w-none"
+            v-html="renderedContent"
+          ></div>
         </div>
 
         <footer class="bg-gray-50/50 p-8 md:p-12 border-t border-gray-100">
@@ -99,6 +94,7 @@ import {
 import { useToastStore } from '@/stores/toast';
 import { useArticle } from '@/views/article/composables/useArticles';
 import { tokenStorage } from '@/utils/storage';
+import { useMarkdown } from '@/views/ai/composables/useMarkdown';
 import IconChevronLeft from '@/components/icons/IconChevronLeft.vue';
 import IconBookmark from '@/components/icons/IconBookmark.vue';
 import IconCalendar from '@/components/icons/IconCalendar.vue';
@@ -106,6 +102,7 @@ import IconExternalLink from '@/components/icons/IconExternalLink.vue';
 import ArticleReactions from '@/views/article/components/ArticleReactions.vue';
 
 const toastStore = useToastStore();
+const { render: renderMarkdown } = useMarkdown();
 
 const router = useRouter();
 const route = useRoute();
@@ -156,6 +153,8 @@ const reactions = ref({
 const allReactors = ref([]);
 
 const { toggleReactionAction } = useArticle();
+
+const renderedContent = ref('');
 
 const formattedDate = computed(() => {
   if (!article.value?.date) return '';
@@ -231,20 +230,21 @@ const loadArticleDetail = async () => {
     const response = await fetchArticleDetail(articleId);
     const data = response.data?.data;
     if (data) {
+      const contentText = (data.content || '').replace(/\\n/g, '\n').trim();
+
       article.value = {
         id: data.articleId,
         title: data.title,
         date: data.createdAt,
         sourceUrl: data.url,
         image: data.imageUrl,
-        content: (data.content || '')
-          .replace(/\\n/g, '\n')
-          .split('\n')
-          .map((p) => p.trim())
-          .filter((p) => p.length > 0),
+        content: contentText.split('\n').map((p) => p.trim()).filter((p) => p.length > 0),
         tags: data.tagList || [],
         isBookmarked: data.isBookmarked,
       };
+
+      // 마크다운 렌더링
+      renderedContent.value = renderMarkdown(contentText);
 
       // 리액션 통계 및 멤버 조회
       await Promise.all([loadReactionStatistics(articleId), loadReactionMembers(articleId)]);
