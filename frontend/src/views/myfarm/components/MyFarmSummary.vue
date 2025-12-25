@@ -18,18 +18,7 @@
             </div>
           </div>
 
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">농장 인력</label>
-            <div class="relative">
-              <i class="fa-solid fa-user absolute left-3 top-3.5 text-gray-400"></i>
-              <div class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700">
-                {{ farm.manpower ?? 0 }}
-              </div>
-              <span class="absolute right-4 top-3.5 text-gray-500 text-sm font-medium">명</span>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">경작면적</label>
               <div class="relative">
@@ -46,6 +35,16 @@
                   {{ farm.flatArea ? Number(farm.flatArea).toLocaleString() : 0 }}
                 </div>
                 <span class="absolute right-4 top-3.5 text-gray-500 text-sm font-medium">㎡</span>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">농장 인력</label>
+              <div class="relative">
+                <i class="fa-solid fa-user absolute left-3 top-3.5 text-gray-400"></i>
+                <div class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700">
+                  {{ farm.manpower ?? 0 }}
+                </div>
+                <span class="absolute right-4 top-3.5 text-gray-500 text-sm font-medium">명</span>
               </div>
             </div>
           </div>

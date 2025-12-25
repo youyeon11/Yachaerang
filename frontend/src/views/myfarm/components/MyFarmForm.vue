@@ -19,33 +19,31 @@
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-4">
-          <div class="grid gap-4 md:grid-cols-2">
-            <!-- 농장위치 -->
-            <div class="space-y-2">
-              <label for="location" class="text-sm font-medium text-gray-900">농장 위치</label>
-              <input
-                id="location"
-                v-model="formData.location"
-                type="text"
-                placeholder="예: 충남 논산의 평지"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
-              />
-            </div>
+          <!-- 농장 위치 (전체 너비) -->
+          <div class="space-y-2">
+            <label for="location" class="text-sm font-medium text-gray-900">농장 위치</label>
+            <input
+              id="location"
+              v-model="formData.location"
+              type="text"
+              placeholder="예: 충남 논산의 평지"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#FECC21] focus:outline-none focus:ring-2 focus:ring-[#FECC21]/20"
+            />
+          </div>
 
-            <!-- 인력 -->
+          <!-- 경작면적 / 평지면적 / 농장 인력 (3열 그리드) -->
+          <div class="grid gap-4 md:grid-cols-3">
             <div class="space-y-2">
-              <label for="manpower" class="text-sm font-medium text-gray-900">인력</label>
+              <label for="cultivatedArea" class="text-sm font-medium text-gray-900">경작면적 (㎡)</label>
               <input
-                id="manpower"
-                v-model.number="formData.manpower"
+                id="cultivatedArea"
+                v-model.number="formData.cultivatedArea"
                 type="number"
                 min="0"
-                placeholder="예: 3"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
+                placeholder="예: 800"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#FECC21] focus:outline-none focus:ring-2 focus:ring-[#FECC21]/20"
               />
             </div>
-
-            <!-- 평지면적 -->
             <div class="space-y-2">
               <label for="flatArea" class="text-sm font-medium text-gray-900">평지면적 (㎡)</label>
               <input
@@ -54,31 +52,33 @@
                 type="number"
                 min="0"
                 placeholder="예: 1000"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
+                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#FECC21] focus:outline-none focus:ring-2 focus:ring-[#FECC21]/20"
               />
+            </div>
+            <div class="space-y-2">
+              <label for="manpower" class="text-sm font-medium text-gray-900">농장 인력</label>
+              <div class="relative">
+                <i class="fa-solid fa-user absolute left-3 top-3 text-gray-400"></i>
+                <input
+                  id="manpower"
+                  v-model.number="formData.manpower"
+                  type="number"
+                  min="0"
+                  placeholder="예: 3"
+                  class="w-full pl-10 pr-12 rounded-lg border border-gray-300 px-3 py-2 focus:border-[#FECC21] focus:outline-none focus:ring-2 focus:ring-[#FECC21]/20"
+                />
+                <span class="absolute right-3 top-3 text-gray-500 text-sm font-medium">명</span>
+              </div>
             </div>
           </div>
 
-          <!-- 경작면적 (전체 너비) -->
-          <div class="space-y-2">
-            <label for="cultivatedArea" class="text-sm font-medium text-gray-900">경작면적 (㎡)</label>
-            <input
-              id="cultivatedArea"
-              v-model.number="formData.cultivatedArea"
-              type="number"
-              min="0"
-              placeholder="예: 800"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
-            />
-          </div>
-
-          <!-- 주품목 -->
+          <!-- 주품목 (전체 너비) -->
           <div class="space-y-2">
             <label for="mainCrop" class="text-sm font-medium text-gray-900">주품목</label>
             <button
               type="button"
               @click="isCropModalOpen = true"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-left text-sm font-semibold text-gray-800 flex items-center justify-between bg-white hover:border-[#F44323] transition-all focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-left text-base font-semibold text-gray-800 flex items-center justify-between bg-white hover:border-[#FECC21] transition-all focus:border-[#FECC21] focus:outline-none focus:ring-2 focus:ring-[#FECC21]/20"
             >
               <span class="truncate">{{ selectedCropLabel || '품목을 선택하세요' }}</span>
               <i class="fa-solid fa-chevron-down text-gray-400 ml-2"></i>
@@ -89,7 +89,7 @@
           <div class="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               type="submit"
-              class="flex-1 rounded-lg bg-[#F44323] px-4 py-2 font-medium text-white transition-colors hover:bg-[#d63a1f]"
+              class="flex-1 rounded-lg bg-[#FECC21] px-4 py-2 font-medium text-white transition-colors hover:bg-[#FFB900]"
             >
               {{ isEdit ? '수정 완료' : '등록하기' }}
             </button>
@@ -121,7 +121,7 @@
         <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in">
           <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
             <h3 class="text-lg font-bold">주품목 선택 (중복 가능)</h3>
-            <button @click="isCropModalOpen = false" class="text-slate-300 hover:text-red-500 text-2xl font-light">
+            <button @click="isCropModalOpen = false" class="text-gray-400 hover:text-[#FECC21] text-2xl font-light">
               ×
             </button>
           </div>
@@ -133,8 +133,8 @@
               @click="toggleCrop(item.label)"
               :class="
                 isSelected(item.label)
-                  ? 'border-red-500 bg-red-50 text-red-600 shadow-sm ring-1 ring-red-100'
-                  : 'border-gray-100 bg-gray-50/60 text-gray-600 hover:bg-gray-100'
+                  ? 'border-[#FECC21] bg-[#FECC21]/10 text-[#F57C00] shadow-sm ring-1 ring-[#FECC21]/30'
+                  : 'border-gray-100 bg-gray-50/60 text-gray-600 hover:bg-gray-100 hover:border-[#FECC21]/30'
               "
               class="py-3 px-2.5 border rounded-xl text-sm font-semibold truncate transition-all flex items-center justify-center text-center"
             >
@@ -145,7 +145,7 @@
           <div class="p-4 bg-gray-50 border-t flex justify-end">
             <button
               @click="isCropModalOpen = false"
-              class="bg-red-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-red-600 transition-colors"
+              class="bg-[#FECC21] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#FFB900] transition-colors"
             >
               선택 완료
             </button>
