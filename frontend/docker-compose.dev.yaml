@@ -1,0 +1,11 @@
+services:
+  frontend:
+    image: ghcr.io/${ORG_NAME}/frontend:latest
+    container_name: frontend
+    restart: always
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    external: true
