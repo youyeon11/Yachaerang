@@ -58,6 +58,7 @@
 import { ref, computed, watch } from 'vue';
 import { saveBookmark, removeBookmark } from '@/api/article';
 import { useToastStore } from '@/stores/toast';
+import { tokenStorage } from '@/utils/storage';
 import IconBookmark from '@/components/icons/IconBookmark.vue';
 
 const props = defineProps({
@@ -80,10 +81,10 @@ const formattedDate = computed(() => {
 
 const toastStore = useToastStore();
 const isLoading = ref(false);
-const isBookmarked = ref(props.article.isBookmarked ?? false);
+const isBookmarked = ref(props.article.isBookmarked ?? props.article.bookmarked ?? false);
 
 watch(
-  () => props.article.isBookmarked,
+  () => props.article.isBookmarked ?? props.article.bookmarked,
   (newVal) => {
     isBookmarked.value = newVal ?? false;
   }
@@ -91,6 +92,15 @@ watch(
 
 const handleToggleBookmark = async () => {
   if (isLoading.value) return;
+
+  // 로그인 상태 확인
+  const accessToken = tokenStorage.getAccessToken();
+  const hasValidToken = accessToken && accessToken.trim() !== '' && accessToken !== 'null' && accessToken !== 'undefined';
+
+  if (!hasValidToken) {
+    toastStore.show('로그인이 필요한 서비스입니다. 로그인 후 이용해 주세요', 'info');
+    return;
+  }
 
   isLoading.value = true;
   const wasBookmarked = isBookmarked.value;

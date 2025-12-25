@@ -1,4 +1,3 @@
-import { ref } from 'vue';
 import { tokenStorage } from '@/utils/storage';
 import { useToastStore } from '@/stores/toast';
 import { addReaction, removeReaction } from '@/api/article';
@@ -20,7 +19,6 @@ const REACTION_TYPE_REVERSE_MAP = {
 };
 
 export function useArticle() {
-  const isProcessing = ref(false);
   const toastStore = useToastStore();
 
   const checkAuth = () => {
@@ -36,20 +34,6 @@ export function useArticle() {
     return true;
   };
 
-  const toggleBookmarkAction = async (article) => {
-    if (!checkAuth()) return;
-
-    isProcessing.value = true;
-    try {
-      // TODO: 실제 API 연동 (privateClient 사용)
-      // await api.postBookmark(article.id);
-      article.bookmarked = !article.bookmarked;
-    } catch (error) {
-      console.error('북마크 처리 중 오류 발생:', error);
-    } finally {
-      isProcessing.value = false;
-    }
-  };
 
   const toggleReactionAction = async (articleId, type, myReaction, reactions) => {
     if (!checkAuth()) return;
@@ -105,11 +89,6 @@ export function useArticle() {
   };
 
   return {
-    isProcessing,
-    checkAuth,
-    toggleBookmarkAction,
     toggleReactionAction,
-    REACTION_TYPE_MAP,
-    REACTION_TYPE_REVERSE_MAP,
   };
 }

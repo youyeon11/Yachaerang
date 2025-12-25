@@ -26,7 +26,6 @@
               :key="article.id"
               :article="article"
               @open="goToDetail"
-              @bookmark-updated="handleBookmarkUpdate"
             />
           </div>
 
@@ -45,7 +44,6 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { fetchArticles, searchArticles } from '@/api/article';
-import { useArticle } from '@/views/article/composables/useArticles';
 import ArticleSearchBar from '@/views/article/components/ArticleSearchBar.vue';
 import ArticleCard from '@/views/article/components/ArticleCard.vue';
 import ArticlePagination from '@/views/article/components/ArticlePagination.vue';
@@ -58,8 +56,6 @@ const currentPage = ref(1);
 const totalPages = ref(1);
 const totalElements = ref(0);
 const articles = ref([]);
-
-const { toggleBookmarkAction } = useArticle();
 
 const loadArticles = async (page = 1, keyword = '') => {
   try {
@@ -79,7 +75,7 @@ const loadArticles = async (page = 1, keyword = '') => {
         tags: item.tagList || [],
         date: item.createdAt,
         thumbnail: item.imageUrl,
-        bookmarked: false,
+        isBookmarked: item.isBookmarked ?? false,
       }));
     }
   } catch (error) {
@@ -100,9 +96,6 @@ const resetToAll = () => {
 
 const handleClearSearch = () => resetToAll();
 const handleResetSearch = () => resetToAll();
-const handleBookmarkUpdate = () => {
-  // 북마크 상태 업데이트 시 로직
-};
 
 const goToPage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
