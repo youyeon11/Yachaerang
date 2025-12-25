@@ -20,19 +20,6 @@
 
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div class="grid gap-4 md:grid-cols-2">
-            <!-- 인력 -->
-            <div class="space-y-2">
-              <label for="manpower" class="text-sm font-medium text-gray-900">인력</label>
-              <input
-                id="manpower"
-                v-model.number="formData.manpower"
-                type="number"
-                min="0"
-                placeholder="예: 3"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
-              />
-            </div>
-
             <!-- 농장위치 -->
             <div class="space-y-2">
               <label for="location" class="text-sm font-medium text-gray-900">농장 위치</label>
@@ -45,22 +32,15 @@
               />
             </div>
 
-            <!-- 주품목 -->
+            <!-- 인력 -->
             <div class="space-y-2">
-              <label for="mainCrop" class="text-sm font-medium text-gray-900">주품목</label>
-              <button
-                type="button"
-                @click="isCropModalOpen = true"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-left text-sm font-semibold text-gray-800 flex items-center justify-between bg-white hover:border-[#F44323] transition-all focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
-              >
-                <span class="truncate">{{ selectedCropLabel || '품목을 선택하세요' }}</span>
-                <i class="fa-solid fa-chevron-down text-gray-400 ml-2"></i>
-              </button>
+              <label for="manpower" class="text-sm font-medium text-gray-900">인력</label>
               <input
-                id="mainCrop"
-                v-model="formData.mainCrop"
-                type="text"
-                placeholder="예: 딸기, 토마토"
+                id="manpower"
+                v-model.number="formData.manpower"
+                type="number"
+                min="0"
+                placeholder="예: 3"
                 class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
               />
             </div>
@@ -90,6 +70,19 @@
               placeholder="예: 800"
               class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
             />
+          </div>
+
+          <!-- 주품목 -->
+          <div class="space-y-2">
+            <label for="mainCrop" class="text-sm font-medium text-gray-900">주품목</label>
+            <button
+              type="button"
+              @click="isCropModalOpen = true"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-left text-sm font-semibold text-gray-800 flex items-center justify-between bg-white hover:border-[#F44323] transition-all focus:border-[#F44323] focus:outline-none focus:ring-2 focus:ring-[#F44323]/20"
+            >
+              <span class="truncate">{{ selectedCropLabel || '품목을 선택하세요' }}</span>
+              <i class="fa-solid fa-chevron-down text-gray-400 ml-2"></i>
+            </button>
           </div>
 
           <!-- 버튼 그룹 -->
