@@ -19,15 +19,15 @@
       <!-- 마키 이미지 영역 (rignht) -->
       <div class="marquee-container">
         <div class="marquee-track">
-          <img 
-            :src="imageSrc" 
-            alt="대시보드 서비스 미리보기" 
-            class="marquee-image" 
+          <img
+            :src="'https://yachaerang-s3-bucket.s3.ap-northeast-2.amazonaws.com/images/mock1.png'"
+            alt="대시보드 서비스 미리보기"
+            class="marquee-image"
           />
-          <img 
-            :src="imageSrc" 
-            alt="대시보드 서비스 미리보기" 
-            class="marquee-image" 
+          <img
+            :src="'https://yachaerang-s3-bucket.s3.ap-northeast-2.amazonaws.com/images/mock2.png'"
+            alt="대시보드 서비스 미리보기"
+            class="marquee-image"
           />
         </div>
         <div class="marquee-fade"></div>
@@ -38,6 +38,7 @@
 </template>
 
 <script setup>
+
 import { ref, onMounted } from 'vue';
 import { useSectionObserver } from '@/views/auth/composables/useSectionObserver';
 import imageOrigin from '@/assets/Mockup.png';
