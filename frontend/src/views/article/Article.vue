@@ -12,7 +12,7 @@
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 w-full mt-2">
       <div class="flex-1 min-w-0 w-full">
-        <div class="flex justify-end mb-6 border-b border-gray-200 pb-4">
+        <div class="flex justify-end mb-6 pb-4">
           <div class="text-[13px] text-gray-400 font-medium">
             전체 <span class="text-gray-600 font-semibold">{{ totalElements }}</span
             >개
@@ -26,6 +26,7 @@
               :key="article.id"
               :article="article"
               @open="goToDetail"
+              @search-by-keyword="handleSearchByKeyword"
             />
           </div>
 
@@ -42,7 +43,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { fetchArticles, searchArticles } from '@/api/article';
 import ArticleSearchBar from '@/views/article/components/ArticleSearchBar.vue';
 import ArticleCard from '@/views/article/components/ArticleCard.vue';
@@ -51,6 +52,7 @@ import ArticleEmptyState from '@/views/article/components/ArticleEmptyState.vue'
 import PageHeader from '@/components/layout/PageHeader.vue';
 
 const router = useRouter();
+const route = useRoute();
 const searchQuery = ref('');
 const currentPage = ref(1);
 const totalPages = ref(1);
@@ -88,6 +90,12 @@ const handleSearch = () => {
   loadArticles(1, searchQuery.value);
 };
 
+const handleSearchByKeyword = (keyword) => {
+  searchQuery.value = keyword;
+  currentPage.value = 1;
+  loadArticles(1, keyword);
+};
+
 const resetToAll = () => {
   searchQuery.value = '';
   currentPage.value = 1;
@@ -105,5 +113,13 @@ const goToPage = (page) => {
 
 const goToDetail = (id) => router.push(`/articles/${id}`);
 
-onMounted(() => loadArticles());
+onMounted(() => {
+  const keyword = route.query.keyword;
+  if (keyword) {
+    searchQuery.value = keyword;
+    loadArticles(1, keyword);
+  } else {
+    loadArticles();
+  }
+});
 </script>

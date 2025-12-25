@@ -33,7 +33,8 @@
               <span
                 v-for="tag in article.tags"
                 :key="tag"
-                class="px-3 py-1 bg-[#FECC21]/10 text-gray-800 text-sm font-bold rounded-full"
+                @click="handleTagClick(tag)"
+                class="px-3 py-1 bg-[#FECC21]/10 text-gray-800 text-sm font-bold rounded-full cursor-pointer hover:bg-[#FECC21]/25 hover:border-[#FECC21]/50 transition-all duration-300"
                 >#{{ tag }}</span
               >
             </div>
@@ -299,6 +300,10 @@ const handleToggleReaction = async (type) => {
 };
 
 const goToList = () => router.push('/articles');
+
+const handleTagClick = (tag) => {
+  router.push({ path: '/articles', query: { keyword: tag } });
+};
 
 onMounted(loadArticleDetail);
 </script>
