@@ -31,7 +31,7 @@
           </div>
 
           <div class="mt-16 pb-16">
-            <ArticlePagination :current-page="currentPage" :total-pages="totalPages" @change-page="goToPage" />
+            <Pagination :current-page="currentPage" :total-pages="totalPages" @change-page="goToPage" />
           </div>
         </div>
 
@@ -47,7 +47,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { fetchArticles, searchArticles } from '@/api/article';
 import ArticleSearchBar from '@/views/article/components/ArticleSearchBar.vue';
 import ArticleCard from '@/views/article/components/ArticleCard.vue';
-import ArticlePagination from '@/views/article/components/ArticlePagination.vue';
+import Pagination from '@/components/common/Pagination.vue';
 import ArticleEmptyState from '@/views/article/components/ArticleEmptyState.vue';
 import PageHeader from '@/components/layout/PageHeader.vue';
 
