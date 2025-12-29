@@ -104,7 +104,7 @@ jobs:
         if: always()
         continue-on-error: true
         with:
-          files: ./packages/backend/build/reports/jacoco/test/index.html
+          files: ./packages/backend/build/reports/jacoco/test/jacocoTestReport.xml
           flags: backend
 
   backend-build:

@@ -133,7 +133,7 @@ tasks.named('jacocoTestReport') {
     reports {
         html.required = true
         html.outputLocation.set(jacocoReportDir)
-        xml.required = false
+        xml.required = true
         csv.required = false
     }
 }
