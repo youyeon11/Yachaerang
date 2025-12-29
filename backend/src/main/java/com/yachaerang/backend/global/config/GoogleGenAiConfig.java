@@ -11,20 +11,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GoogleGenAiConfig {
 
-    private final static String BASE_URL = "https://chat.googleapis.com";
-
     @Bean
     public GoogleGenAiChatModel googleGenAiChatModel(
             @Value("${spring.ai.google.genai.api-key}") String apiKey,
-            @Value("${spring.ai.google.genai.model}") String model
+            @Value("${spring.ai.google.genai.chat.options.model}") String model
     ) {
-        HttpOptions httpOptions = HttpOptions.builder()
-                .baseUrl(BASE_URL)
-                .build();
 
         Client client = Client.builder()
                 .apiKey(apiKey)
-                .httpOptions(httpOptions)
                 .build();
 
         GoogleGenAiChatOptions options = GoogleGenAiChatOptions.builder()
