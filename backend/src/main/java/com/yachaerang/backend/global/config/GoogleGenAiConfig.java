@@ -11,12 +11,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GoogleGenAiConfig {
 
-    private static final String BASE_URL = "https://gms.ssafy.io/gmsapi/generativelanguage.googleapis.com";
+    private final static String BASE_URL = "https://chat.googleapis.com";
 
     @Bean
     public GoogleGenAiChatModel googleGenAiChatModel(
-            @Value("${spring.ai.custom.google.genai.api-key}") String apiKey,
-            @Value("${spring.ai.custom.google.genai.model}") String model
+            @Value("${spring.ai.google.genai.api-key}") String apiKey,
+            @Value("${spring.ai.google.genai.model}") String model
     ) {
         HttpOptions httpOptions = HttpOptions.builder()
                 .baseUrl(BASE_URL)

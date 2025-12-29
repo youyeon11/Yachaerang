@@ -24,14 +24,8 @@ spring:
     google:
       genai:
         enabled: false
-    custom:
-      google:
-        genai:
-          api-key: ${GMS_KEY}
-          model: gemini-2.5-flash-lite
-    openai:
-      api-key: ${GMS_KEY}
-      base-url: https://gms.ssafy.io/gmsapi/api.openai.com
+        api-key: ${GEMINI_API_KEY}
+        model: gemini-2.5-flash-lite
 
   mail:
     host: smtp.gmail.com
