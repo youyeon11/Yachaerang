@@ -88,7 +88,6 @@ dependencies {
 
     // Spring AI
     implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
-    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
 
     // WebFlux
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -134,7 +133,7 @@ tasks.named('jacocoTestReport') {
     reports {
         html.required = true
         html.outputLocation.set(jacocoReportDir)
-        xml.required = false
+        xml.required = true
         csv.required = false
     }
 }
