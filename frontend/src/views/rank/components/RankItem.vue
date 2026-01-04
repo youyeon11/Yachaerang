@@ -13,7 +13,7 @@
       <h3 class="text-2xl font-extrabold text-gray-900 leading-tight mb-1 break-keep">
         {{ itemCategoryName }}
       </h3>
-      <h3 class="text-base font-bold text-gray-500 leading-tight mb-1 break-keep">
+      <h3 class="text-base font-bold text-gray-500 mb-1 truncate whitespace-nowrap">
         {{ displayName }}
       </h3>
       <p class="text-xs text-gray-400 font-medium">{{ item.unit || '단위 정보 없음' }}</p>
