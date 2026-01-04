@@ -317,6 +317,8 @@ onMounted(async () => {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     dayEndDate.value = yesterday.toISOString().slice(0, 10);
+
+    await handleSearch();
   }
 });
 
