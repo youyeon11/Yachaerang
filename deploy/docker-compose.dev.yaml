@@ -67,6 +67,13 @@ services:
     networks:
       - my-network
 
+  frontend:
+    image: ghcr.io/${ORG_NAME}/frontend:latest
+    container_name: frontend
+    restart: always
+    networks:
+      - my-network
+
 volumes:
   redis_data:
 
