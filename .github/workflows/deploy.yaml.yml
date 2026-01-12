@@ -1,18 +1,25 @@
 name: deploy.yaml
 on:
+  push:
+    branches:
+      - main
 
 jobs:
-  # Detect Change
   detect-changes:
+    name: Detect changes
     runs-on: ubuntu-latest
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       batch: ${{ steps.filter.outputs.batch }}
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - uses: dorny/paths-filter@v2
+      - name: Filter paths
+        uses: dorny/paths-filter@v2
         id: filter
         with:
           filters: |

@@ -1,8 +1,7 @@
 name: batch-deploy.yaml
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
+
 jobs:
   build:
     name: Build

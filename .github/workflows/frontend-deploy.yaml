@@ -1,13 +1,7 @@
 name: frontend-deploy.yaml
 
 on:
-  workflow_run:
-    workflows: ['backend-deploy.yaml']
-    types:
-      - completed
-    branches:
-      - main
-  workflow_dispatch:
+  workflow_call:
 
 jobs:
   build:
