@@ -18,10 +18,11 @@ jobs:
           java-version: '17'
 
       - name: Create .env file from secret
-        run: echo "${{ secrets.ENV_FILE_CONTENTS }}" > .env
+        run: echo "${{ secrets.ENV_FILE_CONTENTS }}" > batch/.env
 
       - name: Build with Gradle (skip tests)
         run: |
+          cd batch
           chmod +x ./gradlew
           ./gradlew clean
           ./gradlew build -x test
