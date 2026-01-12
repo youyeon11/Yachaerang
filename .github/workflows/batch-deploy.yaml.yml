@@ -1,4 +1,4 @@
-name: backend-deploy.yaml
+name: batch-deploy.yaml
 on:
   push:
     branches:
@@ -18,11 +18,10 @@ jobs:
           java-version: '17'
 
       - name: Create .env file from secret
-        run: echo "${{ secrets.ENV_FILE_CONTENTS }}" > backend/.env
+        run: echo "${{ secrets.ENV_FILE_CONTENTS }}" > .env
 
       - name: Build with Gradle (skip tests)
         run: |
-          cd backend
           chmod +x ./gradlew
           ./gradlew clean
           ./gradlew build -x test
@@ -34,26 +33,16 @@ jobs:
       # Image Build and Push
       - name: Build and Push Docker Image
         run: |
-          cd backend
-          docker build -t ghcr.io/${{ secrets.ORG_NAME }}/spring-api:latest .
-          docker push ghcr.io/${{ secrets.ORG_NAME }}/spring-api:latest
+          docker build -t ghcr.io/${{ secrets.ORG_NAME }}/spring-batch:latest .
+          docker push ghcr.io/${{ secrets.ORG_NAME }}/spring-batch:latest
 
   transfer:
     name: Transfer
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: build
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Transfer docker-compose.dev.yaml file & deploy script to ec2
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: ./deploy/
-          target: /home/ubuntu/
 
   deploy:
     name: Deploy
@@ -68,16 +57,25 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            echo "${{ secrets.NGINX_CONF }}" > /home/ubuntu/deploy/nginx.conf
+            mkdir -p ~/batch
+            cd ~/batch
             
-            echo "${{ secrets.ENV_FILE_CONTENTS }}" > /home/ubuntu/deploy/.env
+            echo "${{ secrets.ENV_FILE_CONTENTS }}" > .env
             
             echo "${{ secrets.YY_GITHUB_PAT }}" | docker login ghcr.io -u ${{ secrets.YY_GITHUB_USERNAME }} --password-stdin
             
-            docker pull ghcr.io/${{ secrets.ORG_NAME }}/spring-api:latest
+            docker pull ghcr.io/${{ secrets.ORG_NAME }}/spring-batch:latest
             
-            export ORG_NAME=${{ secrets.ORG_NAME }}
+            # rm existing container
+            docker stop spring-batch || true
+            docker rm spring-batch || true
             
-            cd /home/ubuntu/deploy
-            chmod +x deploy.sh
-            ./deploy.sh
+            # run new container
+            docker run -d \
+              --name spring-batch \
+              --env-file .env \
+              -p 8082:8080 \
+              --restart unless-stopped \
+              ghcr.io/${{ secrets.ORG_NAME }}/spring-batch:latest
+            
+            docker image prune -f
