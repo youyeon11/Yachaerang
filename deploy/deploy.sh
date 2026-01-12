@@ -2,8 +2,8 @@
 
 set -e
 
-COMPOSE_FILE="/home/ubuntu/backend/docker/docker-compose.dev.yaml"
-NGINX_CONFIG="/home/ubuntu/backend/deploy/nginx.conf"
+COMPOSE_FILE="/home/ubuntu/deploy/docker-compose.dev.yaml"
+NGINX_CONFIG="/home/ubuntu/deploy/nginx.conf"
 MAX_RETRY=30
 RETRY_INTERVAL=2
 
