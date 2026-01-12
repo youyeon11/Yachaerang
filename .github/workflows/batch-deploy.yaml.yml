@@ -37,14 +37,6 @@ jobs:
           docker build -t ghcr.io/${{ secrets.ORG_NAME }}/spring-batch:latest .
           docker push ghcr.io/${{ secrets.ORG_NAME }}/spring-batch:latest
 
-  transfer:
-    name: Transfer
-    runs-on: ubuntu-22.04
-    needs: build
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
   deploy:
     name: Deploy
     runs-on: ubuntu-22.04
