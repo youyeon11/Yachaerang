@@ -1,4 +1,4 @@
-name: deploy.yaml
+name: Deploy Workflows
 on:
   push:
     branches:
