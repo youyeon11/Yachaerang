@@ -1,4 +1,4 @@
-name: backend-deploy.yaml
+name: Backend Deploy
 on:
   workflow_call:
 jobs:

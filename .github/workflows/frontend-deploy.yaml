@@ -1,4 +1,4 @@
-name: frontend-deploy.yaml
+name: Frontend Deploy
 
 on:
   workflow_call:

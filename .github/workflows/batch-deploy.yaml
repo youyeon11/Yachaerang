@@ -1,4 +1,4 @@
-name: batch-deploy.yaml
+name: Batch Deploy
 on:
   workflow_call:
 
@@ -39,7 +39,6 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-22.04
-    needs: transfer
     steps:
       - name: SSH into EC2 server and Deploy
         uses: appleboy/ssh-action@v1
