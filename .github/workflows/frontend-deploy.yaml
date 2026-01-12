@@ -1,13 +1,7 @@
 name: frontend-deploy.yaml
 
 on:
-  workflow_run:
-    workflows: ['backend-deploy.yaml']
-    types:
-      - completed
-    branches:
-      - main
-  workflow_dispatch:
+  workflow_call:
 
 jobs:
   build:
@@ -25,7 +19,7 @@ jobs:
       - name: Docker Login to GHCR
         run: echo ${{ secrets.YY_GITHUB_PAT }} | docker login ghcr.io -u ${{ secrets.YY_GITHUB_USERNAME }} --password-stdin
 
-      - name: Set up Docker Buildx
+      - name: Set up Docker Build
         uses: docker/setup-buildx-action@v3
 
       - name: Build and Push Docker Image
@@ -44,15 +38,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Transfer docker-compose.dev.yaml file to ec2
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: ./frontend/docker-compose.dev.yaml
-          target: /home/ubuntu/
-
   deploy:
     needs: transfer
     runs-on: ubuntu-latest
@@ -65,8 +50,7 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            mkdir -p /home/ubuntu/frontend
-            cd /home/ubuntu/frontend
+            cd /home/ubuntu/deploy
 
             # GHCR 로그인
             echo "${{ secrets.YY_GITHUB_PAT }}" | docker login ghcr.io -u ${{ secrets.YY_GITHUB_USERNAME }} --password-stdin
@@ -75,8 +59,8 @@ jobs:
             export ORG_NAME=${{ secrets.ORG_NAME }}
 
             # 이미지 pull & 재시작
-            docker compose -f docker-compose.dev.yaml pull
-            docker compose -f docker-compose.dev.yaml up -d --force-recreate
+            docker compose -f docker-compose.dev.yaml pull frontend
+            docker compose -f docker-compose.dev.yaml up -d --force-recreate frontend
 
             # 사용하지 않는 이미지 정리
             docker image prune -f
