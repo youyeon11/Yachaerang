@@ -5,12 +5,12 @@
       <div class="marquee-container">
         <div class="marquee-track">
           <img 
-            :src="'https://yachaerang-s3-bucket.s3.ap-northeast-2.amazonaws.com/images/mock5.png'"
+            :src="'https://yachaerang-s3-bucket.s3.ap-northeast-2.amazonaws.com/images/mock6.png'"
             alt="농촌기사 서비스 미리보기" 
             class="marquee-image" 
           />
           <img 
-            :src="'https://yachaerang-s3-bucket.s3.ap-northeast-2.amazonaws.com/images/mock5.png'"
+            :src="'https://yachaerang-s3-bucket.s3.ap-northeast-2.amazonaws.com/images/mock6-5.png'"
             alt="농촌기사 서비스 미리보기" 
             class="marquee-image" 
           />
