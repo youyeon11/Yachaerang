@@ -1,4 +1,9 @@
 name: Deploy Workflows
+
+permissions:
+  contents: read
+  packages: write
+
 on:
   push:
     branches:
