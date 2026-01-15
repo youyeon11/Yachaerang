@@ -102,7 +102,7 @@ com.yachaerang.batch
 ├── scheduler                             # 스케줄러 (Daily, Monthly, Weekly 등)
 ├── service                               # 비즈니스 서비스 (API 호출, 데이터 집계 등)
 ├── util                                  # 유틸리티 (날짜, 파싱 등)
-└── BatchApplication                      # 배치 애플리케이션 진입점
+└── BatchApplication                     
 ```
 
 - frontend
