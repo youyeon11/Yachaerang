@@ -31,7 +31,6 @@
         FROM daily_price dp
         WHERE YEAR(dp.price_date) = #{targetYear}
         GROUP BY dp.product_code, YEAR(dp.price_date)
-        ORDER BY dp.product_code
     </select>
 
     <!-- 연초 가격 조회 (해당 연도 첫 번째 가격) -->
