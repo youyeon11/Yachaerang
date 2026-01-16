@@ -45,7 +45,7 @@ public class DailyPriceJobConfig {
     private final ProductRepository productRepository;
     private final DailyPriceRepository dailyPriceRepository;
 
-    private static final int CHUNK_SIZE = 100;
+    private static final int CHUNK_SIZE = 500;
     private static final List<String> CATEGORY_CODES = List.of("100", "200", "300", "400", "500", "600");
 
     /**
