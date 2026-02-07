@@ -5,8 +5,8 @@
 ---
 ## CodeCov
 
-# README.md
-[![codecov](https://codecov.io/gh/username/repository/branch/main/graph/badge.svg)](https://codecov.io/gh/youyeon11/Yachaerang)
+[![Backend Coverage](https://codecov.io/gh/youyeon11/Yachaerang/branch/main/graph/badge.svg?flag=backend)](https://codecov.io/gh/youyeon11/Yachaerang)
+[![Batch Coverage](https://codecov.io/gh/youyeon11/Yachaerang/branch/main/graph/badge.svg?flag=batch)](https://codecov.io/gh/youyeon11/Yachaerang)
 
 ---
 
