@@ -1,0 +1,60 @@
+# codecov.yml
+coverage:
+  status:
+    project:
+      default:
+        target: 70%
+        threshold: 1%
+      backend:
+        target: 70%
+        threshold: 1%
+        flags:
+          - backend
+      batch:
+        target: 70%
+        threshold: 1%
+        flags:
+          - batch
+    patch:
+      default:
+        target: 75%
+
+flags:
+  backend:
+    paths:
+      - backend/src/main/java/
+    carryforward: true
+  batch:
+    paths:
+      - batch/src/main/java/
+    carryforward: true
+
+components:
+  backend:
+    flag_regexes:
+      - backend
+    paths:
+      - backend/**
+  batch:
+    flag_regexes:
+      - batch
+    paths:
+      - batch/**
+
+ignore:
+  - "**/*Application*"
+  - "**/config/**"
+  - "**/dto/**"
+  - "**/entity/**"
+  - "**/common/**"
+  - "**/test/**"
+  - "**/*Test*"
+  - "**/*Filter*"
+  - "**/util/**"
+  - "**/exception/**"
+  - "**/response/**"
+
+comment:
+  layout: "header, diff, flags, components, files, footer"
+  behavior: default
+  require_changes: false

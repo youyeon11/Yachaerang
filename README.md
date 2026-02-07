@@ -3,6 +3,12 @@
 농수산물 가격 정보 제공과 농업 도우미 플랫폼 야채랑을 소개합니다.
 
 ---
+## CodeCov
+
+# README.md
+[![codecov](https://codecov.io/gh/username/repository/branch/main/graph/badge.svg)](https://codecov.io/gh/youyeon11/Yachaerang)
+
+---
 
 ## 🥬 프로젝트 소개 🥬
 
